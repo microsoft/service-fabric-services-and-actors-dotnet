@@ -3,6 +3,7 @@
         "accessibilities",
         "ASPDEPR",
         "binlog",
+        "Browsable",
         "cref",
         "DSTS",
         "frontmatter",
@@ -16,7 +17,9 @@
         "paramref",
         "resx",
         "seealso",
+        "toplevel",
         "typeparam",
-        "typeparamref"
+        "typeparamref",
+        "worktree"
     ]
 }

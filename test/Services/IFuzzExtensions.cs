@@ -13,6 +13,9 @@ namespace Microsoft.ServiceFabric.Services
 {
     static class IFuzzExtensions
     {
+        internal static Guid Guid(this IFuzz fuzzy) =>
+            new(fuzzy.Array(fuzzy.Byte, Length.Exactly(16)));
+
         internal static CommunicationListenerInfo CommunicationListenerInfo(this IFuzz fuzzy)
         {
             string name = fuzzy.String();

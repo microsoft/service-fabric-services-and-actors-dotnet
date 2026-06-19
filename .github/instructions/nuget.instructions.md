@@ -29,7 +29,7 @@ Definition of terms:
   Comments are end-of-line to simplify sorting.
   - Keep lines short:
     - Use acronyms for package names: `x.v.a` instead of `xunit.v3.assert`.
-      Most package names already appear in the `.props` file or can be easily determined by `Get-TransitivePackage`.
+      Most package names already appear in the `.props` file or can be easily determined by `Get-Packages`.
     - Combine packages with the same dependency version: `(M, M.B.AI)->4.5.4` instead of `M->4.5.4; M.B.AI->4.5.4`.
     - Use wildcards for package families: `M.*->4.5.4` instead of `(M.B.AI, M.E.DI)->4.5.4`.
   - Explain versions held below latest to maintain SemVer contract for transitive dependencies.
@@ -60,35 +60,37 @@ Definition of terms:
   dotnet nuget why test/Actors 'System.Collections.Immutable' -f net472 # Limit to framework
   ```
 
-- **Use `Get-TransitivePackage` from `eng/NuGetHelpers.ps1` to understand requested versions**.
-  It uses `obj/{ProjectName}/project.assets.json` files to print dependency versions _requested_ by the packages.
+- **Use `Get-Packages` from `eng/NuGetHelpers.ps1` to understand requested versions**.
+  It uses `obj/{ProjectName}/project.assets.json` files to emit one row per parent -> dependency edge with both
+  the constraint string (`RequestedVersion`) and the version NuGet picked (`ResolvedVersion`).
   ```powershell
   dotnet restore # Generates project.assets.json files
   . ./eng/NuGetHelpers.ps1
-  Get-TransitivePackage 'System.Collections.Immutable' # All projects, all frameworks
-  Get-TransitivePackage 'System.Collections.Immutable' -framework 'net472' # Limit to framework
-  Get-TransitivePackage 'System.Collections.Immutable' -project 'Microsoft.ServiceFabric.Actors.Tests' # Limit to project
-  Get-TransitivePackage 'System.Collections.Immutable' | Group-Object RequestedVersion # For further manipulation
-  Get-TransitivePackage 'System.Collections.Immutable' | Format-Table -GroupBy RequestedVersion # For human analysis
+  Get-Packages | Where-Object Package -eq 'System.Collections.Immutable'          # Limit to package
+  Get-Packages | Where-Object Framework -eq 'net472'                              # Limit to framework
+  Get-Packages | Where-Object Project -eq 'Microsoft.ServiceFabric.Actors.Tests'  # Limit to project
+  Get-Packages | Format-Table -AutoSize  # For human analysis
   ```
 
-- **Run `dotnet build -bl` and examine `DoubleWrites` to find dependency conflicts**.
-  Projects in this repo use shared build output and conflicting dependencies can be quickly detected as double writes.
-  - Open the `msbuild.binlog` in the _MSBuild Structured Log Viewer_, and search for `DoubleWrites`.
-  - If present, the `DoubleWrites` section will show `.dll` file paths with package names and conflicting versions.
+- **Use `Get-PackageConflicts` from `eng/NuGetHelpers.ps1` to find dependency conflicts**.
+  ```powershell
+  Get-PackageConflicts | Select-Object Package, RequestedVersion, Framework -Unique # All conflicts
+  ```
+  Alternatively, open `msbuild.binlog` (produced by `dotnet build -bl`) in the _MSBuild Structured Log Viewer_
+  and inspect the synthesized `DoubleWrites` node; it lists `.dll` file paths with conflicting package versions.
 
 ## Rules
 
 - **Check for upgrades whenever the library `version.json` changes**.
   Libraries should use the highest-quality, most secure and performant dependencies available at the time of release.
 - **Upgrade direct dependencies to their latest stable versions within [SemVer](https://semver.org/) constraints**.
-  Libraries should maintain the SemVer contract transitively. Some packages break the SemVer contract. For example, 
+  Libraries should maintain the SemVer contract transitively. Some packages break the SemVer contract. For example,
   `Microsoft.Diagnostics.Tracing.TraceEvent -> System.Collections.Immutable` reference `3.1.12 -> 8.0.0` jumped to `3.2.2 -> 9.0.8`.
   - Upgrade to latest _minor_, SemVer-compatible dependency versions before shipping every _minor_ new version of the libraries.
   - Upgrade to latest _major_ dependency versions before shipping every _major_ new version of the libraries.
 - **Minimize the combined dependency graph for consumers**.
   Libraries cannot be tested with every possible combination of current and future dependencies that may be used by consumers.
-  Minimizing the dependency graph is particularly important for .NET Framework libraries, where failures caused by version 
+  Minimizing the dependency graph is particularly important for .NET Framework libraries, where failures caused by version
   mismatch of strongly-named assemblies are more common than the actual breaking changes.
   - Pin conflicting transitive dependencies to the _higher_ of the conflicting versions, which may not be the _latest_.
   - Don't upgrade transitive pins unless they are vulnerable.

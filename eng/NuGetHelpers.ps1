@@ -39,34 +39,58 @@ function AddNuGetPackageSource([string] $configPath, [string] $key, [string] $pa
     Write-Host "Updated $configPath"
 }
 
-function Get-TransitivePackage([Parameter(Mandatory)] [string] $package, [string] $project, [string] $framework) {
-    [string] $projectPattern = $project ? $project : '*'
-    [string] $pathPattern = "obj\$projectPattern\project.assets.json"
+function Get-Packages {
+    # Emits one row per (project, framework, parent -> dependency) edge found in obj\<Project>\project.assets.json.
+    # RID-qualified targets are skipped because they list the same managed packages as the RID-less target.
+    [string] $pathPattern = 'obj\*\project.assets.json'
     if (-not (Test-Path $pathPattern)) {
         Write-Error "No project.assets.json files match '$pathPattern'. Run 'dotnet restore' first."
         return
     }
     Get-ChildItem $pathPattern | ForEach-Object {
-        [string] $projectName = ($_.FullName -replace '.*\\obj\\(.+)\\project\.assets\.json', '$1')
+        [string] $proj = ($_.FullName -replace '.*\\obj\\(.+)\\project\.assets\.json', '$1')
         [hashtable] $assets = Get-Content $_ -Raw | ConvertFrom-Json -AsHashtable
         foreach ($target in $assets.targets.Keys) {
+            if ($target -match '/') { continue }
             [string] $tfm = $target `
                 -replace '\.NETFramework,Version=v(\d+)\.(\d+)\.?(\d*)', 'net$1$2$3' `
                 -replace '\.NETStandard,Version=v(\d+\.\d+)', 'netstandard$1'
-            if ($framework -and $tfm -ne $framework) { continue }
             [hashtable] $packages = $assets.targets[$target]
+            # Map "<packageId>" -> resolved "<version>" within this (project, framework) target
+            $resolved = @{}
+            foreach ($id in $packages.Keys) {
+                if ($packages[$id].type -ne 'package') { continue }
+                [string] $name, [string] $version = $id -split '/', 2
+                $resolved[$name] = $version
+            }
             foreach ($parentId in $packages.Keys) {
-                [hashtable] $parentData = $packages[$parentId]
-                [hashtable] $dependencies = $parentData.dependencies
-                if ($dependencies -and $dependencies.ContainsKey($package)) {
+                [hashtable] $deps = $packages[$parentId].dependencies
+                if (-not $deps) { continue }
+                foreach ($depId in $deps.Keys) {
+                    if (-not $resolved.ContainsKey($depId)) { continue }
                     [PSCustomObject] @{
-                        Project = $projectName
+                        Project = $proj
                         Framework = $tfm
-                        RequestedVersion = $dependencies[$package]
+                        Package = $depId
+                        ResolvedVersion = $resolved[$depId]
+                        RequestedVersion = $deps[$depId]
                         RequestedBy = $parentId
                     }
                 }
             }
         }
-    } | Sort-Object Project, Framework, RequestedBy -Unique
+    }
+}
+
+function Get-PackageConflicts {
+    # Detect packages resolved to multiple versions within the same target framework, and emit one
+    # row per requester. Such conflicts cause double writes in the shared output directory
+    # bin\<Configuration>\<TargetFramework>\.
+    # See .github/instructions/nuget.instructions.md for why this repo uses a shared output directory.
+    Get-Packages `
+        | Group-Object Framework, Package `
+        | Where-Object { ($_.Group.ResolvedVersion | Sort-Object -Unique).Count -gt 1 } `
+        | ForEach-Object { $_.Group } `
+        | Select-Object Framework, Package, RequestedVersion, RequestedBy, Project `
+        | Sort-Object Framework, Package, RequestedVersion, RequestedBy, Project -Unique
 }

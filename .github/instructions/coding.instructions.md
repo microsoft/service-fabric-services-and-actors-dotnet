@@ -13,6 +13,11 @@ applyTo: "**"
 
 - Read and follow the guidelines codified in the `.editorconfig` before writing or reviewing code.
 
+## Limit scope of changes
+
+- Apply coding style rules to new code and code being substantially modified, not to every file touched.
+- When making a targeted change (e.g. adding a header, fixing a bug), don't reformat the surrounding code.
+
 ## Make the code as informative and intuitive as possible
 
 - Folder structure within a project should match the namespace or module structure.
@@ -25,6 +30,6 @@ applyTo: "**"
 - Shorten parameter and variable names to the minimum needed to understand them in context.
 - Don't add comments re-stating the information already available from the declaration.
 - Before adding comments, try to make them unnecessary by breaking up the code into multiple functions, classes, etc.
-- Wrap text lines at the first word boundary after column 120. Lines will typically be 121–130 characters.
+- Wrap text lines at the first word boundary after column 120. Typical lines will be longer.
 - Don't create a container (namespace, folder, section) until you have 3 or more items to justify its overhead.
 
