@@ -49,8 +49,6 @@ namespace Microsoft.ServiceFabric.Common
         /// Service Fabric cluster.</param>
         /// <param name="scalingPolicies">Scaling policies for this service.</param>
         /// <param name="serviceTags">Service tags collections for placement and running of the service.</param>
-        /// <param name="notificationTags">List of notification tags associated with the service used for notification
-        /// filtering.</param>
         /// <param name="flags">Flags indicating whether other properties are set. Each of the associated properties
         /// corresponds to a flag, specified below, which, if set, indicate that the property is specified.
         /// This property can be a combination of those flags obtained using bitwise 'OR' operator.
@@ -99,7 +97,6 @@ namespace Microsoft.ServiceFabric.Common
             string serviceDnsName = default(string),
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
             ServiceTags serviceTags = default(ServiceTags),
-            IEnumerable<string> notificationTags = default(IEnumerable<string>),
             int? flags = default(int?),
             long? replicaRestartWaitDurationSeconds = default(long?),
             long? quorumLossWaitDurationSeconds = default(long?),
@@ -125,8 +122,7 @@ namespace Microsoft.ServiceFabric.Common
                 servicePackageActivationMode,
                 serviceDnsName,
                 scalingPolicies,
-                serviceTags,
-                notificationTags)
+                serviceTags)
         {
             targetReplicaSetSize.ThrowIfNull(nameof(targetReplicaSetSize));
             minReplicaSetSize.ThrowIfNull(nameof(minReplicaSetSize));

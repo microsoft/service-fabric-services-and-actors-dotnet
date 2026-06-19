@@ -48,7 +48,6 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var serviceDnsName = default(string);
             var scalingPolicies = default(IEnumerable<ScalingPolicyDescription>);
             var serviceTags = default(ServiceTags);
-            var notificationTags = default(IEnumerable<string>);
             var instanceCount = default(int?);
             var minInstanceCount = default(int?);
             var minInstancePercentage = default(int?);
@@ -120,10 +119,6 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     serviceTags = ServiceTagsConverter.Deserialize(reader);
                 }
-                else if (string.Compare("NotificationTags", propName, StringComparison.OrdinalIgnoreCase) == 0)
-                {
-                    notificationTags = reader.ReadList(JsonReaderExtensions.ReadValueAsString);
-                }
                 else if (string.Compare("InstanceCount", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     instanceCount = reader.ReadValueAsInt();
@@ -175,7 +170,6 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 serviceDnsName: serviceDnsName,
                 scalingPolicies: scalingPolicies,
                 serviceTags: serviceTags,
-                notificationTags: notificationTags,
                 instanceCount: instanceCount,
                 minInstanceCount: minInstanceCount,
                 minInstancePercentage: minInstancePercentage,
@@ -249,11 +243,6 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             if (obj.ServiceTags != null)
             {
                 writer.WriteProperty(obj.ServiceTags, "ServiceTags", ServiceTagsConverter.Serialize);
-            }
-
-            if (obj.NotificationTags != null)
-            {
-                writer.WriteEnumerableProperty(obj.NotificationTags, "NotificationTags", (w, v) => writer.WriteStringValue(v));
             }
 
             if (obj.MinInstanceCount != null)

@@ -7354,10 +7354,10 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="24">
-                <maml:name>NotificationTags</maml:name>
+                <maml:name>ServiceTagsValue</maml:name>
                 <maml:Description>
                     <maml:para>
-                    List of notification tags associated with the service used for notification filtering.
+                    
                     </maml:para>
                 </maml:Description>
             <command:parameterValue required="false">IEnumerable&lt;string&gt;</command:parameterValue>
@@ -7874,7 +7874,7 @@
                     - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
                     - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
                     - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
-                    - NotificationTags - Indicates the NotificationTags property is set. The value is 4194304.
+                    - NotificationTags - Indicates the ServiceTags ServiceTags (notification tags) property is set. The value is 134217728.
                     
                     </maml:para>
                 </maml:Description>
@@ -7995,10 +7995,10 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="11">
-                <maml:name>NotificationTags</maml:name>
+                <maml:name>ServiceTagsValue</maml:name>
                 <maml:Description>
                     <maml:para>
-                    List of notification tags for this service. Specifying this property replaces the existing notification tags. Specifying an empty list clears existing notification tags.
+                    
                     </maml:para>
                 </maml:Description>
             <command:parameterValue required="false">IEnumerable&lt;string&gt;</command:parameterValue>

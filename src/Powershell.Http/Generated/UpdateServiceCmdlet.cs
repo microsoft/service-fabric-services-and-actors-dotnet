@@ -74,7 +74,8 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
         /// - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
         /// - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
-        /// - NotificationTags - Indicates the NotificationTags property is set. The value is 4194304.
+        /// - NotificationTags - Indicates the ServiceTags ServiceTags (notification tags) property is set. The value is
+        /// 134217728.
         /// </summary>
         [Parameter(Mandatory = false, Position = 3)]
         public string Flags { get; set; }
@@ -138,11 +139,9 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public IEnumerable<string> TagsRequiredToRun { get; set; }
 
         /// <summary>
-        /// Gets or sets NotificationTags. List of notification tags for this service. Specifying this property replaces the
-        /// existing notification tags. Specifying an empty list clears existing notification tags.
         /// </summary>
         [Parameter(Mandatory = false, Position = 13)]
-        public IEnumerable<string> NotificationTags { get; set; }
+        public IEnumerable<string> ServiceTagsValue { get; set; }
 
         /// <summary>
         /// Gets or sets NamesToAdd. Dynamic array for the names of the partitions to add.
@@ -306,6 +305,12 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     namesToRemove: this.NamesToRemove);
             }
 
+            // Hand-coded to avoid compiler errors in generated code
+            var serviceTags = new ServiceTags(
+                tagsRequiredToPlace: this.TagsRequiredToPlace,
+                tagsRequiredToRun: this.TagsRequiredToRun,
+                serviceTagsValue: this.ServiceTagsValue);
+
             ServiceUpdateDescription serviceUpdateDescription = null;
             if (this.Stateful.IsPresent)
             {
@@ -318,8 +323,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     defaultMoveCost: this.DefaultMoveCost,
                     scalingPolicies: this.ScalingPolicies,
                     serviceDnsName: this.ServiceDnsName,
-                    serviceTags: this.ServiceTags,
-                    notificationTags: this.NotificationTags,
+                    serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
                     repartitionDescription: repartitionSchemeDescription,
                     targetReplicaSetSize: this.TargetReplicaSetSize,
                     minReplicaSetSize: this.MinReplicaSetSize,
@@ -343,8 +347,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     defaultMoveCost: this.DefaultMoveCost,
                     scalingPolicies: this.ScalingPolicies,
                     serviceDnsName: this.ServiceDnsName,
-                    serviceTags: this.ServiceTags,
-                    notificationTags: this.NotificationTags,
+                    serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
                     repartitionDescription: repartitionSchemeDescription,
                     instanceCount: this.InstanceCount,
                     minInstanceCount: this.MinInstanceCount,
@@ -353,10 +356,6 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     instanceLifecycleDescription: this.InstanceLifecycleDescription,
                     instanceRestartWaitDurationSeconds: this.InstanceRestartWaitDurationSeconds);
             }
-
-            var serviceTags = new ServiceTags(
-            tagsRequiredToPlace: this.TagsRequiredToPlace,
-            tagsRequiredToRun: this.TagsRequiredToRun);
 
             this.ServiceFabricClient.Services.UpdateServiceAsync(
                 serviceId: this.ServiceId,

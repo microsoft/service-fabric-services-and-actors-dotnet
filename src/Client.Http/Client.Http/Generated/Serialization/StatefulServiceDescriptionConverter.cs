@@ -48,7 +48,6 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var serviceDnsName = default(string);
             var scalingPolicies = default(IEnumerable<ScalingPolicyDescription>);
             var serviceTags = default(ServiceTags);
-            var notificationTags = default(IEnumerable<string>);
             var targetReplicaSetSize = default(int?);
             var minReplicaSetSize = default(int?);
             var hasPersistedState = default(bool?);
@@ -125,10 +124,6 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     serviceTags = ServiceTagsConverter.Deserialize(reader);
                 }
-                else if (string.Compare("NotificationTags", propName, StringComparison.OrdinalIgnoreCase) == 0)
-                {
-                    notificationTags = reader.ReadList(JsonReaderExtensions.ReadValueAsString);
-                }
                 else if (string.Compare("TargetReplicaSetSize", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     targetReplicaSetSize = reader.ReadValueAsInt();
@@ -200,7 +195,6 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 serviceDnsName: serviceDnsName,
                 scalingPolicies: scalingPolicies,
                 serviceTags: serviceTags,
-                notificationTags: notificationTags,
                 targetReplicaSetSize: targetReplicaSetSize,
                 minReplicaSetSize: minReplicaSetSize,
                 hasPersistedState: hasPersistedState,
@@ -281,11 +275,6 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             if (obj.ServiceTags != null)
             {
                 writer.WriteProperty(obj.ServiceTags, "ServiceTags", ServiceTagsConverter.Serialize);
-            }
-
-            if (obj.NotificationTags != null)
-            {
-                writer.WriteEnumerableProperty(obj.NotificationTags, "NotificationTags", (w, v) => writer.WriteStringValue(v));
             }
 
             if (obj.Flags != null)

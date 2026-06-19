@@ -229,11 +229,9 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public IEnumerable<string> TagsRequiredToRun { get; set; }
 
         /// <summary>
-        /// Gets or sets NotificationTags. List of notification tags associated with the service used for notification
-        /// filtering.
         /// </summary>
         [Parameter(Mandatory = false, Position = 26)]
-        public IEnumerable<string> NotificationTags { get; set; }
+        public IEnumerable<string> ServiceTagsValue { get; set; }
 
         /// <summary>
         /// Gets or sets Flags. Flags indicating whether other properties are set. Each of the associated properties
@@ -426,6 +424,12 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     highKey: this.HighKey);
             }
 
+            // Hand-coded to avoid compiler errors in generated code
+            var serviceTags = new ServiceTags(
+                tagsRequiredToPlace: this.TagsRequiredToPlace,
+                tagsRequiredToRun: this.TagsRequiredToRun,
+                serviceTagsValue: this.ServiceTagsValue);
+
             ServiceDescription serviceDescription = null;
             if (this.Stateful.IsPresent)
             {
@@ -447,8 +451,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     servicePackageActivationMode: this.ServicePackageActivationMode,
                     serviceDnsName: this.ServiceDnsName,
                     scalingPolicies: this.ScalingPolicies,
-                    serviceTags: this.ServiceTags,
-                    notificationTags: this.NotificationTags,
+                    serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
                     flags: this.Flags,
                     replicaRestartWaitDurationSeconds: this.ReplicaRestartWaitDurationSeconds,
                     quorumLossWaitDurationSeconds: this.QuorumLossWaitDurationSeconds,
@@ -477,8 +480,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     servicePackageActivationMode: this.ServicePackageActivationMode,
                     serviceDnsName: this.ServiceDnsName,
                     scalingPolicies: this.ScalingPolicies,
-                    serviceTags: this.ServiceTags,
-                    notificationTags: this.NotificationTags,
+                    serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
                     minInstanceCount: this.MinInstanceCount,
                     minInstancePercentage: this.MinInstancePercentage,
                     flags: this.Flags,
@@ -486,10 +488,6 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     instanceLifecycleDescription: this.InstanceLifecycleDescription,
                     instanceRestartWaitDurationSeconds: this.InstanceRestartWaitDurationSeconds);
             }
-
-            var serviceTags = new ServiceTags(
-            tagsRequiredToPlace: this.TagsRequiredToPlace,
-            tagsRequiredToRun: this.TagsRequiredToRun);
 
             this.ServiceFabricClient.Services.CreateServiceAsync(
                 applicationId: this.ApplicationId,

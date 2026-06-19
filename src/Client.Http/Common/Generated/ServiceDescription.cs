@@ -46,8 +46,6 @@ namespace Microsoft.ServiceFabric.Common
         /// Service Fabric cluster.</param>
         /// <param name="scalingPolicies">Scaling policies for this service.</param>
         /// <param name="serviceTags">Service tags collections for placement and running of the service.</param>
-        /// <param name="notificationTags">List of notification tags associated with the service used for notification
-        /// filtering.</param>
         protected ServiceDescription(
             ServiceName serviceName,
             string serviceTypeName,
@@ -64,8 +62,7 @@ namespace Microsoft.ServiceFabric.Common
             ServicePackageActivationMode? servicePackageActivationMode = default(ServicePackageActivationMode?),
             string serviceDnsName = default(string),
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
-            ServiceTags serviceTags = default(ServiceTags),
-            IEnumerable<string> notificationTags = default(IEnumerable<string>))
+            ServiceTags serviceTags = default(ServiceTags))
         {
             serviceName.ThrowIfNull(nameof(serviceName));
             serviceTypeName.ThrowIfNull(nameof(serviceTypeName));
@@ -87,7 +84,6 @@ namespace Microsoft.ServiceFabric.Common
             this.ServiceDnsName = serviceDnsName;
             this.ScalingPolicies = scalingPolicies;
             this.ServiceTags = serviceTags;
-            this.NotificationTags = notificationTags;
         }
 
         /// <summary>
@@ -173,11 +169,6 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets service tags collections for placement and running of the service.
         /// </summary>
         public ServiceTags ServiceTags { get; }
-
-        /// <summary>
-        /// Gets list of notification tags associated with the service used for notification filtering.
-        /// </summary>
-        public IEnumerable<string> NotificationTags { get; }
 
         /// <summary>
         /// Gets the kind of service (Stateless or Stateful).
