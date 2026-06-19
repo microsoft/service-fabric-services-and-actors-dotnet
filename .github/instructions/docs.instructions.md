@@ -153,7 +153,17 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 
 - Use `<exception cref="...">` to document exceptions thrown by constructors, properties, indexers, methods, operators, and events.
 - Document all exceptions thrown directly by the member.
-- For exceptions thrown by nested members, document only the exceptions users are most likely to encounter.
+- For exceptions thrown by the callees of the member
+  - Document the API-level exceptions users are likely to encounter. E.g. a member passing an argument to a callee that
+    validates it and throws `ArgumentNullException` should have it documented.
+  - Don't document the low-level implementation exceptions that can be thrown by callees. E.g. don't document `ArithmeticException`
+    or its descendants.
+  - Create `// TODO: <exception cref="{ExpectedException}">...</exception>` for missing validations that allow low-level
+    exceptions to escape.
+- Sort exception elements _alphabetically_ to reduce future merge conflicts.
+  Ideally, each exception doc fits on a single line so users can re-sort them quickly using their editor.
+  - Place `<exception cref="...">` elements first.
+  - Place `<inheritdoc path="/exception...']"/>` elements below.
 - Don't document exceptions without evidence they're are actually thrown. Symmetry with other APIs is irrelevant and doesn't
   justify lack of evidence.
 - Describe the condition under which it's thrown.
