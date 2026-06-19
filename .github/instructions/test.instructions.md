@@ -10,7 +10,7 @@ applyTo: "test/**/*.cs"
 
 ## Terminology
 
-- **SUT** means system under test. In C#, it's a single type type with behavior, typically a `class` or a `struct`.
+- **SUT** means system under test. In C#, it's a single type with behavior, typically a `class` or a `struct`.
 - **Target** means _member of the SUT_. In C#, it's a single constructor, method, property or event.
 
 ## Test Projects
