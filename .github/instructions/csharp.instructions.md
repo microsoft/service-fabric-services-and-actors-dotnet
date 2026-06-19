@@ -167,6 +167,14 @@ applyTo: "**/*.cs"
   }
   ```
 
+- **Don't use conditional `#if` compilation when APIs missing on older .NET runtimes can be polyfilled**.
+  - _Use official polyfill packages when they are available_. E.g. reference `Microsoft.Bcl.Memory` to use C# range syntax
+   `[1..^0]` in projects targeting `net462` where `System.Range` and `System.Index` aren't available.
+  - _Create custom polyfill types when official packages aren't available_. E.g. polyfill the `NotNullIfNotNullAttribute`
+    to use nullable annotations in projects targeting `netstandard2.0` where this attribute is not available.
+  - _Keep custom polyfill types internal_ - don't inject polyfills into the public API where they can produce conflicts
+    requiring assembly aliases to resolve.
+
 ## Reduce potential merge conflicts
 
 - Keep package, project and assembly references in separate groups, sorted alphabetically in the project and solution files.
