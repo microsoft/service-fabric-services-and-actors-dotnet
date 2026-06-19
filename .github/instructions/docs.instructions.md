@@ -8,7 +8,7 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 
 # Documentation guidance
 
-- Write for an intermediate to advanced C# developers.
+- Write for intermediate to advanced C# developers.
 - Write documentation for the users, not the maintainers.
 - Make documentation as concise as possible without losing information.
 - Change phrasing to drop redundant words, for example `Returns red apples.` over `Returns apples of red color.`
