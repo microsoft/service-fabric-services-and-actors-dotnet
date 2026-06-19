@@ -21,7 +21,7 @@ tools: [execute, read, search, web]
 
 - **Commit each file you modified**.
 
-  - _Do not combine files_. Each file must be in a separate commit for the `--autosquash` to work reliably later. 
+  - _Do not combine files_. Each file must be in a separate commit for the `--autosquash` to work reliably later.
 
   - `git add -- {file path}`. Where `{file path}` is relative to the repo root, forward slashes.
 
