@@ -48,6 +48,15 @@ applyTo: "test/**/*.cs"
   var correct = string.Join(",", fuzzy.Array(fuzzy.Int32).Select(_ => _.ToString())); // ✅ Fuzzy number of elements
   ```
 
+- **Don't re-implement natively supported types and constraints**.
+  - _Don't re-implement fuzzy `Dictionary<,>`_
+    ```csharp
+    Dictionary<string, string> wrong = []; // ❌ Most dictionaries can be created by fuzzy.Dictionary, without custom code
+    foreach (string value in fuzzy.Array(fuzzy.String))
+      wrong[fuzzy.String().LettersOrDigits()] = value;
+    Dictionary<string, string> correct = fuzzy.Dictionary(() => fuzzy.String().LettersOrDigits(), fuzzy.String); // ✅
+    ```
+
 - Report unexpected `Fuzzy` errors to the user.
   - Ask them to submit an issue to the `olegsych/fuzzy` repo on GitHub.
   - When implementing workarounds, add TODO comments with the explanation, package version and GitHub issue link.
@@ -75,6 +84,7 @@ DateTime maximum = fuzzy.DateTime().Maximum(DateTime.Now);
 // Strings
 string s = fuzzy.String();
 string alphanumeric = fuzzy.String().LettersOrDigits();
+string constrained = fuzzy.String(Length.Between(41, 43));
 
 // Other types may have unique constraints
 Uri uri = fuzzy.Uri();
@@ -82,11 +92,28 @@ DateTime dt = fuzzy.DateTime().Between(DateTime.Now, TimeSpan.FromDays(2));
 TimeSpan ts = fuzzy.TimeSpan().Seconds();
 MyEnum e = fuzzy.Enum<MyEnum>();
 
-// Collections can be constrained to a desirable size range
-byte[] bytes = fuzzy.Array(fuzzy.Byte);
-byte[] sized = fuzzy.Array(fuzzy.Byte, Length.Between(10, 20));
+// Collections
+byte[] array = fuzzy.Array(fuzzy.Byte);
 List<string> list = fuzzy.List(fuzzy.String);
+Dictionary<int, string> dictionary = fuzzy.Dictionary(fuzzy.Int32, fuzzy.String);
+
+// Collections can be customized by lambdas
+byte[] array = fuzzy.Array(() => fuzzy.String().LettersOrDigits());
+List<string> list = fuzzy.List(() => fuzzy.String(Length.Between(41, 43)));
+int tick = Environment.TickCount;
+Dictionary<int, string> dictionary = fuzzy.Dictionary(() => tick++, key => $"value{key}");
+
+// Collections can be constrained to a desirable size range by the optional Length/Count arguments
+byte[] sized = fuzzy.Array(fuzzy.Byte, Length.Between(10, 20));
 List<string> exact = fuzzy.List(fuzzy.String, Count.Exactly(3));
+Dictionary<int, string> values = fuzzy.Dictionary(fuzzy.Int32, fuzzy.String, Count.Between(41, 43));
+
+// Collection items can be fuzzily selected from an existing collection, but the size of fuzzy collection is generated independently.
+IEnumerable<int> existing = new[] { 41, 42, 43, 44, 45 };
+int[] array = fuzzy.Array(existing, Length.Between(2, 4));
+List<int> list = fuzzy.List(existing, Count.Between(2, 4));
+Dictionary<int, string> existing = [[41] = "foo", [42] = "bar", [43] = "baz"];
+Dictionary<int, string> dictionary = fuzzy.Dictionary(existing, Count.Between(2, 3));
 
 // Pick from existing collection
 string element = fuzzy.Element(enumerable);
