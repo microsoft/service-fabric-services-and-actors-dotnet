@@ -74,8 +74,8 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
         /// - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
         /// - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
-        /// - NotificationTags - Indicates the ServiceTags ServiceTags (notification tags) property is set. The value is
-        /// 134217728.
+        /// - ServiceTags - Indicates the ServiceTags (the per-service tag list used for notification filtering) property is
+        /// set. The value is 134217728.
         /// </summary>
         [Parameter(Mandatory = false, Position = 3)]
         public string Flags { get; set; }

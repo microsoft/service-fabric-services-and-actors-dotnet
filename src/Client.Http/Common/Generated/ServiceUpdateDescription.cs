@@ -45,8 +45,8 @@ namespace Microsoft.ServiceFabric.Common
         /// - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
         /// - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
         /// - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
-        /// - NotificationTags - Indicates the ServiceTags ServiceTags (notification tags) property is set. The value is
-        /// 134217728.
+        /// - ServiceTags - Indicates the ServiceTags (the per-service tag list used for notification filtering) property is
+        /// set. The value is 134217728.
         /// </param>
         /// <param name="placementConstraints">The placement constraints as a string. Placement constraints are boolean
         /// expressions on node properties and allow for restricting a service to particular nodes based on the service
@@ -120,8 +120,8 @@ namespace Microsoft.ServiceFabric.Common
         /// - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
         /// - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
         /// - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
-        /// - NotificationTags - Indicates the ServiceTags ServiceTags (notification tags) property is set. The value is
-        /// 134217728.
+        /// - ServiceTags - Indicates the ServiceTags (the per-service tag list used for notification filtering) property is
+        /// set. The value is 134217728.
         /// </summary>
         public string Flags { get; }
 
