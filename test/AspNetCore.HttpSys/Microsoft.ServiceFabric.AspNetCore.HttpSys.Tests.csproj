@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Microsoft.ServiceFabric.Services.Communication.AspNetCore</RootNamespace>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
+  <PropertyGroup>
+    <!-- Continue IWebHost support until it's removed from ASP.NET Core https://aka.ms/aspnet/deprecate/008 -->
+    <NoWarn Condition="'$(TargetFramework)' == 'net10.0'">$(NoWarn);ASPDEPR008</NoWarn>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Fuzzy" />
+    <PackageReference Include="Inspector" />
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AspNetCore.HttpSys\Microsoft.ServiceFabric.AspNetCore.HttpSys.csproj" />
+    <ProjectReference Include="..\TestFramework\Microsoft.ServiceFabric.TestFramework.csproj" />
+  </ItemGroup>
+</Project>

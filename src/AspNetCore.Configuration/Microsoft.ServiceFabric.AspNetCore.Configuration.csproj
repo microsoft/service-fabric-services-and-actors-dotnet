@@ -10,6 +10,7 @@
     <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
     <ProjectReference Include="..\Services\Microsoft.ServiceFabric.Services.csproj" />
   </ItemGroup>
   <ItemGroup>

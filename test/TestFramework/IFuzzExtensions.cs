@@ -1,5 +1,6 @@
 using System;
 using System.Fabric;
+using System.Fabric.Description;
 using System.Numerics;
 using Fuzzy;
 using Moq;
@@ -13,6 +14,10 @@ namespace Microsoft.ServiceFabric
             var result = new Mock<ICodePackageActivationContext>();
             result.Setup(_ => _.ApplicationName).Returns(fuzzy.String());
             result.Setup(_ => _.ApplicationTypeName).Returns(fuzzy.String());
+
+            StubKeyedCollection<string, EndpointResourceDescription> endpoints = new(_ => _.Name);
+            _ = result.Setup(x => x.GetEndpoints()).Returns(endpoints);
+            _ = result.Setup(y => y.GetEndpoint(It.IsAny<string>())).Returns<string>(name => endpoints[name]);
             return result.Object;
         }
 

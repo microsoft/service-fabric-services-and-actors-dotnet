@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <RootNamespace>Microsoft.ServiceFabric.Services.Communication.AspNetCore</RootNamespace>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
@@ -11,17 +13,19 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-    <PackageReference Include="Microsoft.Extensions.Logging.Console"/>
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Fuzzy" />
+    <PackageReference Include="Inspector" />
+    <PackageReference Include="Microsoft.Bcl.Memory" Condition="'$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'net8.0'" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
-    <PackageReference Include="Moq"/>
-    <PackageReference Include="xunit.v3"/>
+    <PackageReference Include="Moq" />
+    <PackageReference Include="xunit.v3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AspNetCore.Configuration\Microsoft.ServiceFabric.AspNetCore.Configuration.csproj" />
-    <ProjectReference Include="..\..\src\AspNetCore.HttpSys\Microsoft.ServiceFabric.AspNetCore.HttpSys.csproj" />
-    <ProjectReference Include="..\..\src\AspNetCore.Kestrel\Microsoft.ServiceFabric.AspNetCore.Kestrel.csproj" />
+    <ProjectReference Include="..\..\src\AspNetCore\Microsoft.ServiceFabric.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Services\Microsoft.ServiceFabric.Services.csproj" />
+    <ProjectReference Include="..\TestFramework\Microsoft.ServiceFabric.TestFramework.csproj" />
   </ItemGroup>
 </Project>

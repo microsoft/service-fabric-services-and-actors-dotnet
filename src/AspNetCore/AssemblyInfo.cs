@@ -7,3 +7,5 @@ using System.Runtime.CompilerServices;
 using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.AspNetCore.Tests" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.AspNetCore.HttpSys.Tests" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.AspNetCore.Kestrel.Tests" + PublicKey)]

@@ -1,0 +1,26 @@
+#### ❓ Moq — `AppendsUrlSuffixConfiguredDuringBuild` is missing the complementary `It.IsAny` `Verify`
+*(reported by opus; gpt agreed; gemini disagreed; opus insisted on cross-check — flagged for human review due to disagreement)*
+
+At [test/AspNetCore/GenericHostCommunicationListenerTest.cs](test/AspNetCore/GenericHostCommunicationListenerTest.cs#L302) the test asserts `build.Verify(_ => _(listenerUrl, listener), Times.Once())` but does not pair it with `build.Verify(_ => _(It.IsAny<string>(), It.IsAny<AspNetCoreCommunicationListener>()), Times.Once())`. Other tests in this class (`InvokesBuildWithListenerUrlAndListener` at [test/AspNetCore/GenericHostCommunicationListenerTest.cs](test/AspNetCore/GenericHostCommunicationListenerTest.cs#L168), `Abort.DoesNotInvokeHostBeforeOpenAsync`, `CloseAsync.DoesNotInvokeHostBeforeOpenAsync`) consistently include the broad verify. Per [.github/instructions/moq.instructions.md](.github/instructions/moq.instructions.md#L117): "Use `It.IsAny()` in `.Verify(.., Times.Once)` rather than specific arguments to verify that dependency is _not called_ with unexpected arguments."
+
+Cross-check:
+- **gpt: Agree** — The current verify proves the expected call occurred but doesn''t rule out an extra `build` call with different arguments. The broad `Times.Once` verify catches the regression class this rule exists for, and is especially relevant here since the test''s purpose is to guard `UrlSuffix` being read at the wrong time. Notes the sibling `WebHostCommunicationListenerTest.AppendsUrlSuffixConfiguredDuringBuild` has the same gap.
+- **gemini: Disagree** — Claims the quoted rule is fabricated and not in `moq.instructions.md`; argues there''s no repository-wide rule requiring duplication for every sequence.
+- **opus: Insist** — The cited text is verbatim in [.github/instructions/moq.instructions.md](.github/instructions/moq.instructions.md#L117). The setup matches `It.IsAny`, so any call with wrong arguments would still succeed and return `buildHost`. The single argument-specific verify does not rule out an extra call with different arguments — exactly the regression class this rule guards against, and doubly relevant here because the test''s stated purpose is to guard against `UrlSuffix` being captured at the wrong time.
+
+Human reviewer should verify whether the cited line exists in `moq.instructions.md` and decide whether to apply the fix (and to the sibling `WebHostCommunicationListenerTest`).
+
+#### ❓ `cancellation` field placement diverges from sibling
+
+*Reported by `opus`, cross-check split: `gpt` Agreed, `gemini` Disagreed. `opus` Insisted after feedback — escalated to ❓ Needs Human Review.*
+
+[test/AspNetCore/GenericHostCommunicationListenerTest.cs#L30](test/AspNetCore/GenericHostCommunicationListenerTest.cs#L30) declares `readonly CancellationToken cancellation = TestContext.Current.CancellationToken;` in the base class, but the `Constructor` nested class never uses it. Sibling [WebHostCommunicationListenerTest.cs#L75](test/AspNetCore/WebHostCommunicationListenerTest.cs#L75) and [#L169](test/AspNetCore/WebHostCommunicationListenerTest.cs#L169) declare it per nested class and use `CancellationToken.None` in `Abort` arrange calls.
+
+**Cross-check responses:**
+- `gpt` (Agree): "The test guidance says method parameter fields belong in the nested test classes at [test.instructions.md#L219](.github/instructions/test.instructions.md#L219), while base fields are primarily for the SUT and constructor parameters at [#L149](.github/instructions/test.instructions.md#L149). ... Abort arrange calls can use `CancellationToken.None` as the sibling does."
+- `gemini` (Disagree): "`cancellation` is used broadly across three nested classes (`Abort`, `CloseAsync`, `OpenAsync`). Moving the field down would introduce unnecessary boilerplate duplication. ... [test.instructions.md#L494-L495](.github/instructions/test.instructions.md#L494): ''Don''''t create tests for consistency or structural symmetry.''"
+
+**`opus` Insist after feedback:**
+> The test guidelines ("Create fields for method parameters in the nested test classes") are explicit: method-parameter fields belong in the nested class that exercises that method, while base-class fields are reserved for the `sut` and constructor parameters. `cancellation` is a parameter passed to `OpenAsync`/`CloseAsync` — so the base class is the wrong scope by rule, not by aesthetics. The base class in [GenericHostCommunicationListenerTest.cs#L20-L31](test/AspNetCore/GenericHostCommunicationListenerTest.cs#L20) already separates the `// Constructor parameters` block; `cancellation` sits below that block among fields that should live in nested classes. Gemini''s "no structural symmetry" rule is about not inventing tests to mirror an API shape — here the question is field placement within an established fixture pattern, governed by a different, explicit rule. `Abort` doesn''t actually need a `cancellation` field; its arrange calls can use `CancellationToken.None`, reducing the moves to two nested classes.
+
+**Human reviewer should decide:** whether the explicit "method-parameter fields belong in the nested test classes" rule applies to a token used by three of four nested classes, or whether the broad usage justifies keeping it in the base fixture.

@@ -29,6 +29,9 @@
     <Project Path="test/Actors.Integration/Microsoft.ServiceFabric.Actors.IntegrationTests.csproj" />
     <Project Path="test/Actors.Wcf/Microsoft.ServiceFabric.Actors.Wcf.Tests.csproj" />
     <Project Path="test/Actors/Microsoft.ServiceFabric.Actors.Tests.csproj" />
+    <Project Path="test/AspNetCore.Configuration/Microsoft.ServiceFabric.AspNetCore.Configuration.Tests.csproj" />
+    <Project Path="test/AspNetCore.HttpSys/Microsoft.ServiceFabric.AspNetCore.HttpSys.Tests.csproj" />
+    <Project Path="test/AspNetCore.Kestrel/Microsoft.ServiceFabric.AspNetCore.Kestrel.Tests.csproj" />
     <Project Path="test/AspNetCore/Microsoft.ServiceFabric.AspNetCore.Tests.csproj" />
     <Project Path="test/Data.Interfaces.V2/Microsoft.ServiceFabric.Data.Interfaces.V2.Tests.csproj" />
     <Project Path="test/Data.Interfaces/Microsoft.ServiceFabric.Data.Interfaces.Tests.csproj" />
