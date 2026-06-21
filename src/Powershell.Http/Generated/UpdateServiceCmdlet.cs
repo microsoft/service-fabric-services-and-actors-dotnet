@@ -141,7 +141,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// <summary>
         /// </summary>
         [Parameter(Mandatory = false, Position = 13)]
-        public IEnumerable<string> ServiceTagsValue { get; set; }
+        public IEnumerable<string> Tags { get; set; }
 
         /// <summary>
         /// Gets or sets NamesToAdd. Dynamic array for the names of the partitions to add.
@@ -309,7 +309,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
             var serviceTags = new ServiceTags(
                 tagsRequiredToPlace: this.TagsRequiredToPlace,
                 tagsRequiredToRun: this.TagsRequiredToRun,
-                serviceTagsValue: this.ServiceTagsValue);
+                tags: this.Tags);
 
             ServiceUpdateDescription serviceUpdateDescription = null;
             if (this.Stateful.IsPresent)

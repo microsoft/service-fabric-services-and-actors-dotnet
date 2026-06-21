@@ -231,7 +231,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// <summary>
         /// </summary>
         [Parameter(Mandatory = false, Position = 26)]
-        public IEnumerable<string> ServiceTagsValue { get; set; }
+        public IEnumerable<string> Tags { get; set; }
 
         /// <summary>
         /// Gets or sets Flags. Flags indicating whether other properties are set. Each of the associated properties
@@ -428,7 +428,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
             var serviceTags = new ServiceTags(
                 tagsRequiredToPlace: this.TagsRequiredToPlace,
                 tagsRequiredToRun: this.TagsRequiredToRun,
-                serviceTagsValue: this.ServiceTagsValue);
+                tags: this.Tags);
 
             ServiceDescription serviceDescription = null;
             if (this.Stateful.IsPresent)

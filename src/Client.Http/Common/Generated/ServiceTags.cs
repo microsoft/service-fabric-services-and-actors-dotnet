@@ -19,11 +19,11 @@ namespace Microsoft.ServiceFabric.Common
         public ServiceTags(
             IEnumerable<string> tagsRequiredToPlace = default(IEnumerable<string>),
             IEnumerable<string> tagsRequiredToRun = default(IEnumerable<string>),
-            IEnumerable<string> serviceTagsValue = default(IEnumerable<string>))
+            IEnumerable<string> tags = default(IEnumerable<string>))
         {
             this.TagsRequiredToPlace = tagsRequiredToPlace;
             this.TagsRequiredToRun = tagsRequiredToRun;
-            this.ServiceTagsValue = serviceTagsValue;
+            this.Tags = tags;
         }
 
         /// <summary>
@@ -36,6 +36,6 @@ namespace Microsoft.ServiceFabric.Common
 
         /// <summary>
         /// </summary>
-        public IEnumerable<string> ServiceTagsValue { get; }
+        public IEnumerable<string> Tags { get; }
     }
 }

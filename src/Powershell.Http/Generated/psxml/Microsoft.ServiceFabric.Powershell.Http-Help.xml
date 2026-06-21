@@ -7354,7 +7354,7 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="24">
-                <maml:name>ServiceTagsValue</maml:name>
+                <maml:name>Tags</maml:name>
                 <maml:Description>
                     <maml:para>
                     
@@ -7995,7 +7995,7 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="11">
-                <maml:name>ServiceTagsValue</maml:name>
+                <maml:name>Tags</maml:name>
                 <maml:Description>
                     <maml:para>
                     
