@@ -12,10 +12,20 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 {
+    /// <summary>
+    /// Implements <see cref="IFabricTransportListener"/> over Service Fabric's native transport.
+    /// </summary>
     internal class FabricTransportListener : IFabricTransportListener
     {
         private NativeFabricTransport.IFabricTransportListener nativeListner;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportListener"/> class.
+        /// </summary>
+        /// <param name="transportSettings">The settings that configure the listener.</param>
+        /// <param name="listenerAddress">The address on which the listener accepts client connections.</param>
+        /// <param name="serviceImplementation">The handler that processes incoming request-response and one-way messages.</param>
+        /// <param name="remotingConnectionHandler">The handler that tracks client callback channels for pushing one-way messages back to clients.</param>
         public FabricTransportListener(
             FabricTransportSettings transportSettings,
             FabricTransportListenerAddress listenerAddress,
@@ -73,6 +83,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 
         #region API
 
+        /// <inheritdoc/>
         public Task<string> OpenAsync(CancellationToken cancellationToken)
         {
             return Utility.WrapNativeAsyncInvokeInMTA<string>(
@@ -82,6 +93,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
                 "FabricTransportListener.Open");
         }
 
+        /// <inheritdoc/>
         public Task CloseAsync(CancellationToken cancellationToken)
         {
             return Utility.WrapNativeAsyncInvokeInMTA(
@@ -91,6 +103,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
                 "FabricTransportListener.Close");
         }
 
+        /// <inheritdoc/>
         public void Abort()
         {
             if (this.nativeListner != null)
@@ -101,6 +114,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 
         #endregion
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (nativeListner != null)

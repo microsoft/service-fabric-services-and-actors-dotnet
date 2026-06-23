@@ -608,5 +608,82 @@ namespace Microsoft.ServiceFabric.Client
             long? serverTimeout = 60,
             bool? force = default(bool?),
             CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Disables a Service Fabric service.
+        /// </summary>
+        /// <remarks>
+        /// Disables a Service Fabric service. When you disable a service, Service Fabric marks it as Disabling, schedules
+        /// replica removal, and returns immediately. The service transitions to Disabled asynchronously after all replicas are
+        /// removed. Poll the service status to confirm completion.
+        /// 
+        /// Both stateful and stateless services are supported. System services such as the Failover Manager, Cluster Manager,
+        /// and Naming Service cannot be disabled.
+        /// 
+        /// This operation requires the `AllowDisableEnableService` configuration flag to be set to `true` in the
+        /// FailoverManager section of the cluster configuration.
+        /// </remarks>
+        /// <param name ="serviceId">The identity of the service. This ID is typically the full name of the service without the
+        /// 'fabric:' URI scheme.
+        /// Starting from version 6.0, hierarchical names are delimited with the "~" character.
+        /// For example, if the service name is "fabric:/myapp/app1/svc1", the service identity would be "myapp~app1~svc1" in
+        /// 6.0+ and "myapp/app1/svc1" in previous versions.
+        /// </param>
+        /// <param name ="disableServiceFlag">Specifies the behavior when disabling a service. The only supported value is
+        /// 'RemoveData', which removes the service replicas and data when the service is disabled. Possible values include:
+        /// 'RemoveData'</param>
+        /// <param name ="forceDisable">Indicates whether the service should be force-disabled, bypassing graceful replica
+        /// shutdown. Force-disabling a stateful service can leave persisted state on disk that is not properly cleaned up,
+        /// because replicas are terminated without a graceful shutdown.</param>
+        /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
+        /// time duration that the client is willing to wait for the requested operation to complete. The default value for
+        /// this parameter is 60 seconds.</param>
+        /// <param name ="cancellationToken">Cancels the client-side operation.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// </returns>
+        /// <exception cref="InvalidCredentialsException">Thrown when invalid credentials are used while making request to cluster.</exception>
+        /// <exception cref="ServiceFabricRequestException">Thrown when request to Service Fabric cluster failed due to an underlying issue such as network connectivity, DNS failure or timeout.</exception>
+        /// <exception cref="ServiceFabricException">Thrown when the requested operation failed at server. Exception contains Error code <see cref="FabricError.ErrorCode"/>, message indicating the failure. It also contains a flag wether the exception is transient or not, client operations can be retried if its transient.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when cancellation is requested for the cancellation token.</exception>
+        Task DisableServiceAsync(
+            string serviceId,
+            DisableServiceFlag? disableServiceFlag = DisableServiceFlag.RemoveData,
+            bool? forceDisable = default(bool?),
+            long? serverTimeout = 60,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Enables a previously disabled Service Fabric service.
+        /// </summary>
+        /// <remarks>
+        /// Enables a previously disabled Service Fabric service. When you enable a service, Service Fabric builds replicas and
+        /// instances according to the service's current configuration (target replica set size, instance count, placement
+        /// constraints, and so on).
+        /// 
+        /// This operation requires the `AllowDisableEnableService` configuration flag to be set to `true` in the
+        /// FailoverManager section of the cluster configuration.
+        /// </remarks>
+        /// <param name ="serviceId">The identity of the service. This ID is typically the full name of the service without the
+        /// 'fabric:' URI scheme.
+        /// Starting from version 6.0, hierarchical names are delimited with the "~" character.
+        /// For example, if the service name is "fabric:/myapp/app1/svc1", the service identity would be "myapp~app1~svc1" in
+        /// 6.0+ and "myapp/app1/svc1" in previous versions.
+        /// </param>
+        /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
+        /// time duration that the client is willing to wait for the requested operation to complete. The default value for
+        /// this parameter is 60 seconds.</param>
+        /// <param name ="cancellationToken">Cancels the client-side operation.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// </returns>
+        /// <exception cref="InvalidCredentialsException">Thrown when invalid credentials are used while making request to cluster.</exception>
+        /// <exception cref="ServiceFabricRequestException">Thrown when request to Service Fabric cluster failed due to an underlying issue such as network connectivity, DNS failure or timeout.</exception>
+        /// <exception cref="ServiceFabricException">Thrown when the requested operation failed at server. Exception contains Error code <see cref="FabricError.ErrorCode"/>, message indicating the failure. It also contains a flag wether the exception is transient or not, client operations can be retried if its transient.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when cancellation is requested for the cancellation token.</exception>
+        Task EnableServiceAsync(
+            string serviceId,
+            long? serverTimeout = 60,
+            CancellationToken cancellationToken = default(CancellationToken));
     }
 }

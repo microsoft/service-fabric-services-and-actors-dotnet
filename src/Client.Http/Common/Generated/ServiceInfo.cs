@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="healthState">The health state of a Service Fabric entity such as Cluster, Node, Application, Service,
         /// Partition, Replica etc. Possible values include: 'Invalid', 'Ok', 'Warning', 'Error', 'Unknown'</param>
         /// <param name="serviceStatus">The status of the application. Possible values include: 'Unknown', 'Active',
-        /// 'Upgrading', 'Deleting', 'Creating', 'Failed'</param>
+        /// 'Upgrading', 'Deleting', 'Creating', 'Failed', 'Disabling', 'Disabled'</param>
         /// <param name="isServiceGroup">Whether the service is in a service group.</param>
         /// <param name="serviceMetadata">Metadata associated with a specific service.</param>
         protected ServiceInfo(
@@ -87,7 +87,7 @@ namespace Microsoft.ServiceFabric.Common
 
         /// <summary>
         /// Gets the status of the application. Possible values include: 'Unknown', 'Active', 'Upgrading', 'Deleting',
-        /// 'Creating', 'Failed'
+        /// 'Creating', 'Failed', 'Disabling', 'Disabled'
         /// </summary>
         public ServiceStatus? ServiceStatus { get; }
 

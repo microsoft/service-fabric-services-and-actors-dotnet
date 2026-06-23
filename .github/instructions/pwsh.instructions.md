@@ -1,7 +1,10 @@
 ---
-description: "Use when writing or reviewing PowerShell scripts."
+description: "Guidelines for PowerShell scripts."
 applyTo: "**/*.ps1"
 ---
+
+- **Read the `coding.instructions.md` first**.
+  Instructions in this file are incomplete without them.
 
 # Script structure
 
@@ -18,7 +21,7 @@ applyTo: "**/*.ps1"
 
 - Use simple descriptive names for local functions (e.g., `AddNuGetPackageSource`).
 - Don't use PowerShell Verb-Noun cmdlet naming convention for local functions.
-- Use Verb-Noun naming for functions designed to be invoked interactively by users (e.g., `Get-TransitivePackage`).
+- Use Verb-Noun naming for functions designed to be invoked interactively by users (e.g., `Get-Packages`).
 
 # Variable and parameter naming
 

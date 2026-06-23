@@ -92,6 +92,14 @@ namespace Microsoft.ServiceFabric.Common
         /// The default value is 0, which indicates that when stateless instance goes down, Service Fabric will immediately
         /// start building its replacement.
         /// </param>
+        /// <param name="serviceOptions">Flags that specify options applied to the service when it is created. This is a
+        /// flag-based enumeration, so the value can be a combination of the values below
+        /// obtained using the bitwise 'OR' operator.
+        /// 
+        /// - None - No service options are specified. The value is 0.
+        /// - InitiallyDisabled - The service is created in a disabled state and must be
+        /// explicitly enabled before any replicas or instances are placed. The value is 1.
+        /// </param>
         public StatelessServiceDescription(
             ServiceName serviceName,
             string serviceTypeName,
@@ -114,7 +122,8 @@ namespace Microsoft.ServiceFabric.Common
             int? flags = default(int?),
             long? instanceCloseDelayDurationSeconds = default(long?),
             InstanceLifecycleDescription instanceLifecycleDescription = default(InstanceLifecycleDescription),
-            long? instanceRestartWaitDurationSeconds = default(long?))
+            long? instanceRestartWaitDurationSeconds = default(long?),
+            int? serviceOptions = default(int?))
             : base(
                 serviceName,
                 serviceTypeName,
@@ -144,6 +153,7 @@ namespace Microsoft.ServiceFabric.Common
             this.InstanceCloseDelayDurationSeconds = instanceCloseDelayDurationSeconds;
             this.InstanceLifecycleDescription = instanceLifecycleDescription;
             this.InstanceRestartWaitDurationSeconds = instanceRestartWaitDurationSeconds;
+            this.ServiceOptions = serviceOptions;
         }
 
         /// <summary>
@@ -214,5 +224,16 @@ namespace Microsoft.ServiceFabric.Common
         /// start building its replacement.
         /// </summary>
         public long? InstanceRestartWaitDurationSeconds { get; }
+
+        /// <summary>
+        /// Gets flags that specify options applied to the service when it is created. This is a
+        /// flag-based enumeration, so the value can be a combination of the values below
+        /// obtained using the bitwise 'OR' operator.
+        /// 
+        /// - None - No service options are specified. The value is 0.
+        /// - InitiallyDisabled - The service is created in a disabled state and must be
+        /// explicitly enabled before any replicas or instances are placed. The value is 1.
+        /// </summary>
+        public int? ServiceOptions { get; }
     }
 }

@@ -55,6 +55,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var instanceCloseDelayDurationSeconds = default(long?);
             var instanceLifecycleDescription = default(InstanceLifecycleDescription);
             var instanceRestartWaitDurationSeconds = default(long?);
+            var serviceOptions = default(int?);
 
             do
             {
@@ -147,6 +148,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     instanceRestartWaitDurationSeconds = reader.ReadValueAsLong();
                 }
+                else if (string.Compare("ServiceOptions", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    serviceOptions = reader.ReadValueAsInt();
+                }
                 else
                 {
                     reader.SkipPropertyValue();
@@ -176,7 +181,8 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 flags: flags,
                 instanceCloseDelayDurationSeconds: instanceCloseDelayDurationSeconds,
                 instanceLifecycleDescription: instanceLifecycleDescription,
-                instanceRestartWaitDurationSeconds: instanceRestartWaitDurationSeconds);
+                instanceRestartWaitDurationSeconds: instanceRestartWaitDurationSeconds,
+                serviceOptions: serviceOptions);
         }
 
         /// <summary>
@@ -273,6 +279,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             if (obj.InstanceRestartWaitDurationSeconds != null)
             {
                 writer.WriteProperty(obj.InstanceRestartWaitDurationSeconds, "InstanceRestartWaitDurationSeconds", JsonWriterExtensions.WriteLongValue);
+            }
+
+            if (obj.ServiceOptions != null)
+            {
+                writer.WriteProperty(obj.ServiceOptions, "ServiceOptions", JsonWriterExtensions.WriteIntValue);
             }
 
             writer.WriteEndObject();

@@ -15,7 +15,7 @@ using System.Security.Cryptography.X509Certificates;
 namespace Microsoft.ServiceFabric.FabricTransport
 {
     /// <summary>
-    /// Settings that configures the  FabricTransport communication.
+    /// Represents the settings that configure FabricTransport communication.
     /// </summary>
     internal class FabricTransportSettings
     {
@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         internal static readonly TimeSpan DefaultKeepAliveTimeout = TimeSpan.Zero;
 
         /// <summary>
-        /// Creates a new FabricTransportSettings with default Values.
+        /// Initializes a new instance of the <see cref="FabricTransportSettings"/> class.
         /// </summary>
         public FabricTransportSettings()
         {
@@ -62,93 +62,92 @@ namespace Microsoft.ServiceFabric.FabricTransport
         }
 
         /// <summary>
-        /// Operation Timeout  which governs the whole process of sending a message, including receiving a reply message for a request/reply service operation.
-        ///  This timeout also applies when sending reply messages from a callback contract method.
+        /// Gets or sets the operation timeout that governs the whole process of sending a message, including receiving a reply message for a request/reply service operation.
         /// </summary>
-        /// <value>OperationTimeout as <see cref="System.TimeSpan"/></value>
-        /// <remarks>Default Value for Operation Timeout is set as 5 mins</remarks>
+        /// <value>The default is 5 minutes.</value>
+        /// <remarks>This timeout also applies when sending reply messages from a callback contract method.</remarks>
         public TimeSpan OperationTimeout { get; set; }
 
         /// <summary>
-        /// KeepAliveTimeout is provides a way to configure  Tcp keep-alive option.
+        /// Gets or sets the keep-alive timeout that configures the TCP keep-alive option.
         /// </summary>
-        /// <value>KeepAliveTimeout as <see cref="System.TimeSpan"/></value>
-        /// <remarks>Default Value for KeepAliveTimeout Timeout is set as TimeSpan.Zero. which indicates we disable the tcp keepalive option.
-        /// If you are using loadbalancer , you may need to configure this in order to avoid  the loadbalancer to close the connection after certain time </remarks>
+        /// <value>The default is <see cref="TimeSpan.Zero"/>, which disables the TCP keep-alive option.</value>
+        /// <remarks>When using a load balancer, you may need to configure this to prevent the load balancer from closing the connection after a period of inactivity.</remarks>
         public TimeSpan KeepAliveTimeout { get; set; }
 
         /// <summary>
-        /// Connect timeout specifies the maximum time allowed for the connection to be established successfully.
+        /// Gets or sets the connect timeout that specifies the maximum time allowed for the connection to be established successfully.
         /// </summary>
-        /// <value>ConnectTimeout as <see cref="System.TimeSpan"/></value>
-        /// <remarks>Default Value for ConnectTimeout Timeout is set as 5 seconds.</remarks>
+        /// <value>The default is 5 seconds.</value>
         public TimeSpan ConnectTimeout { get; set; }
 
         /// <summary>
-        /// MaxMessageSize represents  the maximum size for a message that can be received on a channel configured with this setting.
+        /// Gets or sets the maximum size for a message that can be received on a channel configured with this setting.
         /// </summary>
-        /// <value>Maximum size of the message in bytes.
-        /// </value>
-        /// <remarks>
-        /// Default Value for MaxMessageSize used is 4194304 bytes
-        /// </remarks>
+        /// <value>The default is 4,194,304 bytes.</value>
         public long MaxMessageSize { get; set; }
 
         /// <summary>
-        /// The maximum size, of a queue that stores messages while they are processed for an endpoint configured with this setting. 
+        /// Gets or sets the maximum size of a queue that stores messages while they are processed for an endpoint configured with this setting.
         /// </summary>
-        /// <value> Max Size for a Queue that receives messages from the channel 
-        /// </value>
-        /// <remarks>
-        /// Default value is 10,000 messages</remarks>
+        /// <value>The default is 10,000 messages.</value>
         public long MaxQueueSize { get; set; }
 
-        ///<summary>
-        ///MaxConcurrentCalls represents maximum number of messages actively service processes at one time.
+        /// <summary>
+        /// Gets or sets the maximum number of messages actively serviced at one time.
         /// </summary>
-        /// <value>
-        ///MaxConcurrentCalls is the upper limit of active messages in the service.
-        /// </value>
-        /// <remarks>
-        ///Default value for the MaxConcurrentCalls is 0 which indicates that the setting is not enabled. This implies that all the messages are active and are processed simultaneously.
-        /// </remarks>
+        /// <value>The default is 0, which processes all messages simultaneously.</value>
         public long MaxConcurrentCalls { get; set; }
 
         /// <summary>
-        /// Security credentials for securing the communication 
+        /// Gets or sets the security credentials for securing the communication.
         /// </summary>
-        /// <value>SecurityCredentials as  <see cref=" System.Fabric.SecurityCredentials"/>
-        /// </value>
+        /// <value>The default is <see cref="NoneSecurityCredentials"/>.</value>
         /// <remarks>
-        /// Default Value for SecurityCredentials is None
-        /// SecurityCredential can be of type x509SecurityCredentail <seealso cref="System.Fabric.X509Credentials"/>or
-        ///  WindowsCredentials <seealso cref="System.Fabric.WindowsCredentials"/>
-        ///</remarks>
+        /// The credentials can be of type <see cref="X509Credentials"/>, <see cref="WindowsCredentials"/>, or, to disable security, <see cref="NoneSecurityCredentials"/> (the default).
+        /// </remarks>
         public SecurityCredentials SecurityCredentials { get; set; }
 
         internal FabricServiceConfigSection ConfigSection { get; private set; }
 
         /// <summary>
-        /// Loads the FabricTransport settings from a sectionName specified in the configuration file 
-        /// Configuration File can be specified using the filePath or using the name of the configuration package specified in the service manifest .
-        /// It will first try to load config using configPackageName . if configPackageName is not specified then try to load  from filePath.
+        /// Returns the <see cref="FabricTransportSettings"/> loaded from the section named <paramref name="sectionName"/> specified in the configuration file.
         /// </summary>
-        /// <param name="sectionName">Name of the section within the configuration file. If not found section in configuration file, it will throw ArgumentException</param>
-        /// <param name="filepath"> Full path of the file where the settings will be loaded from. 
-        ///  If not specified , it will first try to load from default Config Package"Config" , if not found then load from Settings "ClientExeName.Settings.xml" present in Client Exe directory. </param>
-        ///  <param name="configPackageName"> Name of the configuration package.If its null or empty,it will check for file in filePath</param>
-        /// <returns>FabricTransportSettings</returns>
+        /// <param name="sectionName">The name of the section within the configuration file. If <see langword="null"/>, the default <c>TransportSettings</c> section is used.</param>
+        /// <param name="filepath">The full path of the file where the settings will be loaded from.
+        /// If not specified, it will first try to load from the default configuration package <c>Config</c>, and if not found, from the <c>ClientExeName.Settings.xml</c> settings file in the client executable directory.</param>
+        /// <param name="configPackageName">The name of the configuration package. If it's <see langword="null"/> or empty, it will check for the file in <paramref name="filepath"/>.</param>
         /// <remarks>
-        /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
-        ///     
-        ///     1. MaxQueueSize - <see cref="MaxQueueSize"/>value in long.
-        ///     2. MaxMessageSize - <see cref="MaxMessageSize"/>value in bytes.
-        ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/>value in long.
-        ///     4. SecurityCredentials - <see cref="SecurityCredentials"/> value.
-        ///     5. OperationTimeoutInSeconds - <see cref="OperationTimeout"/> value in seconds.
-        ///     6. KeepAliveTimeoutInSeconds - <see cref="KeepAliveTimeout"/> value in seconds.
-        ///     7. ConnectTimeoutInMilliseconds - <see cref="ConnectTimeout"/> value in milliseconds.
+        /// The configuration file can be specified using <paramref name="filepath"/> or the name of the configuration package specified in the service manifest.
+        /// It first tries to load the configuration using <paramref name="configPackageName"/>. If <paramref name="configPackageName"/> is not specified, it then tries to load from <paramref name="filepath"/>.
+        /// <para>
+        /// The following are the parameter names that should be provided in the configuration file, to be recognizable by Service Fabric to load the transport settings.
+        /// <list type="number">
+        ///     <item><c>MaxQueueSize</c> - <see cref="MaxQueueSize"/> as a <see langword="long"/> value.</item>
+        ///     <item><c>MaxMessageSize</c> - <see cref="MaxMessageSize"/> value in bytes.</item>
+        ///     <item><c>MaxConcurrentCalls</c> - <see cref="MaxConcurrentCalls"/> as a <see langword="long"/> value.</item>
+        ///     <item><c>SecurityCredentialsType</c> - One of <c>None</c>, <c>X509</c>, or <c>Windows</c> that selects the <see cref="SecurityCredentials"/> type.
+        ///         <c>Windows</c> credentials additionally read <c>RemoteSecurityPrincipalName</c>. <c>X509</c> credentials additionally read <c>CertificateFindType</c>,
+        ///         <c>CertificateFindValue</c>, <c>CertificateProtectionLevel</c>, <c>CertificateStoreLocation</c>, <c>CertificateStoreName</c>, <c>CertificateRemoteCommonNames</c>,
+        ///         <c>CertificateRemoteThumbprints</c>, <c>CertificateIssuerThumbprints</c>, <c>CertificateFindValuebySecondary</c>, and <c>CertificateApplicationIssuerStore/</c> entries.</item>
+        ///     <item><c>OperationTimeoutInSeconds</c> - <see cref="OperationTimeout"/> value in seconds.</item>
+        ///     <item><c>KeepAliveTimeoutInSeconds</c> - <see cref="KeepAliveTimeout"/> value in seconds.</item>
+        ///     <item><c>ConnectTimeoutInMilliseconds</c> - <see cref="ConnectTimeout"/> value in milliseconds.</item>
+        /// </list>
+        /// </para>
         /// </remarks>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="configPackageName"/> is specified but the configuration package is not found,
+        /// <paramref name="filepath"/> is specified but the configuration file is not found,
+        /// the section named <paramref name="sectionName"/> is not found in the configuration, or
+        /// a configuration value cannot be parsed into its target enumeration type.
+        /// </exception>
+        /// <exception cref="FormatException">
+        /// A numeric configuration value is not in a format recognized by its target type.
+        /// </exception>
+        /// <exception cref="OverflowException">
+        /// A numeric configuration value is outside the range of its target type.
+        /// </exception>
         public static FabricTransportSettings LoadFrom(
             string sectionName,
             string filepath = null,
@@ -209,28 +208,16 @@ namespace Microsoft.ServiceFabric.FabricTransport
         }
 
         /// <summary>
-        /// Try to load the FabricTransport settings from a sectionName specified in the configuration file.
-        /// Configuration File can be specified using the filePath or using the name of the configuration package specified in the service manifest .
-        /// It will first try to load config using configPackageName . if configPackageName is not specified then try to load  from filePath.
+        /// Tries to load the <see cref="FabricTransportSettings"/> from the section named <paramref name="sectionName"/> specified in the configuration file into <paramref name="settings"/> and returns
+        /// <see langword="true"/> if it was successfully loaded; otherwise returns <see langword="false"/>.
         /// </summary>
-        /// <param name="sectionName">Name of the section within the configuration file. If not found section in configuration file, it return false</param>
-        /// <param name="filepath"> Full path of the file where the settings will be loaded from. 
-        ///  If not specified , it will first try to load from default Config Package"Config" , if not found then load from Settings "ClientExeName.Settings.xml" present in Client Exe directory. </param>
-        ///  <param name="configPackageName"> Name of the configuration package. If its null or empty,it will check for file in filePath</param>
-        /// <param name="settings">When this method returns it sets the <see cref="FabricTransportSettings"/> settings if load from Config succeeded. If fails ,its sets settings to null/> </param>
-        /// <returns><see cref="bool"/> specifies whether the settings get loaded successfully from Config.
-        /// It returns true when load from Config succeeded, else return false. </returns>
-        /// <remarks>
-        /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
-        ///     
-        ///     1. MaxQueueSize - <see cref="MaxQueueSize"/>value in long.
-        ///     2. MaxMessageSize - <see cref="MaxMessageSize"/>value in bytes.
-        ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/>value in long.
-        ///     4. SecurityCredentials - <see cref="SecurityCredentials"/> value.
-        ///     5. OperationTimeoutInSeconds - <see cref="OperationTimeout"/> value in seconds.
-        ///     6. KeepAliveTimeoutInSeconds - <see cref="KeepAliveTimeout"/> value in seconds.
-        ///     7. ConnectTimeoutInMilliseconds - <see cref="ConnectTimeout"/> value in milliseconds.
-        /// </remarks>
+        /// <param name="sectionName">The name of the section within the configuration file. If <see langword="null"/>, the default <c>TransportSettings</c> section is used. Returns <see langword="false"/> if the section is not found.</param>
+        /// <param name="settings">When this method returns, contains the <see cref="FabricTransportSettings"/> loaded from configuration if the load succeeded, or <see langword="null"/> if it failed. This parameter is treated as uninitialized.</param>
+        /// <param name="filepath">The full path of the file where the settings will be loaded from.
+        /// If not specified, it will first try to load from the default configuration package <c>Config</c>, and if not found, from the <c>ClientExeName.Settings.xml</c> settings file in the client executable directory.</param>
+        /// <param name="configPackageName">The name of the configuration package. If it's <see langword="null"/> or empty, it will check for the file in <paramref name="filepath"/>.</param>
+        /// <returns><see langword="true"/> if the settings were loaded successfully from configuration; otherwise, <see langword="false"/>.</returns>
+        /// <inheritdoc path="/remarks" cref="LoadFrom(string, string, string)"/>
         public static bool TryLoadFrom(string sectionName, out FabricTransportSettings settings, string filepath = null,
             string configPackageName = null)
         {
@@ -292,11 +279,6 @@ namespace Microsoft.ServiceFabric.FabricTransport
             }
         }
 
-        /// <summary>
-        /// FabricTransportSettings returns the default Settings .Loads the configuration file from default Config Package"Config" , if not found then try to load from  default config file "ClientExeName.Settings.xml"  from Client Exe directory.
-        ///</summary>
-        /// <param name="sectionName">Name of the section within the configuration file. If not found section in configuration file, it will return the default Settings</param>
-        /// <returns></returns>
         internal static FabricTransportSettings GetDefault(string sectionName = DefaultSectionName)
         {
             FabricTransportSettings settings = null;
