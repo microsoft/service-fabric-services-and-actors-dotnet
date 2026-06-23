@@ -1,7 +1,10 @@
 ---
-description: "Use when writing or reviewing code in any programming language."
+description: "Guidelines for all code or content in this repo."
 applyTo: "**"
 ---
+
+- **Read the `knowledge.instructions.md` first**.
+  Instructions in this file are incomplete without them.
 
 # Coding Guidelines
 
@@ -12,6 +15,11 @@ applyTo: "**"
   - [Jeff Atwood's Rule of Three](https://blog.codinghorror.com/rule-of-three/)
 
 - Read and follow the guidelines codified in the `.editorconfig` before writing or reviewing code.
+
+## Limit scope of changes
+
+- Apply coding style rules to new code and code being substantially modified, not to every file touched.
+- When making a targeted change (e.g. adding a header, fixing a bug), don't reformat the surrounding code.
 
 ## Make the code as informative and intuitive as possible
 
@@ -25,6 +33,5 @@ applyTo: "**"
 - Shorten parameter and variable names to the minimum needed to understand them in context.
 - Don't add comments re-stating the information already available from the declaration.
 - Before adding comments, try to make them unnecessary by breaking up the code into multiple functions, classes, etc.
-- Wrap text lines at the first word boundary after column 120. Lines will typically be 121–130 characters.
+- Wrap text lines at the first word boundary after column 120. Typical lines will be longer.
 - Don't create a container (namespace, folder, section) until you have 3 or more items to justify its overhead.
-

@@ -1,11 +1,15 @@
 ---
-description: "Use when writing or reviewing documentation: XML comments on C# types and members, NuGet package descriptions, and package README files."
+description: "Guidelines for C# XML documentation comments, NuGet package descriptions, and package README files."
 applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 ---
 
+- **Read the `coding.instructions.md` first**.
+  Instructions in this file are incomplete without them.
+
 # Documentation guidance
 
-- Write for an intermediate to advanced C# developer audience.
+- Write for intermediate to advanced C# developers.
+- Write documentation for the users, not the maintainers.
 - Make documentation as concise as possible without losing information.
 - Change phrasing to drop redundant words, for example `Returns red apples.` over `Returns apples of red color.`
 - Focus on the "why". The "how" should be self-explanatory from the API itself.
@@ -27,11 +31,15 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 
 ## C# XML comments
 
-- Document public and protected members with [XML comments](https://learn.microsoft.com/dotnet/csharp/language-reference/language-specification/documentation-comments).
+- Document `public` and `protected` members with [XML comments](https://learn.microsoft.com/dotnet/csharp/language-reference/language-specification/documentation-comments).
 - Document internal members only if they are complex or not self-explanatory.
+- Verify XML comments by building the project before committing changes.
 - When removing unnecessary XML comments, preserve significant information as regular comments.
-- Use `<summary>` to provide a brief, one sentence, description of what the type or member does. Start the summary with a present-tense, third-person verb.
-- Use `<remarks>` for additional information, such as implementation details, usage notes, etc., only when it is important to the user of the API and doesn't restate the `<summary>`.
+- Use `<summary>` to provide a brief description of what the type or member does. Start the summary with a present-tense, third-person verb.
+- Use `<remarks>` for additional information, such as usage notes relevant to consumers.
+  - Remove `<remarks>` if it restates documented-elsewhere or self-evident information. This is an optional element.
+  - Don't document implementation details of the API not relevant to consumers of the library.
+  - Don't document inheritor instructions for APIs not meant to be extended by consumers of the library.
 - Use `<see langword="..."/>` for language-specific keywords like `null`, `true`, `false`, `int`, `bool`, etc.
 - Use `<c>` for inline code snippets.
 - Use `<example>` for usage examples on how to use the member.
@@ -42,36 +50,87 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 - Reuse documentation from other types and members to keep duplication to a minimum.
   - Use `<inheritdoc/>` for interface implementations and overrides unless there is a major behavior change.
   - Use `<inheritdoc cref="..."/>` to reuse documentation from related types, like the base type, and members, like method overloads.
+  - When referenced documentation cannot be reused in its entirety, specify `path`.
+    - Place `path` before `cref` to make `<inheritdoc>` more readable when mixed with regular elements.
+    - Use `<inheritdoc path="/summary" cref="..."/>` to reuse `<summary>`.
+    - Use `<inheritdoc path="/remarks" cref="..."/>` to reuse `<remarks>`.
+    - Use `<inheritdoc path="/param']" cref="..."/>` to reuse all `<param>` elements.
+    - Use `<inheritdoc path="/param[@name='{name}']" cref="..."/>` to reuse a specific `<param name="{name}">`.
+    - Use `<inheritdoc path="/typeparam" cref="..."/>` to reuse all `<typeparam>` elements.
+    - Use `<inheritdoc path="/typeparam[@name='{name}']" cref="..."/>` to reuse a specific `<typeparam name="{name}">`
+    - Use `<inheritdoc path="/exception']" cref="..."/>` to reuse all `<exception>` elements.
+    - Use `<inheritdoc path="/exception[@cref='T:{FullName}']" cref="..."/>` to reuse a specific `<exception cref="{Name}">`.
+  - Apply object-oriented design to documentation inheritance:
+    - Reuse more generic documentation, e.g.
+      - Document base classes and reuse their docs in derived classes.
+      - Document interfaces and reuse their docs in implementors.
+      - Document methods with the most parameters and reuse their docs in overloads/extensions that reduce the parameter set.
+    - If behavior doesn't apply to every inheritor, don't document it in the base/provider.
   - Document differences instead of using `<inheritdoc/>` when there is a major behavior change.
 - Use `<para>` when multiple paragraphs are needed to make a documentation section readable.
   - Never use `<para>` in single-paragraph sections.
 - For generic overloads, don't add "strongly-typed" or similar qualifiers to distinguish them from non-generic overloads. Let the type parameter references speak for themselves.
-- Prefer short type names in the `cref="..."` references. If the type's namespace is not imported, add a `using` directive rather than using a fully-qualified name.
+- _Prefer short type names in the `cref="..."` references_. 
+  - Avoid fully-qualified references, e.g. `<seealso cref="Fully.Qualified.Foo"/>`.
+  - If the type's namespace is not imported, add a `using` directive, e.g. `using Fully.Qualified; /// <seealso cref="Foo"/>`
+  - If the type name appears in multiple imported namespaces, but used only from one, add an alias to disambiguate, e.g.
+    `using Foo = Fully.Qualified.Foo; /// <seealso cref="Foo"/>`.
+  - If the type is an open generic and cannot be aliased, use the shortest qualification needed to disambiguate, e.g.
+    `using Fully; /// <seealso cref="Qualified.Foo{T}"/>`
+- _Prefer `<see cref="..."/>` over plain text when referring to domain concepts with first-class abstractions_.
+  E.g. `Sets the specified <see cref="Transaction"/> as the ambient transaction`. The first reference becomes a hyperlink
+  users can follow, while the subsequent mentions remain plain text to keep the docs easy to read.
 
 ### Methods
 
-- For methods that return a value, the `<summary>` should start with "Returns" and explain the result rather than how it is obtained.
-- For void methods, the `<summary>` should describe the action the method performs.
-- Use `<returns>` to describe what the method returns, but only if this doesn't restate the method name, its `<summary>` and return type.
+- Use `<summary>` to describe _what_ the method does, not _how_ it is implemented.
+  - For methods that return a value
+    - Use template `{what it does} and returns {what it returns}`. E.g. `Foo.TryParse(string s, out Foo result)` summary should be
+      ```xml
+      Tries to parse <paramref name="s"/> into a <see cref="Foo"/> <paramref name="result"/> and returns <see langword="true"/>
+      if it was successfully parsed; otherwise returns <see langword="false"/>.
+      ```
+    - For methods where action and result are logically the same, use template `Returns {what it returns}`.
+      E.g. `Foo.Parse(string s)` summary should be
+      ```xml
+      Returns a <see cref="Foo"/> object parsed from the string representation in <paramref name="s"/>.
+      ```
+  - For methods returning `Task` or `Task<T>`:
+    - Start `<summary>` with `Asynchronously`, followed by _a present-tense, third-person verb_ as described above.
+    - Don't describe non-generic `Task` results - such methods are asynchronous `void` equivalents.
+    - Describe `T` instead of `Task<T>` results - such methods are asynchronous value-returning equivalents.
+- Use `<returns>` to describe what the method returns, but only if it's not redundant.
+  - Remove `<returns>` if it restates documented-elsewhere or self-evident information. This is an optional element.
   - Try improving the method name and return type before documenting it.
   - The description should be a noun phrase that doesn't specify the data type.
   - Begin with an introductory article.
   - If the return type is Boolean, the wording should be of the form "`<see langword="true" />` if ...; otherwise, `<see langword="false" />`.".
-- Use `<param name="...">` to describe method parameters, but only if this information doesn't restate their types and names.
-  - Try improving parameter types and names before documenting them.
+
+### Parameters
+
+- Remove `<param>` elements that restate information evident from the parameter types and names.
+  This is an optional element, but if one parameter is needs docs, C# compiler requires them for all parameters.
+- Improve parameter types and names before documenting them.
+- Use `<param name="...">` to describe method parameters.
   - The description should be a noun phrase that doesn't specify the data type.
   - Begin with an introductory article.
   - If the parameter is a flag enum, start the description with "A bitwise combination of the enumeration values that specifies...".
   - If the parameter is a non-flag enum, start the description with "One of the enumeration values that specifies...".
   - If the parameter is a Boolean, the wording should be of the form "`<see langword="true" />` to ...; otherwise, `<see langword="false" />`.".
-  - If the parameter is an "out" parameter, the wording should be of the form "When this method returns, contains .... This parameter is treated as uninitialized.".
+  - If the parameter is an "out" parameter, the wording should be of the form
+    `When this method returns, contains .... This parameter is treated as uninitialized.`.
 - Use `<paramref name="...">` to reference parameter names in documentation.
-- Use `<typeparam name="...">` to describe type parameters in generic types or methods.
+
+### Type Parameters
+
+- Use `<typeparam name="...">` to describe type parameters in generic types or methods, but only if they're not redundant.
+  - Remove all `<typeparam>` elements if they restate documented-elsewhere or self-evident information. This is an optional
 - Use `<typeparamref name="...">` to reference type parameters in documentation.
 
 ### Constructors
 
 - The summary wording should be "Initializes a new instance of the <see cref="..."/> class (or struct).".
+- Don't create default constructors just to document them.
 
 ### Properties
 
@@ -80,7 +139,8 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
   - "Gets..." for a read-only property.
   - "Sets..." for a set-only property.
   - "Gets [or sets] a value that indicates whether..." for properties that return a Boolean value.
-- Use `<value>` to describe the value of the property, but only if it doesn't restate the `<summary>`.
+- Use `<value>` to describe the value of the property, but only if it's not redundant.
+  - Remove `<value>` if it restates documented-elsewhere or self-evident information. This is an optional element.
   - The description should be a noun phrase that doesn't specify the data type.
   - If the property has a default value, add it in a separate sentence, for example, "The default is `<see langword="false" />`".
   - If the value type is Boolean, the wording should be of the form "`<see langword="true" />` if ...; otherwise, `<see langword="false" />`. The default is ...".
@@ -93,6 +153,18 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 
 - Use `<exception cref="...">` to document exceptions thrown by constructors, properties, indexers, methods, operators, and events.
 - Document all exceptions thrown directly by the member.
-- For exceptions thrown by nested members, document only the exceptions users are most likely to encounter.
+- For exceptions thrown by the callees of the member
+  - Document the API-level exceptions users are likely to encounter. E.g. a member passing an argument to a callee that
+    validates it and throws `ArgumentNullException` should have it documented.
+  - Don't document the low-level implementation exceptions that can be thrown by callees. E.g. don't document `ArithmeticException`
+    or its descendants.
+  - Create `// TODO: <exception cref="{ExpectedException}">...</exception>` for missing validations that allow low-level
+    exceptions to escape.
+- Sort exception elements _alphabetically_ to reduce future merge conflicts.
+  Ideally, each exception doc fits on a single line so users can re-sort them quickly using their editor.
+  - Place `<exception cref="...">` elements first.
+  - Place `<inheritdoc path="/exception...']"/>` elements below.
+- Don't document exceptions without evidence they're are actually thrown. Symmetry with other APIs is irrelevant and doesn't
+  justify lack of evidence.
 - Describe the condition under which it's thrown.
   - Omit "Thrown if ..." or "If ..." at the beginning of the sentence.
