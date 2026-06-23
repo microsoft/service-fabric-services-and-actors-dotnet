@@ -12,16 +12,16 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// Converter for <see cref="KeyValueStoreReplicaCopyDetail" />.
+    /// Converter for <see cref="InbuildKeyValueStoreCopyDetail" />.
     /// </summary>
-    internal class KeyValueStoreReplicaCopyDetailConverter
+    internal class InbuildKeyValueStoreCopyDetailConverter
     {
         /// <summary>
         /// Deserializes the JSON representation of the object.
         /// </summary>
         /// <param name="reader">The <see cref="T: Newtonsoft.Json.JsonReader" /> to read from.</param>
         /// <returns>The object Value.</returns>
-        internal static KeyValueStoreReplicaCopyDetail Deserialize(JsonReader reader)
+        internal static InbuildKeyValueStoreCopyDetail Deserialize(JsonReader reader)
         {
             return reader.Deserialize(GetFromJsonProperties);
         }
@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         /// </summary>
         /// <param name="reader">The <see cref="T: Newtonsoft.Json.JsonReader" /> to read from, reader must be placed at first property.</param>
         /// <returns>The object Value.</returns>
-        internal static KeyValueStoreReplicaCopyDetail GetFromJsonProperties(JsonReader reader)
+        internal static InbuildKeyValueStoreCopyDetail GetFromJsonProperties(JsonReader reader)
         {
             var providerCopyDetail = default(KeyValueStoreProviderCopyDetail);
 
@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             }
             while (reader.TokenType != JsonToken.EndObject);
 
-            return new KeyValueStoreReplicaCopyDetail(
+            return new InbuildKeyValueStoreCopyDetail(
                 providerCopyDetail: providerCopyDetail);
         }
 
@@ -58,11 +58,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         /// </summary>
         /// <param name="writer">The <see cref="T: Newtonsoft.Json.JsonWriter" /> to write to.</param>
         /// <param name="obj">The object to serialize to JSON.</param>
-        internal static void Serialize(JsonWriter writer, KeyValueStoreReplicaCopyDetail obj)
+        internal static void Serialize(JsonWriter writer, InbuildKeyValueStoreCopyDetail obj)
         {
             // Required properties are always serialized, optional properties are serialized when not null.
             writer.WriteStartObject();
-            writer.WriteProperty(obj.ReplicaKind, "Kind", ReplicaKindConverter.Serialize);
+            writer.WriteProperty(obj.Kind, "Kind", ReplicaKindConverter.Serialize);
             if (obj.ProviderCopyDetail != null)
             {
                 writer.WriteProperty(obj.ProviderCopyDetail, "ProviderCopyDetail", KeyValueStoreProviderCopyDetailConverter.Serialize);

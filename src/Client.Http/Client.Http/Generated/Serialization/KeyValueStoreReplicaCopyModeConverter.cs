@@ -12,31 +12,31 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// Converter for <see cref="KvsReplicaCopyType" />.
+    /// Converter for <see cref="KeyValueStoreReplicaCopyMode" />.
     /// </summary>
-    internal class KvsReplicaCopyTypeConverter
+    internal class KeyValueStoreReplicaCopyModeConverter
     {
         /// <summary>
         /// Gets the enum value by reading string value from reader.
         /// </summary>
         /// <param name="reader">The <see cref="T: Newtonsoft.Json.JsonReader" /> to read from, reader must be placed at first property.</param>
         /// <returns>The enum Value.</returns>
-        public static KvsReplicaCopyType? Deserialize(JsonReader reader)
+        public static KeyValueStoreReplicaCopyMode? Deserialize(JsonReader reader)
         {
             var value = reader.ReadValueAsString();
-            var obj = default(KvsReplicaCopyType);
+            var obj = default(KeyValueStoreReplicaCopyMode);
 
             if (string.Compare(value, "Unknown", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = KvsReplicaCopyType.Unknown;
+                obj = KeyValueStoreReplicaCopyMode.Unknown;
             }
-            else if (string.Compare(value, "Full", StringComparison.OrdinalIgnoreCase) == 0)
+            else if (string.Compare(value, "Physical", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = KvsReplicaCopyType.Full;
+                obj = KeyValueStoreReplicaCopyMode.Physical;
             }
-            else if (string.Compare(value, "Partial", StringComparison.OrdinalIgnoreCase) == 0)
+            else if (string.Compare(value, "Logical", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = KvsReplicaCopyType.Partial;
+                obj = KeyValueStoreReplicaCopyMode.Logical;
             }
 
             return obj;
@@ -47,21 +47,21 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         /// </summary>
         /// <param name="writer">The <see cref="T: Newtonsoft.Json.JsonWriter" /> to write to.</param>
         /// <param name="value">The object to serialize to JSON.</param>
-        public static void Serialize(JsonWriter writer, KvsReplicaCopyType? value)
+        public static void Serialize(JsonWriter writer, KeyValueStoreReplicaCopyMode? value)
         {
             switch (value)
             {
-                case KvsReplicaCopyType.Unknown:
+                case KeyValueStoreReplicaCopyMode.Unknown:
                     writer.WriteStringValue("Unknown");
                     break;
-                case KvsReplicaCopyType.Full:
-                    writer.WriteStringValue("Full");
+                case KeyValueStoreReplicaCopyMode.Physical:
+                    writer.WriteStringValue("Physical");
                     break;
-                case KvsReplicaCopyType.Partial:
-                    writer.WriteStringValue("Partial");
+                case KeyValueStoreReplicaCopyMode.Logical:
+                    writer.WriteStringValue("Logical");
                     break;
                 default:
-                    throw new ArgumentException($"Invalid value {value.ToString()} for enum type KvsReplicaCopyType");
+                    throw new ArgumentException($"Invalid value {value.ToString()} for enum type KeyValueStoreReplicaCopyMode");
             }
         }
     }

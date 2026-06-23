@@ -28,15 +28,9 @@ namespace Microsoft.ServiceFabric.Common
         /// CopyContext, CopyState, Copy, CopyCatchup, and CopyComplete.
         /// . Possible values include: 'CopyContext', 'CopyState', 'Copy', 'CopyCatchup', 'CopyComplete'
         /// 
-        /// The phase of the inbuild process as a secondary replica is brought up to date with the primary's state.
-        /// - CopyContext - The primary establishes a connection to the secondary and retrieves its current state. The value is
-        /// 0.
-        /// - CopyState - The primary obtains its own current state in preparation for the copy. The value is 1.
-        /// - Copy - The primary transfers state data to the secondary. The value is 2.
-        /// - CopyCatchup - The secondary applies replication operations it received from the primary during the
-        /// Copy phase to finish catching up. The value is 3.
-        /// - CopyComplete - The secondary replica is fully built and ready to transition to an idle secondary.
-        /// The value is 4.
+        /// The phase of the inbuild process while a secondary replica is brought up to date with the
+        /// primary's state, from initial context exchange through data transfer and catch-up to build
+        /// completion.
         /// 
         /// </param>
         /// <param name="copyContextPhase">The sub-phase within the CopyContext phase. Only relevant when InbuildPhase is
@@ -45,13 +39,8 @@ namespace Microsoft.ServiceFabric.Common
         /// . Possible values include: 'EstablishConnection', 'GetCopyContext'
         /// 
         /// The sub-phase within the initial CopyContext phase of the inbuild process, progressing from
-        /// establishing the connection to retrieving copy metadata.
-        /// - EstablishConnection - The primary is establishing a connection to the secondary replica.
-        /// This is the initial sub-phase where the replication channel between primary and secondary
-        /// is set up. The value is 0.
-        /// - GetCopyContext - The primary is retrieving copy context from the secondary. This retrieves
-        /// metadata about the secondary's current state (epoch, last operation LSN) to determine what
-        /// type of copy is needed (full vs. partial). The value is 1.
+        /// creating the replication channel to collecting secondary-side state metadata. This metadata is
+        /// used by the primary to decide whether copy can be incremental or must be full.
         /// 
         /// </param>
         /// <param name="lastCopySequenceNumber">The last sequence number that has been quorum committed when the primary
@@ -89,7 +78,7 @@ namespace Microsoft.ServiceFabric.Common
         /// started.
         /// </param>
         /// <param name="copyDetails">Store-specific details about the copy operation being performed for this inbuild replica.
-        /// Only populated for KVS (Key-Value Store) backed replicas; null otherwise.
+        /// Only populated for key value store backed replicas; null otherwise.
         /// </param>
         public RemoteInbuildReplicaStatus(
             InbuildReplicaPhase? inbuildPhase = default(InbuildReplicaPhase?),
@@ -118,15 +107,9 @@ namespace Microsoft.ServiceFabric.Common
         /// CopyContext, CopyState, Copy, CopyCatchup, and CopyComplete.
         /// . Possible values include: 'CopyContext', 'CopyState', 'Copy', 'CopyCatchup', 'CopyComplete'
         /// 
-        /// The phase of the inbuild process as a secondary replica is brought up to date with the primary's state.
-        /// - CopyContext - The primary establishes a connection to the secondary and retrieves its current state. The value is
-        /// 0.
-        /// - CopyState - The primary obtains its own current state in preparation for the copy. The value is 1.
-        /// - Copy - The primary transfers state data to the secondary. The value is 2.
-        /// - CopyCatchup - The secondary applies replication operations it received from the primary during the
-        /// Copy phase to finish catching up. The value is 3.
-        /// - CopyComplete - The secondary replica is fully built and ready to transition to an idle secondary.
-        /// The value is 4.
+        /// The phase of the inbuild process while a secondary replica is brought up to date with the
+        /// primary's state, from initial context exchange through data transfer and catch-up to build
+        /// completion.
         /// </summary>
         public InbuildReplicaPhase? InbuildPhase { get; }
 
@@ -136,13 +119,8 @@ namespace Microsoft.ServiceFabric.Common
         /// . Possible values include: 'EstablishConnection', 'GetCopyContext'
         /// 
         /// The sub-phase within the initial CopyContext phase of the inbuild process, progressing from
-        /// establishing the connection to retrieving copy metadata.
-        /// - EstablishConnection - The primary is establishing a connection to the secondary replica.
-        /// This is the initial sub-phase where the replication channel between primary and secondary
-        /// is set up. The value is 0.
-        /// - GetCopyContext - The primary is retrieving copy context from the secondary. This retrieves
-        /// metadata about the secondary's current state (epoch, last operation LSN) to determine what
-        /// type of copy is needed (full vs. partial). The value is 1.
+        /// creating the replication channel to collecting secondary-side state metadata. This metadata is
+        /// used by the primary to decide whether copy can be incremental or must be full.
         /// </summary>
         public InbuildReplicaCopyContextPhase? CopyContextPhase { get; }
 
@@ -194,7 +172,7 @@ namespace Microsoft.ServiceFabric.Common
 
         /// <summary>
         /// Gets store-specific details about the copy operation being performed for this inbuild replica.
-        /// Only populated for KVS (Key-Value Store) backed replicas; null otherwise.
+        /// Only populated for key value store backed replicas; null otherwise.
         /// </summary>
         public InbuildReplicaCopyDetail CopyDetails { get; }
     }

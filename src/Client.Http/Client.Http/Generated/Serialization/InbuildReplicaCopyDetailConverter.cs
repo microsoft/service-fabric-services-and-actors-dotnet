@@ -43,11 +43,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var propValue = reader.ReadValueAsString();
             if (propValue.Equals("KeyValueStore", StringComparison.OrdinalIgnoreCase))
             {
-                obj = KeyValueStoreReplicaCopyDetailConverter.GetFromJsonProperties(reader);
+                obj = InbuildKeyValueStoreCopyDetailConverter.GetFromJsonProperties(reader);
             }
             else
             {
-                throw new InvalidOperationException("Unknown ReplicaKind.");
+                throw new InvalidOperationException("Unknown Kind.");
             }
 
             return obj;
@@ -60,14 +60,14 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         /// <param name="obj">The object to serialize to JSON.</param>
         internal static void Serialize(JsonWriter writer, InbuildReplicaCopyDetail obj)
         {
-            var kind = obj.ReplicaKind;
+            var kind = obj.Kind;
             if (kind.Equals(ReplicaKind.KeyValueStore))
             {
-                KeyValueStoreReplicaCopyDetailConverter.Serialize(writer, (KeyValueStoreReplicaCopyDetail)obj);
+                InbuildKeyValueStoreCopyDetailConverter.Serialize(writer, (InbuildKeyValueStoreCopyDetail)obj);
             }
             else
             {
-                throw new InvalidOperationException("Unknown ReplicaKind.");
+                throw new InvalidOperationException("Unknown Kind.");
             }
         }
     }

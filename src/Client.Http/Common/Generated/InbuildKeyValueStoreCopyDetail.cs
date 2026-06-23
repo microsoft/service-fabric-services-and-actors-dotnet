@@ -9,20 +9,19 @@ namespace Microsoft.ServiceFabric.Common
     using System.Collections.Generic;
 
     /// <summary>
-    /// Copy details for a key value store replica build. Contains a single ProviderCopyDetail
-    /// property that holds provider-specific copy metadata, polymorphic by ProviderKind.
-    /// Currently only ESE-backed replicas populate provider copy details.
+    /// Copy details for a key value store replica build.
+    /// ProviderCopyDetail is a polymorphic projection of the IDL CopyDetails pointer.
     /// </summary>
-    public partial class KeyValueStoreReplicaCopyDetail : InbuildReplicaCopyDetail
+    public partial class InbuildKeyValueStoreCopyDetail : InbuildReplicaCopyDetail
     {
         /// <summary>
-        /// Initializes a new instance of the KeyValueStoreReplicaCopyDetail class.
+        /// Initializes a new instance of the InbuildKeyValueStoreCopyDetail class.
         /// </summary>
-        /// <param name="providerCopyDetail">Provider-specific copy metadata. The ProviderKind discriminator within this object
+        /// <param name="providerCopyDetail">Provider-specific copy metadata. The Kind discriminator within this object
         /// determines the concrete type. Present only when the state provider populates copy
         /// details; null otherwise.
         /// </param>
-        public KeyValueStoreReplicaCopyDetail(
+        public InbuildKeyValueStoreCopyDetail(
             KeyValueStoreProviderCopyDetail providerCopyDetail = default(KeyValueStoreProviderCopyDetail))
             : base(
                 Common.ReplicaKind.KeyValueStore)
@@ -31,7 +30,7 @@ namespace Microsoft.ServiceFabric.Common
         }
 
         /// <summary>
-        /// Gets provider-specific copy metadata. The ProviderKind discriminator within this object
+        /// Gets provider-specific copy metadata. The Kind discriminator within this object
         /// determines the concrete type. Present only when the state provider populates copy
         /// details; null otherwise.
         /// </summary>

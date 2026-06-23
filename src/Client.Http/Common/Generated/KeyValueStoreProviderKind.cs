@@ -11,17 +11,17 @@ namespace Microsoft.ServiceFabric.Common
     public enum KeyValueStoreProviderKind
     {
         /// <summary>
-        /// The provider kind has not been determined. The value is 0.
+        /// The provider kind has not been determined.
         /// </summary>
         Unknown,
 
         /// <summary>
-        /// Extensible Storage Engine. Copy details are available via ProviderCopyDetail. The value is 1.
+        /// Extensible Storage Engine. Copy details are available via ProviderCopyDetail.
         /// </summary>
-        ESE,
+        Ese,
 
         /// <summary>
-        /// Transactional store provider. Copy details are not currently populated for TStore-backed replicas. The value is 2.
+        /// Transactional store provider. Copy details are not currently populated for TStore-backed replicas.
         /// </summary>
         TStore,
     }

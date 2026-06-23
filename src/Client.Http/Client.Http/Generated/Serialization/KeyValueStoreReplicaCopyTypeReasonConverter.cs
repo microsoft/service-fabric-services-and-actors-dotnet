@@ -12,51 +12,51 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// Converter for <see cref="KvsReplicaCopyTypeReason" />.
+    /// Converter for <see cref="KeyValueStoreReplicaCopyTypeReason" />.
     /// </summary>
-    internal class KvsReplicaCopyTypeReasonConverter
+    internal class KeyValueStoreReplicaCopyTypeReasonConverter
     {
         /// <summary>
         /// Gets the enum value by reading string value from reader.
         /// </summary>
         /// <param name="reader">The <see cref="T: Newtonsoft.Json.JsonReader" /> to read from, reader must be placed at first property.</param>
         /// <returns>The enum Value.</returns>
-        public static KvsReplicaCopyTypeReason? Deserialize(JsonReader reader)
+        public static KeyValueStoreReplicaCopyTypeReason? Deserialize(JsonReader reader)
         {
             var value = reader.ReadValueAsString();
-            var obj = default(KvsReplicaCopyTypeReason);
+            var obj = default(KeyValueStoreReplicaCopyTypeReason);
 
             if (string.Compare(value, "Unknown", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = KvsReplicaCopyTypeReason.Unknown;
+                obj = KeyValueStoreReplicaCopyTypeReason.Unknown;
             }
             else if (string.Compare(value, "InvalidSecondaryEpoch", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = KvsReplicaCopyTypeReason.InvalidSecondaryEpoch;
+                obj = KeyValueStoreReplicaCopyTypeReason.InvalidSecondaryEpoch;
             }
             else if (string.Compare(value, "EmptySecondary", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = KvsReplicaCopyTypeReason.EmptySecondary;
+                obj = KeyValueStoreReplicaCopyTypeReason.EmptySecondary;
             }
             else if (string.Compare(value, "FalseProgress", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = KvsReplicaCopyTypeReason.FalseProgress;
+                obj = KeyValueStoreReplicaCopyTypeReason.FalseProgress;
             }
             else if (string.Compare(value, "MatchedConfigurationNumber", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = KvsReplicaCopyTypeReason.MatchedConfigurationNumber;
+                obj = KeyValueStoreReplicaCopyTypeReason.MatchedConfigurationNumber;
             }
             else if (string.Compare(value, "EpochNotFound", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = KvsReplicaCopyTypeReason.EpochNotFound;
+                obj = KeyValueStoreReplicaCopyTypeReason.EpochNotFound;
             }
             else if (string.Compare(value, "StaleSecondary", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = KvsReplicaCopyTypeReason.StaleSecondary;
+                obj = KeyValueStoreReplicaCopyTypeReason.StaleSecondary;
             }
             else if (string.Compare(value, "PrimaryTombstonesNotTruncated", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = KvsReplicaCopyTypeReason.PrimaryTombstonesNotTruncated;
+                obj = KeyValueStoreReplicaCopyTypeReason.PrimaryTombstonesNotTruncated;
             }
 
             return obj;
@@ -67,36 +67,36 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         /// </summary>
         /// <param name="writer">The <see cref="T: Newtonsoft.Json.JsonWriter" /> to write to.</param>
         /// <param name="value">The object to serialize to JSON.</param>
-        public static void Serialize(JsonWriter writer, KvsReplicaCopyTypeReason? value)
+        public static void Serialize(JsonWriter writer, KeyValueStoreReplicaCopyTypeReason? value)
         {
             switch (value)
             {
-                case KvsReplicaCopyTypeReason.Unknown:
+                case KeyValueStoreReplicaCopyTypeReason.Unknown:
                     writer.WriteStringValue("Unknown");
                     break;
-                case KvsReplicaCopyTypeReason.InvalidSecondaryEpoch:
+                case KeyValueStoreReplicaCopyTypeReason.InvalidSecondaryEpoch:
                     writer.WriteStringValue("InvalidSecondaryEpoch");
                     break;
-                case KvsReplicaCopyTypeReason.EmptySecondary:
+                case KeyValueStoreReplicaCopyTypeReason.EmptySecondary:
                     writer.WriteStringValue("EmptySecondary");
                     break;
-                case KvsReplicaCopyTypeReason.FalseProgress:
+                case KeyValueStoreReplicaCopyTypeReason.FalseProgress:
                     writer.WriteStringValue("FalseProgress");
                     break;
-                case KvsReplicaCopyTypeReason.MatchedConfigurationNumber:
+                case KeyValueStoreReplicaCopyTypeReason.MatchedConfigurationNumber:
                     writer.WriteStringValue("MatchedConfigurationNumber");
                     break;
-                case KvsReplicaCopyTypeReason.EpochNotFound:
+                case KeyValueStoreReplicaCopyTypeReason.EpochNotFound:
                     writer.WriteStringValue("EpochNotFound");
                     break;
-                case KvsReplicaCopyTypeReason.StaleSecondary:
+                case KeyValueStoreReplicaCopyTypeReason.StaleSecondary:
                     writer.WriteStringValue("StaleSecondary");
                     break;
-                case KvsReplicaCopyTypeReason.PrimaryTombstonesNotTruncated:
+                case KeyValueStoreReplicaCopyTypeReason.PrimaryTombstonesNotTruncated:
                     writer.WriteStringValue("PrimaryTombstonesNotTruncated");
                     break;
                 default:
-                    throw new ArgumentException($"Invalid value {value.ToString()} for enum type KvsReplicaCopyTypeReason");
+                    throw new ArgumentException($"Invalid value {value.ToString()} for enum type KeyValueStoreReplicaCopyTypeReason");
             }
         }
     }

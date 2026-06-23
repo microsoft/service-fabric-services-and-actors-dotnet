@@ -11,17 +11,17 @@ namespace Microsoft.ServiceFabric.Common
     public enum KeyValueStoreEseFormat
     {
         /// <summary>
-        /// The original KVS store format. The value is 0.
+        /// The original KVS store format.
         /// </summary>
         Legacy,
 
         /// <summary>
-        /// First-generation updated KVS store format. The value is 1.
+        /// First-generation updated KVS store format.
         /// </summary>
         Hop1,
 
         /// <summary>
-        /// Second-generation KVS store format with legacy compatibility. The value is 2.
+        /// Second-generation KVS store format with legacy compatibility.
         /// </summary>
         Hop2Legacy,
     }

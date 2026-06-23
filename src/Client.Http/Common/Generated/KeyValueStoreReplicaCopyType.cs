@@ -6,24 +6,23 @@
 namespace Microsoft.ServiceFabric.Common
 {
     /// <summary>
-    /// Defines values for KvsReplicaCopyMode.
+    /// Defines values for KeyValueStoreReplicaCopyType.
     /// </summary>
-    public enum KvsReplicaCopyMode
+    public enum KeyValueStoreReplicaCopyType
     {
         /// <summary>
-        /// The copy mode has not been determined. The value is 0.
+        /// The copy type has not been determined.
         /// </summary>
         Unknown,
 
         /// <summary>
-        /// The primary streams the ESE database file directly to the secondary. Only used for full copies. The value is 1.
+        /// All state data is copied from primary to secondary.
         /// </summary>
-        Physical,
+        Full,
 
         /// <summary>
-        /// The primary transfers state to the secondary row-by-row. Required when store formats are incompatible or when
-        /// performing a partial copy. The value is 2.
+        /// Only incremental changes since the secondary's last known sequence number are copied.
         /// </summary>
-        Logical,
+        Partial,
     }
 }

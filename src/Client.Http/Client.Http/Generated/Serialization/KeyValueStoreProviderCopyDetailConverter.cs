@@ -41,13 +41,13 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             }
 
             var propValue = reader.ReadValueAsString();
-            if (propValue.Equals("ESE", StringComparison.OrdinalIgnoreCase))
+            if (propValue.Equals("Ese", StringComparison.OrdinalIgnoreCase))
             {
-                obj = KeyValueStoreESEReplicaCopyDetailConverter.GetFromJsonProperties(reader);
+                obj = KeyValueStoreEseReplicaCopyDetailConverter.GetFromJsonProperties(reader);
             }
             else
             {
-                throw new InvalidOperationException("Unknown ProviderKind.");
+                throw new InvalidOperationException("Unknown Kind.");
             }
 
             return obj;
@@ -60,14 +60,14 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         /// <param name="obj">The object to serialize to JSON.</param>
         internal static void Serialize(JsonWriter writer, KeyValueStoreProviderCopyDetail obj)
         {
-            var kind = obj.ProviderKind;
-            if (kind.Equals(KeyValueStoreProviderKind.ESE))
+            var kind = obj.Kind;
+            if (kind.Equals(KeyValueStoreProviderKind.Ese))
             {
-                KeyValueStoreESEReplicaCopyDetailConverter.Serialize(writer, (KeyValueStoreESEReplicaCopyDetail)obj);
+                KeyValueStoreEseReplicaCopyDetailConverter.Serialize(writer, (KeyValueStoreEseReplicaCopyDetail)obj);
             }
             else
             {
-                throw new InvalidOperationException("Unknown ProviderKind.");
+                throw new InvalidOperationException("Unknown Kind.");
             }
         }
     }

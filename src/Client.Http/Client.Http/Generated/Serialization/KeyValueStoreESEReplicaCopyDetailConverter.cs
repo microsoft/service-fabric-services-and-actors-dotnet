@@ -12,16 +12,16 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// Converter for <see cref="KeyValueStoreESEReplicaCopyDetail" />.
+    /// Converter for <see cref="KeyValueStoreEseReplicaCopyDetail" />.
     /// </summary>
-    internal class KeyValueStoreESEReplicaCopyDetailConverter
+    internal class KeyValueStoreEseReplicaCopyDetailConverter
     {
         /// <summary>
         /// Deserializes the JSON representation of the object.
         /// </summary>
         /// <param name="reader">The <see cref="T: Newtonsoft.Json.JsonReader" /> to read from.</param>
         /// <returns>The object Value.</returns>
-        internal static KeyValueStoreESEReplicaCopyDetail Deserialize(JsonReader reader)
+        internal static KeyValueStoreEseReplicaCopyDetail Deserialize(JsonReader reader)
         {
             return reader.Deserialize(GetFromJsonProperties);
         }
@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         /// </summary>
         /// <param name="reader">The <see cref="T: Newtonsoft.Json.JsonReader" /> to read from, reader must be placed at first property.</param>
         /// <returns>The object Value.</returns>
-        internal static KeyValueStoreESEReplicaCopyDetail GetFromJsonProperties(JsonReader reader)
+        internal static KeyValueStoreEseReplicaCopyDetail GetFromJsonProperties(JsonReader reader)
         {
             var primaryEpoch = default(Epoch);
             var primaryLastOperationSequenceNumber = default(string);
@@ -39,10 +39,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var secondaryEpoch = default(Epoch);
             var secondaryLastOperationSequenceNumber = default(string);
             var storeFormatVersion = default(KeyValueStoreEseFormat?);
-            var copyType = default(KvsReplicaCopyType?);
-            var copyTypeReason = default(KvsReplicaCopyTypeReason?);
-            var copyMode = default(KvsReplicaCopyMode?);
-            var copyModeReason = default(KvsReplicaCopyModeReason?);
+            var copyType = default(KeyValueStoreReplicaCopyType?);
+            var copyTypeReason = default(KeyValueStoreReplicaCopyTypeReason?);
+            var copyMode = default(KeyValueStoreReplicaCopyMode?);
+            var copyModeReason = default(KeyValueStoreReplicaCopyModeReason?);
 
             do
             {
@@ -73,19 +73,19 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 }
                 else if (string.Compare("CopyType", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    copyType = KvsReplicaCopyTypeConverter.Deserialize(reader);
+                    copyType = KeyValueStoreReplicaCopyTypeConverter.Deserialize(reader);
                 }
                 else if (string.Compare("CopyTypeReason", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    copyTypeReason = KvsReplicaCopyTypeReasonConverter.Deserialize(reader);
+                    copyTypeReason = KeyValueStoreReplicaCopyTypeReasonConverter.Deserialize(reader);
                 }
                 else if (string.Compare("CopyMode", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    copyMode = KvsReplicaCopyModeConverter.Deserialize(reader);
+                    copyMode = KeyValueStoreReplicaCopyModeConverter.Deserialize(reader);
                 }
                 else if (string.Compare("CopyModeReason", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    copyModeReason = KvsReplicaCopyModeReasonConverter.Deserialize(reader);
+                    copyModeReason = KeyValueStoreReplicaCopyModeReasonConverter.Deserialize(reader);
                 }
                 else
                 {
@@ -94,7 +94,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             }
             while (reader.TokenType != JsonToken.EndObject);
 
-            return new KeyValueStoreESEReplicaCopyDetail(
+            return new KeyValueStoreEseReplicaCopyDetail(
                 primaryEpoch: primaryEpoch,
                 primaryLastOperationSequenceNumber: primaryLastOperationSequenceNumber,
                 isCopyContextValid: isCopyContextValid,
@@ -112,16 +112,16 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         /// </summary>
         /// <param name="writer">The <see cref="T: Newtonsoft.Json.JsonWriter" /> to write to.</param>
         /// <param name="obj">The object to serialize to JSON.</param>
-        internal static void Serialize(JsonWriter writer, KeyValueStoreESEReplicaCopyDetail obj)
+        internal static void Serialize(JsonWriter writer, KeyValueStoreEseReplicaCopyDetail obj)
         {
             // Required properties are always serialized, optional properties are serialized when not null.
             writer.WriteStartObject();
-            writer.WriteProperty(obj.ProviderKind, "Kind", KeyValueStoreProviderKindConverter.Serialize);
+            writer.WriteProperty(obj.Kind, "Kind", KeyValueStoreProviderKindConverter.Serialize);
             writer.WriteProperty(obj.StoreFormatVersion, "StoreFormatVersion", KeyValueStoreEseFormatConverter.Serialize);
-            writer.WriteProperty(obj.CopyType, "CopyType", KvsReplicaCopyTypeConverter.Serialize);
-            writer.WriteProperty(obj.CopyTypeReason, "CopyTypeReason", KvsReplicaCopyTypeReasonConverter.Serialize);
-            writer.WriteProperty(obj.CopyMode, "CopyMode", KvsReplicaCopyModeConverter.Serialize);
-            writer.WriteProperty(obj.CopyModeReason, "CopyModeReason", KvsReplicaCopyModeReasonConverter.Serialize);
+            writer.WriteProperty(obj.CopyType, "CopyType", KeyValueStoreReplicaCopyTypeConverter.Serialize);
+            writer.WriteProperty(obj.CopyTypeReason, "CopyTypeReason", KeyValueStoreReplicaCopyTypeReasonConverter.Serialize);
+            writer.WriteProperty(obj.CopyMode, "CopyMode", KeyValueStoreReplicaCopyModeConverter.Serialize);
+            writer.WriteProperty(obj.CopyModeReason, "CopyModeReason", KeyValueStoreReplicaCopyModeReasonConverter.Serialize);
             if (obj.PrimaryEpoch != null)
             {
                 writer.WriteProperty(obj.PrimaryEpoch, "PrimaryEpoch", EpochConverter.Serialize);

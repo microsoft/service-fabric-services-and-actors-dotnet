@@ -11,12 +11,13 @@ namespace Microsoft.ServiceFabric.Common
     public enum InbuildReplicaCopyContextPhase
     {
         /// <summary>
-        /// The primary is establishing a connection to the secondary replica. The value is 0.
+        /// The primary establishes the replication connection to the secondary replica.
         /// </summary>
         EstablishConnection,
 
         /// <summary>
-        /// The primary is retrieving copy context from the secondary to determine what type of copy is needed. The value is 1.
+        /// The primary retrieves secondary copy context (for example epoch and last operation sequence number) to determine
+        /// the required copy strategy.
         /// </summary>
         GetCopyContext,
     }
