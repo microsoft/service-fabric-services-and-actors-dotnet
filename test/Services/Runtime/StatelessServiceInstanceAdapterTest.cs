@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             }
         }
 
-        public sealed class Close : StatelessServiceInstanceAdapterTest
+        public sealed class CloseAsync : StatelessServiceInstanceAdapterTest
         {
             [Fact]
             public async Task InvokesOnCloseAsyncOnUserServiceInstance()
@@ -132,7 +132,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             }
 
             [Fact]
-            public async Task AggregatesExceptionsFromAllStepsWhenAllThrow()
+            public async Task AggregatesExceptionsWhenCancelRunAsyncAndOnCloseAsyncThrow()
             {
                 var runEx = new InvalidOperationException();
                 var userEx = new InvalidOperationException();

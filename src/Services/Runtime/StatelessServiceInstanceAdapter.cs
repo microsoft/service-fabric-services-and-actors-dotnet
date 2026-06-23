@@ -125,20 +125,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             // so no failure is lost.
             var exceptions = new List<Exception>();
 
-            try
-            {
-                await this.CloseCommunicationListenersAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                ServiceTrace.Source.WriteWarningWithId(
-                    TraceType,
-                    this.traceId,
-                    "Unhandled exception from CloseCommunicationListenersAsync() - {0}",
-                    ex);
-
-                exceptions.Add(ex);
-            }
+            await this.CloseCommunicationListenersAsync(cancellationToken); // no exception is expected from this call
 
             try
             {
