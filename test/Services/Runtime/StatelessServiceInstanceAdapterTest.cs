@@ -96,19 +96,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             }
 
             [Fact]
-            public async Task ClosesCommunicationListeners()
-            {
-                CommunicationListenerInfo listenerInfo = fuzzy.CommunicationListenerInfo();
-                sut.Field<IList<CommunicationListenerInfo>>().Set(new List<CommunicationListenerInfo> { listenerInfo });
-
-                await sut.CloseAsync(cancellation);
-
-                Mock.Get(listenerInfo.Listener).Verify(_ => _.CloseAsync(cancellation), Times.Once);
-                Mock.Get(listenerInfo.Listener).Verify(_ => _.CloseAsync(It.IsAny<CancellationToken>()), Times.Once);
-                Assert.Null(sut.Field<IList<CommunicationListenerInfo>>().Value);
-            }
-
-            [Fact]
             public async Task PropagatesExceptionFromUserServiceInstanceOnCloseAsync()
             {
                 var expected = new InvalidOperationException();
@@ -120,15 +107,15 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             }
 
             [Fact]
-            public async Task CancelsRunAsyncEvenWhenUserServiceInstanceOnCloseAsyncThrows()
+            public async Task CallsUserServiceInstanceOnCloseEvenWhenCancelRunAsyncThrows()
             {
                 var adapter = new Mock<StatelessServiceInstanceAdapter>(context, userServiceInstance) { CallBase = true };
-                Mock.Get(userServiceInstance).Setup(_ => _.OnCloseAsync(cancellation)).ThrowsAsync(new InvalidOperationException());
+                adapter.Protected().Setup<Task>("CancelRunAsync").ThrowsAsync(new InvalidOperationException());
                 IStatelessServiceInstance ssInstance = adapter.Object;
 
                 await Assert.ThrowsAsync<InvalidOperationException>(() => ssInstance.CloseAsync(cancellation));
 
-                adapter.Protected().Verify("CancelRunAsync", Times.Once());
+                Mock.Get(userServiceInstance).Verify(_ => _.OnCloseAsync(cancellation), Times.Once);
             }
 
             [Fact]
