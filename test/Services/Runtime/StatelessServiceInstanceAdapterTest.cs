@@ -25,6 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         // Constructor parameters
         readonly StatelessServiceContext context = fuzzy.StatelessServiceContext();
         readonly IStatelessUserServiceInstance userServiceInstance = new Mock<IStatelessUserServiceInstance> { DefaultValue = DefaultValue.Mock }.Object;
+
         readonly CancellationToken cancellation = TestContext.Current.CancellationToken;
 
         // Test fixture
