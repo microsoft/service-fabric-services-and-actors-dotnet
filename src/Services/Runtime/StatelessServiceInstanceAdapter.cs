@@ -287,7 +287,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// 2) When replica is being aborted.
         ///
         /// </summary>
-        protected internal virtual async Task CancelRunAsync()
+        protected virtual async Task CancelRunAsync()
         {
             if (this.runAsynCancellationTokenSource != null &&
                 this.runAsynCancellationTokenSource.IsCancellationRequested == false)
