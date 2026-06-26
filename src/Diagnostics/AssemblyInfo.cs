@@ -83,3 +83,7 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: InternalsVisibleTo("FabricInfrastructureManualControl" + TestKey)]
 [assembly: InternalsVisibleTo("FabricIS.parallel.Test" + PublicKey)]
 [assembly: InternalsVisibleTo("FabricIS.parallel.Test" + TestKey)]
+
+// Making internals visible for DCA using Metrics
+[assembly: InternalsVisibleTo("FabricDCA" + PublicKey)]
+[assembly: InternalsVisibleTo("FabricDCA" + TestKey)]
