@@ -20,8 +20,8 @@ Derive from `AspNetCoreCommunicationListener` to create a custom communication l
 ```csharp
 class MyCommunicationListener : AspNetCoreCommunicationListener
 {
-    public MyCommunicationListener(ServiceContext context, Func<string, AspNetCoreCommunicationListener, IWebHost> build)
-        : base(context, build) { }
+  public MyCommunicationListener(ServiceContext context, Func<string, AspNetCoreCommunicationListener, IHost> build)
+            : base(context, build) { }
 }
 ```
 

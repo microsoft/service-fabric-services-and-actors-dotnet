@@ -23,12 +23,15 @@ class MyService : StatelessService
             new ServiceInstanceListener(context =>
                 new KestrelCommunicationListener(context, "ServiceEndpoint", (url, listener) =>
                     Host.CreateDefaultBuilder()
+                        .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
                         .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>().UseUrls(url))
                         .Build()))
         ];
     }
 }
 ```
+
+This host-based path avoids obsolete `WebHostBuilder` APIs on newer ASP.NET Core versions.
 
 ## Documentation
 
