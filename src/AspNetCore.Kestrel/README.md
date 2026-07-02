@@ -31,8 +31,6 @@ class MyService : StatelessService
 }
 ```
 
-This host-based path avoids obsolete `WebHostBuilder` APIs on newer ASP.NET Core versions.
-
 ## Documentation
 
 - [ASP.NET Core in Service Fabric](https://learn.microsoft.com/azure/service-fabric/service-fabric-reliable-services-communication-aspnetcore)
