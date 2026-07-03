@@ -11,20 +11,20 @@ using Microsoft.Extensions.Hosting;
 namespace Microsoft.ServiceFabric.Services.Communication.AspNetCore
 {
     /// <summary>
-    /// Class containing Service Fabric related extension methods for Microsoft.Extensions.Hosting.IHostBuilder.
+    /// Class containing Service Fabric related extension methods for <see cref="IHostBuilder"/>.
     /// </summary>
     public static class IHostBuilderExtensions
     {
-        private static readonly string SettingName = "UseServiceFabricIntegration";
+        private const string SettingName = nameof(UseServiceFabricIntegration);
 
         /// <summary>
         /// Configures the Service to use ServiceFabricMiddleware and tells the listener that middleware is configured for the service so that it can
         /// suffix PartitionId and ReplicaOrInstanceId to url before providing it to Service Fabric Runtime.
         /// </summary>
-        /// <param name="hostBuilder">The Microsoft.Extensions.Hosting.IHostBuilder to configure.</param>
+        /// <param name="hostBuilder">The <see cref="IHostBuilder"/> to configure.</param>
         /// <param name="listener">The <see cref="AspNetCoreCommunicationListener"/> to configure.</param>
         /// <param name="options">A bitwise combination of the enumeration values that specifies the Service Fabric integration options.</param>
-        /// <returns>The Microsoft.Extensions.Hosting.IHostBuilder.</returns>
+        /// <returns>The <see cref="IHostBuilder"/>.</returns>
         public static IHostBuilder UseServiceFabricIntegration(this IHostBuilder hostBuilder, AspNetCoreCommunicationListener listener, ServiceFabricIntegrationOptions options)
         {
             if (hostBuilder == null)

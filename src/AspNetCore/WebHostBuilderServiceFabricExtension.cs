@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.AspNetCore
     /// </summary>
     public static class WebHostBuilderServiceFabricExtension
     {
-        private static readonly string SettingName = "UseServiceFabricIntegration";
+        private const string SettingName = nameof(UseServiceFabricIntegration);
 
         /// <summary>
         /// Configures the Service to use ServiceFabricMiddleware and tells the listener that middleware is configured for the service so that it can

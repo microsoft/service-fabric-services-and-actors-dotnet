@@ -66,11 +66,6 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
                 builder.Object.UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None);
                 Assert.Equal(1, configureServicesCount);
                 Assert.Empty(listener.UrlSuffix);
-
-                // Call UseServiceFabricIntegration() again and verify idempotency.
-                builder.Object.UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None);
-                Assert.Equal(1, configureServicesCount);
-                Assert.Empty(listener.UrlSuffix);
             }
 
             [Fact]
@@ -79,11 +74,23 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
                 builder.Object.UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl);
                 Assert.Equal(1, configureServicesCount);
                 Assert.NotEmpty(listener.UrlSuffix);
+            }
 
-                // Call UseServiceFabricIntegration() again and verify idempotency.
-                builder.Object.UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl);
+            [Fact]
+            public void IsIdempotentWhenCalledMultipleTimes()
+            {
+                builder.Object.UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None);
+                builder.Object.UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None);
+
                 Assert.Equal(1, configureServicesCount);
-                Assert.NotEmpty(listener.UrlSuffix);
+            }
+
+            [Fact]
+            public void ReturnsGivenBuilder()
+            {
+                IHostBuilder result = builder.Object.UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None);
+
+                Assert.Same(builder.Object, result);
             }
 
             [Fact]
