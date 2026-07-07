@@ -23,17 +23,17 @@ namespace Microsoft.ServiceFabric.Services
         private const int CommunicationListenerUsageEventId = 6;
         private const int ServiceRemotingUsageEventId = 7;
 
-        private const string ServiceLifecycleEventTraceFormat = "{0} : clusterOsType = {1}, " +
+        internal const string ServiceLifecycleEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaOrInstanceId = {4}, " +
             "serviceName = {5}, serviceTypeName = {6}, applicationName = {7}, " +
             "applicationTypeName = {8}, lifecycleEvent = {9}, serviceKind = {10}";
 
-        private const string CommunicationListenerUsageEventTraceFormat = "{0} : " +
+        internal const string CommunicationListenerUsageEventTraceFormat = "{0} : " +
             "clusterOsType = {1}, runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, " +
             "serviceName = {5}, serviceTypeName = {6}, applicationName = {7}, " +
             "applicationTypeName = {8}, communicationListenerType = {9}";
 
-        private const string ServiceRemotingUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
+        internal const string ServiceRemotingUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
             "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
             "isSecure = {9}, remotingVersion = {10}, communicationListenerType = {11}";

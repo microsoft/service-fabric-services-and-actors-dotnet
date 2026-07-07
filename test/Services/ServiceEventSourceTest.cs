@@ -83,6 +83,7 @@ namespace Microsoft.ServiceFabric.Services
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ServiceEventSource.Keywords.Default);
             Assert.Equal("ServiceLifecycleEvent", test.Event.EventName);
+            Assert.Equal(ServiceEventSource.ServiceLifecycleEventTraceFormat, test.Event.Message);
             test.EventPayload(0, "type", type);
             test.EventPayload(1, "clusterOsType", clusterOsType);
             test.EventPayload(2, "runtimePlatform", runtimePlatform);
@@ -118,6 +119,7 @@ namespace Microsoft.ServiceFabric.Services
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ServiceEventSource.Keywords.Default);
             Assert.Equal("CommunicationListenerUsageEvent", test.Event.EventName);
+            Assert.Equal(ServiceEventSource.CommunicationListenerUsageEventTraceFormat, test.Event.Message);
             test.EventPayload(0, "type", type);
             test.EventPayload(1, "clusterOsType", clusterOsType);
             test.EventPayload(2, "runtimePlatform", runtimePlatform);
@@ -154,6 +156,7 @@ namespace Microsoft.ServiceFabric.Services
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ServiceEventSource.Keywords.Default);
             Assert.Equal("ServiceRemotingUsageEvent", test.Event.EventName);
+            Assert.Equal(ServiceEventSource.ServiceRemotingUsageEventTraceFormat, test.Event.Message);
             test.EventPayload(0, "type", type);
             test.EventPayload(1, "clusterOsType", clusterOsType);
             test.EventPayload(2, "runtimePlatform", runtimePlatform);

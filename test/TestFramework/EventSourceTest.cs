@@ -168,6 +168,7 @@ namespace Microsoft.ServiceFabric
                 Assert.Equal(level, test.Event.Level);
                 Assert.Equal(AllSessions | Default, test.Event.Keywords);
                 Assert.Equal(act.Method.Name, test.Event.EventName);
+                Assert.Equal(ServiceFabricEventSource.TextEventFormat, test.Event.Message);
                 test.EventPayload(0, "id", id);
                 test.EventPayload(1, "type", type);
                 test.EventPayload(2, "message", message);

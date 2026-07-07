@@ -40,6 +40,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(EventKeywords.None);
             Assert.Equal("StatefulRunAsyncInvocation", test.Event.EventName);
+            Assert.Equal(SR.event_StatefulRunAsyncInvocation, test.Event.Message);
             test.EventPayload(0, "applicationTypeName", statefulService.CodePackageActivationContext.ApplicationTypeName);
             test.EventPayload(1, "applicationName", statefulService.CodePackageActivationContext.ApplicationName);
             test.EventPayload(2, "serviceTypeName", statefulService.ServiceTypeName);
@@ -60,6 +61,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(EventKeywords.None);
             Assert.Equal("StatefulRunAsyncCancellation", test.Event.EventName);
+            Assert.Equal(SR.event_StatefulRunAsyncCancellation, test.Event.Message);
             test.EventPayload(0, "applicationTypeName", statefulService.CodePackageActivationContext.ApplicationTypeName);
             test.EventPayload(1, "applicationName", statefulService.CodePackageActivationContext.ApplicationName);
             test.EventPayload(2, "serviceTypeName", statefulService.ServiceTypeName);
@@ -81,6 +83,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(EventKeywords.None);
             Assert.Equal("StatefulRunAsyncCompletion", test.Event.EventName);
+            Assert.Equal(SR.event_StatefulRunAsyncCompletion, test.Event.Message);
             test.EventPayload(0, "applicationTypeName", statefulService.CodePackageActivationContext.ApplicationTypeName);
             test.EventPayload(1, "applicationName", statefulService.CodePackageActivationContext.ApplicationName);
             test.EventPayload(2, "serviceTypeName", statefulService.ServiceTypeName);
@@ -102,6 +105,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             Assert.Equal(EventLevel.Warning, test.Event.Level);
             test.EventKeywords(EventKeywords.None);
             Assert.Equal("StatefulRunAsyncSlowCancellation", test.Event.EventName);
+            Assert.Equal(SR.event_StatefulRunAsyncSlowCancellation, test.Event.Message);
             test.EventPayload(0, "applicationTypeName", statefulService.CodePackageActivationContext.ApplicationTypeName);
             test.EventPayload(1, "applicationName", statefulService.CodePackageActivationContext.ApplicationName);
             test.EventPayload(2, "serviceTypeName", statefulService.ServiceTypeName);
@@ -124,6 +128,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             Assert.Equal(EventLevel.Error, test.Event.Level);
             test.EventKeywords(EventKeywords.None);
             Assert.Equal("StatefulRunAsyncFailure", test.Event.EventName);
+            Assert.Equal(SR.event_StatefulRunAsyncFailure, test.Event.Message);
             test.EventPayload(0, "applicationTypeName", statefulService.CodePackageActivationContext.ApplicationTypeName);
             test.EventPayload(1, "applicationName", statefulService.CodePackageActivationContext.ApplicationName);
             test.EventPayload(2, "serviceTypeName", statefulService.ServiceTypeName);
@@ -146,6 +151,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(EventKeywords.None);
             Assert.Equal("StatelessRunAsyncInvocation", test.Event.EventName);
+            Assert.Equal(SR.event_StatelessRunAsyncInvocation, test.Event.Message);
             test.EventPayload(0, "applicationTypeName", statelessService.CodePackageActivationContext.ApplicationTypeName);
             test.EventPayload(1, "applicationName", statelessService.CodePackageActivationContext.ApplicationName);
             test.EventPayload(2, "serviceTypeName", statelessService.ServiceTypeName);
@@ -166,6 +172,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(EventKeywords.None);
             Assert.Equal("StatelessRunAsyncCancellation", test.Event.EventName);
+            Assert.Equal(SR.event_StatelessRunAsyncCancellation, test.Event.Message);
             test.EventPayload(0, "applicationTypeName", statelessService.CodePackageActivationContext.ApplicationTypeName);
             test.EventPayload(1, "applicationName", statelessService.CodePackageActivationContext.ApplicationName);
             test.EventPayload(2, "serviceTypeName", statelessService.ServiceTypeName);
@@ -187,6 +194,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(EventKeywords.None);
             Assert.Equal("StatelessRunAsyncCompletion", test.Event.EventName);
+            Assert.Equal(SR.event_StatelessRunAsyncCompletion, test.Event.Message);
             test.EventPayload(0, "applicationTypeName", statelessService.CodePackageActivationContext.ApplicationTypeName);
             test.EventPayload(1, "applicationName", statelessService.CodePackageActivationContext.ApplicationName);
             test.EventPayload(2, "serviceTypeName", statelessService.ServiceTypeName);
@@ -208,6 +216,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             Assert.Equal(EventLevel.Warning, test.Event.Level);
             test.EventKeywords(EventKeywords.None);
             Assert.Equal("StatelessRunAsyncSlowCancellation", test.Event.EventName);
+            Assert.Equal(SR.event_StatelessRunAsyncSlowCancellation, test.Event.Message);
             test.EventPayload(0, "applicationTypeName", statelessService.CodePackageActivationContext.ApplicationTypeName);
             test.EventPayload(1, "applicationName", statelessService.CodePackageActivationContext.ApplicationName);
             test.EventPayload(2, "serviceTypeName", statelessService.ServiceTypeName);
@@ -230,6 +239,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             Assert.Equal(EventLevel.Error, test.Event.Level);
             test.EventKeywords(EventKeywords.None);
             Assert.Equal("StatelessRunAsyncFailure", test.Event.EventName);
+            Assert.Equal(SR.event_StatelessRunAsyncFailure, test.Event.Message);
             test.EventPayload(0, "applicationTypeName", statelessService.CodePackageActivationContext.ApplicationTypeName);
             test.EventPayload(1, "applicationName", statelessService.CodePackageActivationContext.ApplicationName);
             test.EventPayload(2, "serviceTypeName", statelessService.ServiceTypeName);
