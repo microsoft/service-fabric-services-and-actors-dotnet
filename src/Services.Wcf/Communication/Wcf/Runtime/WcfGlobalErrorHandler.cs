@@ -3,47 +3,51 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
+using System;
+using System.Globalization;
+using System.IO;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.ServiceModel.Dispatcher;
+using System.Text;
+using System.Xml;
+
+namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
+
+sealed class WcfGlobalErrorHandler(ChannelDispatcher dispatcher) : IErrorHandler
 {
-    using System;
-    using System.ServiceModel;
-    using System.ServiceModel.Channels;
-    using System.ServiceModel.Dispatcher;
+    readonly ChannelDispatcher dispatcher = dispatcher;
+    readonly DataContractSerializer serializer = new(typeof(ServiceExceptionData));
 
-    internal class WcfGlobalErrorHandler : IErrorHandler
+    bool IErrorHandler.HandleError(Exception error) => error is not FaultException;
+
+    void IErrorHandler.ProvideFault(Exception error, MessageVersion version, ref Message fault)
     {
-        private ChannelDispatcher channelDisp;
+        if (error is FaultException)
+            return;
 
-        public WcfGlobalErrorHandler(ChannelDispatcher channelDispatcher)
+        if (dispatcher.Listener.State != CommunicationState.Opened)
         {
-            this.channelDisp = channelDispatcher;
+            FaultException faultException = new(FaultReason(error), WcfRemoteExceptionInformation.FaultCodeRetry);
+            MessageFault messageFault = faultException.CreateMessageFault();
+            fault = Message.CreateMessage(version, messageFault, null);
         }
+    }
 
-        public bool HandleError(Exception error)
-        {
-            if (error is FaultException)
-            {
-                return false;
-            }
+    FaultReason FaultReason(Exception exception)
+    {
+        var message = new StringBuilder()
+            .AppendFormat(CultureInfo.CurrentCulture, Services.Wcf.SR.ErrorExceptionSerializationFailed1, exception.GetType().FullName)
+            .AppendLine()
+            .AppendFormat(CultureInfo.CurrentCulture, Services.Wcf.SR.ErrorExceptionSerializationFailed2, exception);
 
-            return true;
-        }
+        var exceptionData = new ServiceExceptionData(exception.GetType().FullName, message.ToString());
 
-        public void ProvideFault(Exception error, MessageVersion version, ref Message fault)
-        {
-            if (error is FaultException)
-            {
-                return;
-            }
-
-            if (this.channelDisp.Listener.State != CommunicationState.Opened)
-            {
-                var faultCodeToUse = WcfRemoteExceptionInformation.FaultCodeRetry;
-                var faultReason = new FaultReason(WcfRemoteExceptionInformation.ToString(error));
-                var faultException = new FaultException(faultReason, faultCodeToUse);
-                var mssgFault = faultException.CreateMessageFault();
-                fault = Message.CreateMessage(version, mssgFault, null);
-            }
-        }
+        using var stringWriter = new StringWriter();
+        using var textStream = XmlWriter.Create(stringWriter);
+        serializer.WriteObject(textStream, exceptionData);
+        textStream.Flush();
+        return new FaultReason(stringWriter.ToString());
     }
 }

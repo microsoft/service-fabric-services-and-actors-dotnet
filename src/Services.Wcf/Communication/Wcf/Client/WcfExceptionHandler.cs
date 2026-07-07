@@ -151,27 +151,21 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
                 return true;
             }
 
-            var faultException = e as FaultException;
-            if (faultException != null)
+            var fault = e as FaultException;
+            if (fault != null &&
+                fault.Code.Name == WcfRemoteExceptionInformation.FaultCodeName &&
+                fault.Code.SubCode.Name == WcfRemoteExceptionInformation.FaultSubCodeRetryName)
             {
-                if (faultException.Code.Name == WcfRemoteExceptionInformation.FaultCodeName)
-                {
-                    var actualException = WcfRemoteExceptionInformation.ToException(faultException.Reason.ToString());
-
-                    if (faultException.Code.SubCode.Name == WcfRemoteExceptionInformation.FaultSubCodeRetryName)
-                    {
-                        result = new ExceptionHandlingRetryResult(
-                            actualException,
-                            false,
-                            retrySettings,
-                            retrySettings.DefaultMaxRetryCountForNonTransientErrors);
-                        return true;
-                    }
-                }
+                result = new ExceptionHandlingRetryResult(
+                    fault.Reason.ToString(),
+                    false,
+                    retrySettings,
+                    retrySettings.DefaultMaxRetryCountForNonTransientErrors);
+                return true;
             }
 
             // retry on all communication exceptions, including the protocol exceptions for default max retry
-            if ((faultException == null) && (e is CommunicationException))
+            if (fault == null && e is CommunicationException)
             {
                 result = new ExceptionHandlingRetryResult(
                     e,
