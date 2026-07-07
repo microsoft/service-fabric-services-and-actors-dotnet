@@ -23,4 +23,16 @@
     <PublishDir>$(OutputPath)</PublishDir>
   </PropertyGroup>
 
+  <!--
+    Generate strongly-typed resource accessors at build time.
+    <EmbeddedResource Update="Strings.resx" StronglyTypedLanguage="CSharp" />
+    https://learn.microsoft.com/visualstudio/msbuild/generateresource-task
+  -->
+  <ItemGroup>
+    <EmbeddedResource Update="@(EmbeddedResource)">
+      <StronglyTypedNamespace Condition="'%(StronglyTypedLanguage)' == 'CSharp' and '%(StronglyTypedNamespace)' == ''">$(RootNamespace)</StronglyTypedNamespace>
+      <StronglyTypedClassName Condition="'%(StronglyTypedLanguage)' == 'CSharp' and '%(StronglyTypedClassName)' == ''">%(Filename)</StronglyTypedClassName>
+      <LogicalName Condition="'%(StronglyTypedLanguage)' == 'CSharp' and '%(LogicalName)' == ''">%(StronglyTypedNamespace).%(StronglyTypedClassName).resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

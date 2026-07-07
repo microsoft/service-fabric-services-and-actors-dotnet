@@ -36,15 +36,7 @@
     <Reference Include="..\..\refs\Microsoft.ServiceFabric.YamlUtils.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Resource.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resource.resx</DependentUpon>
-    </Compile>
-    <EmbeddedResource Update="Resource.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <EmbeddedResource Update="Resource.resx" StronglyTypedLanguage="CSharp" />
   </ItemGroup>
   <ItemDefinitionGroup>
     <Content>
