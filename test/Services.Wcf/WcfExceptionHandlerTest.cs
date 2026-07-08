@@ -92,6 +92,14 @@ public abstract class WcfExceptionHandlerTest
             Assert.Null(result);
         }
 
+        [Fact(Explicit = true)] // TODO: SUT bug. FaultCode.SubCode is dereferenced when null.
+        public void ReturnsFalseWhenFaultSubCodeIsMissing()
+        {
+            var code = new FaultCode(WcfRemoteExceptionInformation.FaultCodeName);
+            Assert.False(Handle(new FaultException(new FaultReason(fuzzy.String()), code)));
+            Assert.Null(result);
+        }
+
         [Fact]
         public void ReturnsNonTransientRetryResultWhenExceptionIsCommunicationException()
         {
