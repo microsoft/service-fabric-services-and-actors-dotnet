@@ -102,6 +102,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
             out ExceptionHandlingResult result)
         {
             Exception e = (exceptionInformation ?? throw new ArgumentNullException(nameof(exceptionInformation))).Exception;
+            _ = retrySettings ?? throw new ArgumentNullException(nameof(retrySettings));
 
             // retry with resolve - these exceptions indicate a possible fail over
             if ((e is EndpointNotFoundException) ||
