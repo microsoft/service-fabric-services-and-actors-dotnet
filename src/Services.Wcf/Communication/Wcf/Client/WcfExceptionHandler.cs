@@ -101,6 +101,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
             OperationRetrySettings retrySettings,
             out ExceptionHandlingResult result)
         {
+            if (exceptionInformation == null)
+            {
+                throw new ArgumentNullException(nameof(exceptionInformation));
+            }
+
             var e = exceptionInformation.Exception;
 
             // retry with resolve - these exceptions indicate a possible fail over
