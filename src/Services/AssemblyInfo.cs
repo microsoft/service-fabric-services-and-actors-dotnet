@@ -13,6 +13,7 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.Tests" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.IntegrationTests" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Services.Tests" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Services.Wcf.Tests" + PublicKey)]
 [assembly: InternalsVisibleTo("PresenceLoadDriverLib" + TestKey)]
 [assembly: InternalsVisibleTo("FabActTest.ClientWorkload" + TestKey)]
 [assembly: InternalsVisibleTo("FabActTest.ClientWorkload" + PublicKey)]
