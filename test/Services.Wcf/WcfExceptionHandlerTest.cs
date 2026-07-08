@@ -81,14 +81,16 @@ public abstract class WcfExceptionHandlerTest
         [Fact]
         public void ReturnsFalseWhenFaultCodeNameDoesNotMatch()
         {
-            Assert.False(Handle(new FaultException(fuzzy.String())));
+            var faultCodeName = WcfRemoteExceptionInformation.FaultCodeName + fuzzy.String();
+            Assert.False(Handle(new FaultException(faultCodeName)));
             Assert.Null(result);
         }
 
         [Fact]
         public void ReturnsFalseWhenFaultSubCodeNameDoesNotMatch()
         {
-            var code = new FaultCode(WcfRemoteExceptionInformation.FaultCodeName, new FaultCode(fuzzy.String()));
+            var subCodeName = WcfRemoteExceptionInformation.FaultSubCodeRetryName + fuzzy.String();
+            var code = new FaultCode(WcfRemoteExceptionInformation.FaultCodeName, new FaultCode(subCodeName));
             Assert.False(Handle(new FaultException(new FaultReason(fuzzy.String()), code)));
             Assert.Null(result);
         }
