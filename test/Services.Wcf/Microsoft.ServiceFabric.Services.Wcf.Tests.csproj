@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <RootNamespace>Microsoft.ServiceFabric.Services.Wcf</RootNamespace>
+    <RootNamespace>Microsoft.ServiceFabric.Services</RootNamespace>
     <TargetFrameworks>net472</TargetFrameworks>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
