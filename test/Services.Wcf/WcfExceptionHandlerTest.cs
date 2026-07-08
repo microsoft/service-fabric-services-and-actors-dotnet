@@ -35,7 +35,7 @@ public abstract class WcfExceptionHandlerTest
         {
             Assert.True(Handle(exception));
 
-            var retry = Assert.IsType<ExceptionHandlingRetryResult>(result);
+            var retry = (ExceptionHandlingRetryResult)result;
             Assert.False(retry.IsTransient);
             Assert.Equal(exception.GetType().FullName, retry.ExceptionId);
             Assert.Equal(nonTransientRetryCount, retry.MaxRetryCount);
@@ -46,7 +46,7 @@ public abstract class WcfExceptionHandlerTest
         {
             Assert.True(Handle(exception));
 
-            var retry = Assert.IsType<ExceptionHandlingRetryResult>(result);
+            var retry = (ExceptionHandlingRetryResult)result;
             Assert.True(retry.IsTransient);
             Assert.Equal(exception.GetType().FullName, retry.ExceptionId);
             Assert.Equal(int.MaxValue, retry.MaxRetryCount);
@@ -57,7 +57,7 @@ public abstract class WcfExceptionHandlerTest
         {
             Assert.True(Handle(exception));
 
-            var thrown = Assert.IsType<ExceptionHandlingThrowResult>(result);
+            var thrown = (ExceptionHandlingThrowResult)result;
             Assert.Same(exception, thrown.ExceptionToThrow);
         }
 
@@ -71,7 +71,7 @@ public abstract class WcfExceptionHandlerTest
 
             Assert.True(Handle(new FaultException(new FaultReason(reason), code)));
 
-            var retry = Assert.IsType<ExceptionHandlingRetryResult>(result);
+            var retry = (ExceptionHandlingRetryResult)result;
             Assert.False(retry.IsTransient);
             Assert.Equal(reason, retry.ExceptionId);
             Assert.Equal(nonTransientRetryCount, retry.MaxRetryCount);
@@ -99,7 +99,7 @@ public abstract class WcfExceptionHandlerTest
 
             Assert.True(Handle(exception));
 
-            var retry = Assert.IsType<ExceptionHandlingRetryResult>(result);
+            var retry = (ExceptionHandlingRetryResult)result;
             Assert.False(retry.IsTransient);
             Assert.Equal(exception.GetType().FullName, retry.ExceptionId);
             Assert.Equal(nonTransientRetryCount, retry.MaxRetryCount);
