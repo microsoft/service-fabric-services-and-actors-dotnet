@@ -21,6 +21,7 @@ public abstract class WcfExceptionHandlerTest
     public sealed class TryHandleException : WcfExceptionHandlerTest
     {
         // Method parameters
+        ExceptionInformation exceptionInformation;
         readonly OperationRetrySettings retrySettings;
         ExceptionHandlingResult result;
 
@@ -125,7 +126,7 @@ public abstract class WcfExceptionHandlerTest
         {
             var actual = Assert.Throws<ArgumentNullException>(
                 () => sut.TryHandleException(null, retrySettings, out result));
-            Assert.Equal("exceptionInformation", actual.ParamName);
+            Assert.Equal(nameof(exceptionInformation), actual.ParamName);
         }
 
         [Fact(Explicit = true)] // TODO: SUT bug. Null retrySettings is dereferenced for retriable exceptions.
@@ -159,7 +160,7 @@ public abstract class WcfExceptionHandlerTest
         };
 
         bool Handle(Exception exception) =>
-            sut.TryHandleException(new ExceptionInformation(exception), retrySettings, out result);
+            sut.TryHandleException(exceptionInformation = new ExceptionInformation(exception), retrySettings, out result);
 
         sealed class TestException : Exception
         {
