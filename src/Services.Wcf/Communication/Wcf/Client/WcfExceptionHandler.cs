@@ -154,7 +154,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
             var fault = e as FaultException;
             if (fault != null &&
                 fault.Code.Name == WcfRemoteExceptionInformation.FaultCodeName &&
-                fault.Code.SubCode.Name == WcfRemoteExceptionInformation.FaultSubCodeRetryName)
+                fault.Code.SubCode?.Name == WcfRemoteExceptionInformation.FaultSubCodeRetryName)
             {
                 result = new ExceptionHandlingRetryResult(
                     fault.Reason.ToString(),
