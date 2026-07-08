@@ -136,7 +136,7 @@ public abstract class WcfExceptionHandlerTest
             Assert.Null(result);
         }
 
-        [Fact(Explicit = true)] // TODO: SUT bug. Null exceptionInformation is dereferenced.
+        [Fact]
         public void ThrowsArgumentNullExceptionWhenExceptionInformationIsNull()
         {
             var actual = Assert.Throws<ArgumentNullException>(() => sut.TryHandleException(null, retrySettings, out result));
