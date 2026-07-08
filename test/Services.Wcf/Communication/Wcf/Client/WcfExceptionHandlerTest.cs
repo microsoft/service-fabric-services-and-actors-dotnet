@@ -143,7 +143,7 @@ public abstract class WcfExceptionHandlerTest
             Assert.Equal("exceptionInformation", actual.ParamName);
         }
 
-        [Fact(Explicit = true)] // TODO: SUT bug. Null retrySettings is dereferenced for retriable exceptions.
+        [Fact]
         public void ThrowsArgumentNullExceptionWhenRetrySettingsIsNull()
         {
             ExceptionInformation exceptionInformation = new(new EndpointNotFoundException());
