@@ -131,6 +131,7 @@ public abstract class ExceptionHandlingRetryResultTest
 
             Assert.Equal(expected, sut.GetRetryDelay(retryAttempt));
             retryPolicy.Verify(_ => _.GetNextRetryDelay(It.Is<RetryDelayParameters>(p => p.RetryAttempt == retryAttempt && p.IsTransient == isTransient)), Times.Once);
+            retryPolicy.Verify(_ => _.GetNextRetryDelay(It.IsAny<RetryDelayParameters>()), Times.Exactly(2)); // Constructor call plus this call; rules out unexpected extra calls.
         }
     }
 
