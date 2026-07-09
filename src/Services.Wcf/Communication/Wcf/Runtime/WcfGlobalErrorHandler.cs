@@ -24,6 +24,9 @@ sealed class WcfGlobalErrorHandler(ChannelDispatcher dispatcher) : IErrorHandler
 
     void IErrorHandler.ProvideFault(Exception error, MessageVersion version, ref Message fault)
     {
+        if (error is null)
+            throw new ArgumentNullException(nameof(error));
+
         if (error is FaultException)
             return;
 

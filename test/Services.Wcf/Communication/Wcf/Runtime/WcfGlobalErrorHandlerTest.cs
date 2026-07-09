@@ -117,7 +117,7 @@ public abstract class WcfGlobalErrorHandlerTest
             Assert.Same(expected, fault);
         }
 
-        [Fact(Explicit = true)] // TODO: SUT bug. Null error is accepted and dereferenced later.
+        [Fact]
         public void ThrowsArgumentNullExceptionWhenErrorIsNull()
         {
             var actual = Assert.Throws<ArgumentNullException>(() => sut.ProvideFault(null, version, ref fault));
