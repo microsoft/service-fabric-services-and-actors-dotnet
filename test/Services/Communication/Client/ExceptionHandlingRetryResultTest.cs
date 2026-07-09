@@ -38,6 +38,7 @@ public abstract class ExceptionHandlingRetryResultTest
             Assert.Equal(isTransient, sut.IsTransient);
             Assert.Equal(expectedDelay, sut.RetryDelay);
             Assert.Equal(maxRetryCount, sut.MaxRetryCount);
+            retryPolicy.Verify(_ => _.GetNextRetryDelay(It.IsAny<RetryDelayParameters>()), Times.Once);
         }
     }
 
@@ -69,6 +70,7 @@ public abstract class ExceptionHandlingRetryResultTest
             Assert.Equal(isTransient, sut.IsTransient);
             Assert.Equal(expectedDelay, sut.RetryDelay);
             Assert.Equal(maxRetryCount, sut.MaxRetryCount);
+            retryPolicy.Verify(_ => _.GetNextRetryDelay(It.IsAny<RetryDelayParameters>()), Times.Once);
         }
     }
 
@@ -107,6 +109,7 @@ public abstract class ExceptionHandlingRetryResultTest
             var sut = new ExceptionHandlingRetryResult(exceptionId, isTransient, retrySettings, maxRetryCount);
 
             Assert.Equal(expected, sut.GetRetryDelay(retryAttempt));
+            retryPolicy.Verify(_ => _.GetNextRetryDelay(It.Is<RetryDelayParameters>(p => p.RetryAttempt == retryAttempt && p.IsTransient == isTransient)), Times.Once);
         }
     }
 }
