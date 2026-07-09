@@ -153,8 +153,9 @@ public abstract class WcfExceptionHandlerTest
         [Fact]
         public void ThrowsArgumentNullExceptionWhenExceptionInformationIsNull()
         {
-            var actual = Assert.Throws<ArgumentNullException>(() => sut.TryHandleException(null, retrySettings, out result));
-            Assert.Equal("exceptionInformation", actual.ParamName);
+            ExceptionInformation exceptionInformation = null;
+            var actual = Assert.Throws<ArgumentNullException>(() => sut.TryHandleException(exceptionInformation, retrySettings, out result));
+            Assert.Equal(nameof(exceptionInformation), actual.ParamName);
         }
 
         [Fact]
