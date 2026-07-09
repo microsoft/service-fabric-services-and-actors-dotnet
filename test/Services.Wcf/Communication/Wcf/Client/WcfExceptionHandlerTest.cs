@@ -22,7 +22,6 @@ public abstract class WcfExceptionHandlerTest
     public sealed class TryHandleException : WcfExceptionHandlerTest
     {
         readonly OperationRetrySettings retrySettings;
-        ExceptionHandlingResult result;
 
         public TryHandleException() =>
             retrySettings = new OperationRetrySettings(fuzzy.TimeSpan(), fuzzy.TimeSpan(), fuzzy.Int32(), fuzzy.Int32());
@@ -30,7 +29,7 @@ public abstract class WcfExceptionHandlerTest
         [Theory, MemberData(nameof(FailoverExceptions))]
         public void ReturnsNonTransientRetryResultWhenExceptionIndicatesFailover(ExceptionInformation exceptionInformation)
         {
-            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out result);
+            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
             Assert.True(handled);
             var retry = (ExceptionHandlingRetryResult)result;
@@ -42,7 +41,7 @@ public abstract class WcfExceptionHandlerTest
         [Theory, MemberData(nameof(TransientExceptions))]
         public void ReturnsTransientRetryResultWhenExceptionIsTransient(ExceptionInformation exceptionInformation)
         {
-            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out result);
+            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
             Assert.True(handled);
             var retry = (ExceptionHandlingRetryResult)result;
@@ -54,7 +53,7 @@ public abstract class WcfExceptionHandlerTest
         [Theory, MemberData(nameof(NonRetryableExceptions))]
         public void ReturnsThrowResultWhenExceptionIsNotRetryable(ExceptionInformation exceptionInformation)
         {
-            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out result);
+            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
             Assert.True(handled);
             var thrown = (ExceptionHandlingThrowResult)result;
@@ -67,7 +66,7 @@ public abstract class WcfExceptionHandlerTest
             FaultException exception = new(new FaultReason(xml), WcfRemoteExceptionInformation.FaultCodeRetry);
             ExceptionInformation exceptionInformation = new(exception);
 
-            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out result);
+            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
             Assert.True(handled);
             var retry = (ExceptionHandlingRetryResult)result;
@@ -83,7 +82,7 @@ public abstract class WcfExceptionHandlerTest
             FaultException exception = new(new FaultReason(fuzzy.String()), new FaultCode(faultCodeName));
             ExceptionInformation exceptionInformation = new(exception);
 
-            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out result);
+            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
             Assert.False(handled);
             Assert.Null(result);
@@ -96,7 +95,7 @@ public abstract class WcfExceptionHandlerTest
             FaultCode code = new(WcfRemoteExceptionInformation.FaultCodeName, new FaultCode(subCodeName));
             ExceptionInformation exceptionInformation = new(new FaultException(new FaultReason(fuzzy.String()), code));
 
-            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out result);
+            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
             Assert.False(handled);
             Assert.Null(result);
@@ -108,7 +107,7 @@ public abstract class WcfExceptionHandlerTest
             FaultCode code = new(WcfRemoteExceptionInformation.FaultCodeName);
             ExceptionInformation exceptionInformation = new(new FaultException(new FaultReason(fuzzy.String()), code));
 
-            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out result);
+            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
             Assert.False(handled);
             Assert.Null(result);
@@ -120,7 +119,7 @@ public abstract class WcfExceptionHandlerTest
             FaultException exception = new(new FaultReason("<Root />"), WcfRemoteExceptionInformation.FaultCodeRetry);
             ExceptionInformation exceptionInformation = new(exception);
 
-            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out result);
+            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
             Assert.False(handled);
             Assert.Null(result);
@@ -131,7 +130,7 @@ public abstract class WcfExceptionHandlerTest
         {
             ExceptionInformation exceptionInformation = new(new CommunicationException(fuzzy.String()));
 
-            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out result);
+            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
             Assert.True(handled);
             var retry = (ExceptionHandlingRetryResult)result;
@@ -143,7 +142,7 @@ public abstract class WcfExceptionHandlerTest
         [Fact]
         public void ReturnsFalseWhenExceptionIsNotRecognized()
         {
-            bool handled = sut.TryHandleException(new ExceptionInformation(new TestException()), retrySettings, out result);
+            bool handled = sut.TryHandleException(new ExceptionInformation(new TestException()), retrySettings, out ExceptionHandlingResult result);
 
             Assert.False(handled);
             Assert.Null(result);
@@ -153,7 +152,7 @@ public abstract class WcfExceptionHandlerTest
         public void ThrowsArgumentNullExceptionWhenExceptionInformationIsNull()
         {
             ExceptionInformation exceptionInformation = null;
-            var actual = Assert.Throws<ArgumentNullException>(() => sut.TryHandleException(exceptionInformation, retrySettings, out result));
+            var actual = Assert.Throws<ArgumentNullException>(() => sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result));
             Assert.Equal(nameof(exceptionInformation), actual.ParamName);
         }
 
@@ -161,7 +160,7 @@ public abstract class WcfExceptionHandlerTest
         public void ThrowsArgumentNullExceptionWhenRetrySettingsIsNull()
         {
             ExceptionInformation exceptionInformation = new(new EndpointNotFoundException());
-            var actual = Assert.Throws<ArgumentNullException>(() => sut.TryHandleException(exceptionInformation, null, out result));
+            var actual = Assert.Throws<ArgumentNullException>(() => sut.TryHandleException(exceptionInformation, null, out ExceptionHandlingResult result));
             Assert.Equal(nameof(retrySettings), actual.ParamName);
         }
 
