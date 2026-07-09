@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             this.exceptionId = exceptionId;
             this.isTransient = isTransient;
-            this.retrySettings = retrySettings;
+            this.retrySettings = retrySettings ?? throw new ArgumentNullException(nameof(retrySettings));
             this.retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(new RetryDelayParameters(0, isTransient));
             this.maxRetryCount = maxRetryCount;
         }
