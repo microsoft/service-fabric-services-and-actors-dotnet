@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client;
 public abstract class ExceptionHandlingRetryResultTest
 {
     // Constructor parameters
-    readonly Exception exception = new();
+    readonly TestException exception = new();
     readonly string exceptionId = fuzzy.String();
     readonly TimeSpan retryDelay = fuzzy.TimeSpan();
     readonly OperationRetrySettings retrySettings;
@@ -112,4 +112,6 @@ public abstract class ExceptionHandlingRetryResultTest
             retryPolicy.Verify(_ => _.GetNextRetryDelay(It.Is<RetryDelayParameters>(p => p.RetryAttempt == retryAttempt && p.IsTransient == isTransient)), Times.Once);
         }
     }
+
+    sealed class TestException : Exception;
 }
