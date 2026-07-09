@@ -9,7 +9,6 @@ using System.ServiceModel.Security;
 using System.Xml;
 using Fuzzy;
 using Microsoft.ServiceFabric.Services.Communication.Client;
-using Microsoft.ServiceFabric.Services.Communication.Wcf;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
