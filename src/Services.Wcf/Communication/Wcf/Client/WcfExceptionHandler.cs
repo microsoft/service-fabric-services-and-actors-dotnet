@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
     using System;
     using System.ServiceModel;
     using System.ServiceModel.Security;
+    using System.Xml.Linq;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
     /// <summary>
@@ -82,6 +83,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
     /// </remarks>
     public class WcfExceptionHandler : IExceptionHandler
     {
+        static readonly XNamespace dataContractSerializerNamespace = Constants.ServiceCommunicationNamespace;
+        static readonly XNamespace netDataContractSerializerNamespace = "http://schemas.microsoft.com/2003/10/Serialization/";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfExceptionHandler"/> class.
         /// </summary>
@@ -155,10 +159,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
             var fault = e as FaultException;
             if (fault != null &&
                 fault.Code.Name == WcfRemoteExceptionInformation.FaultCodeName &&
-                fault.Code.SubCode?.Name == WcfRemoteExceptionInformation.FaultSubCodeRetryName)
+                fault.Code.SubCode?.Name == WcfRemoteExceptionInformation.FaultSubCodeRetryName &&
+                TryParseExceptionId(fault.Reason, out string exceptionId))
             {
                 result = new ExceptionHandlingRetryResult(
-                    fault.Reason.ToString(),
+                    exceptionId,
                     false,
                     retrySettings,
                     retrySettings.DefaultMaxRetryCountForNonTransientErrors);
@@ -178,6 +183,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
 
             result = null;
             return false;
+        }
+
+        bool TryParseExceptionId(FaultReason reason, out string exceptionId)
+        {
+            var xml = XDocument.Parse(reason.ToString());
+            exceptionId = xml.Root.Element(dataContractSerializerNamespace + nameof(ServiceExceptionData.Type))?.Value
+                ?? xml.Root.Attribute(netDataContractSerializerNamespace + "Type")?.Value;
+            return !string.IsNullOrWhiteSpace(exceptionId);
         }
     }
 }

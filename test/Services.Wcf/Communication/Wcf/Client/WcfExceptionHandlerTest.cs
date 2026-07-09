@@ -2,8 +2,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 
 using System;
+using System.IO;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Security;
+using System.Xml;
 using Fuzzy;
 using Microsoft.ServiceFabric.Services.Communication.Client;
 using Microsoft.ServiceFabric.Services.Communication.Wcf;
@@ -59,19 +62,18 @@ public abstract class WcfExceptionHandlerTest
             Assert.Same(exceptionInformation.Exception, thrown.ExceptionToThrow);
         }
 
-        [Fact]
-        public void ReturnsNonTransientRetryResultWhenFaultIsRetryable()
+        [Theory, MemberData(nameof(SupportedFaultXmlFormats))]
+        public void ReturnsNonTransientRetryResultWhenFaultIsRetryable(string exceptionId, string xml)
         {
-            string reason = fuzzy.String();
-            FaultCode code = new(WcfRemoteExceptionInformation.FaultCodeName, new FaultCode(WcfRemoteExceptionInformation.FaultSubCodeRetryName));
-            ExceptionInformation exceptionInformation = new(new FaultException(new FaultReason(reason), code));
+            FaultException exception = new(new FaultReason(xml), WcfRemoteExceptionInformation.FaultCodeRetry);
+            ExceptionInformation exceptionInformation = new(exception);
 
             bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out result);
 
             Assert.True(handled);
             var retry = (ExceptionHandlingRetryResult)result;
             Assert.False(retry.IsTransient);
-            Assert.Equal(reason, retry.ExceptionId);
+            Assert.Equal(exceptionId, retry.ExceptionId);
             Assert.Equal(retrySettings.DefaultMaxRetryCountForNonTransientErrors, retry.MaxRetryCount);
         }
 
@@ -173,6 +175,34 @@ public abstract class WcfExceptionHandlerTest
             new ExceptionInformation(new SecurityAccessDeniedException(fuzzy.String())),
         ];
 
-        sealed class TestException : Exception { }
+        public static TheoryData<string, string> SupportedFaultXmlFormats =>
+        [
+            NetDataContractSerializerException(),
+            DataContractSerializerException(),
+        ];
+
+        static (string, string) NetDataContractSerializerException()
+        {
+            NetDataContractSerializer serializer = new();
+            TestException exception = new();
+            using StringWriter stringWriter = new();
+            using var textStream = XmlWriter.Create(stringWriter);
+            serializer.WriteObject(textStream, exception);
+            textStream.Flush();
+            return (exception.GetType().FullName, stringWriter.ToString());
+        }
+
+        static (string, string) DataContractSerializerException()
+        {
+            DataContractSerializer serializer = new(typeof(ServiceExceptionData));
+            ServiceExceptionData exceptionData = new(fuzzy.String(), fuzzy.String());
+            using StringWriter stringWriter = new();
+            using var textStream = XmlWriter.Create(stringWriter);
+            serializer.WriteObject(textStream, exceptionData);
+            textStream.Flush();
+            return (exceptionData.Type, stringWriter.ToString());
+        }
+
+        [Serializable] sealed class TestException : Exception { }
     }
 }
