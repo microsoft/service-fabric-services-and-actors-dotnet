@@ -79,8 +79,9 @@ public abstract class WcfExceptionHandlerTest
         public void ReturnsFalseWhenFaultCodeNameDoesNotMatch()
         {
             string faultCodeName = WcfRemoteExceptionInformation.FaultCodeName + fuzzy.String();
-            FaultException exception = new(new FaultReason(fuzzy.String()), new FaultCode(faultCodeName));
-            ExceptionInformation exceptionInformation = new(exception);
+            FaultCode code = new(faultCodeName, new FaultCode(WcfRemoteExceptionInformation.FaultSubCodeRetryName));
+            (_, string xml) = DataContractSerializerException();
+            ExceptionInformation exceptionInformation = new(new FaultException(new FaultReason(xml), code));
 
             bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
@@ -93,7 +94,8 @@ public abstract class WcfExceptionHandlerTest
         {
             string subCodeName = WcfRemoteExceptionInformation.FaultSubCodeRetryName + fuzzy.String();
             FaultCode code = new(WcfRemoteExceptionInformation.FaultCodeName, new FaultCode(subCodeName));
-            ExceptionInformation exceptionInformation = new(new FaultException(new FaultReason(fuzzy.String()), code));
+            (_, string xml) = DataContractSerializerException();
+            ExceptionInformation exceptionInformation = new(new FaultException(new FaultReason(xml), code));
 
             bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
@@ -105,7 +107,8 @@ public abstract class WcfExceptionHandlerTest
         public void ReturnsFalseWhenFaultSubCodeIsMissing()
         {
             FaultCode code = new(WcfRemoteExceptionInformation.FaultCodeName);
-            ExceptionInformation exceptionInformation = new(new FaultException(new FaultReason(fuzzy.String()), code));
+            (_, string xml) = DataContractSerializerException();
+            ExceptionInformation exceptionInformation = new(new FaultException(new FaultReason(xml), code));
 
             bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result);
 
