@@ -21,7 +21,7 @@ public abstract class ExceptionHandlingRetryResultTest
     static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
     readonly Mock<IRetryPolicy> retryPolicy = new();
 
-    private ExceptionHandlingRetryResultTest() =>
+    ExceptionHandlingRetryResultTest() =>
         retrySettings = new OperationRetrySettings(retryPolicy.Object);
 
     public sealed class Constructor_Exception_Boolean_OperationRetrySettings_Int32 : ExceptionHandlingRetryResultTest
