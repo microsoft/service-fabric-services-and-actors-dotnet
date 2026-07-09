@@ -116,6 +116,18 @@ public abstract class WcfExceptionHandlerTest
         }
 
         [Fact]
+        public void ReturnsFalseWhenFaultReasonDoesNotContainExceptionId()
+        {
+            FaultException exception = new(new FaultReason("<Root />"), WcfRemoteExceptionInformation.FaultCodeRetry);
+            ExceptionInformation exceptionInformation = new(exception);
+
+            bool handled = sut.TryHandleException(exceptionInformation, retrySettings, out result);
+
+            Assert.False(handled);
+            Assert.Null(result);
+        }
+
+        [Fact]
         public void ReturnsNonTransientRetryResultWhenExceptionIsCommunicationException()
         {
             ExceptionInformation exceptionInformation = new(new CommunicationException(fuzzy.String()));
