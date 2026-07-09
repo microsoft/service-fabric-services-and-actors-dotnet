@@ -112,7 +112,7 @@ public abstract class ExceptionHandlingRetryResultTest
     public sealed class GetRetryDelay : ExceptionHandlingRetryResultTest
     {
         // Method parameters
-        readonly int retryAttempt = fuzzy.Int32();
+        readonly int retryAttempt = fuzzy.Int32().Minimum(1); // Must differ from the constructor's hard-coded attempt 0 to avoid verifying an extra call.
 
         [Fact]
         public void ReturnsRetryDelayWhenRetrySettingsWasNotProvided()
