@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             TimeSpan retryDelay,
             int maxRetryCount)
         {
-            this.exceptionId = exception.GetType().FullName;
+            this.exceptionId = (exception ?? throw new ArgumentNullException(nameof(exception))).GetType().FullName;
             this.isTransient = isTransient;
             this.retryDelay = retryDelay;
             this.retrySettings = null;
@@ -86,7 +86,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="retrySettings">The retrySettings from which the interval to wait before retrying is figured out.</param>
         /// <param name="maxRetryCount">The maximum number of times the exception identified by the exceptionId parameter needs to be retried for.</param>
         public ExceptionHandlingRetryResult(Exception exception, bool isTransient, OperationRetrySettings retrySettings, int maxRetryCount)
-            : this(exception.GetType().FullName, isTransient, retrySettings, maxRetryCount) {}
+            : this((exception ?? throw new ArgumentNullException(nameof(exception))).GetType().FullName, isTransient, retrySettings, maxRetryCount) {}
         
         internal ExceptionHandlingRetryResult(string exceptionId, bool isTransient, OperationRetrySettings retrySettings, int maxRetryCount)
         {

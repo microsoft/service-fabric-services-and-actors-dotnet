@@ -41,7 +41,7 @@ public abstract class ExceptionHandlingRetryResultTest
             retryPolicy.Verify(_ => _.GetNextRetryDelay(It.IsAny<RetryDelayParameters>()), Times.Once);
         }
 
-        [Fact(Explicit = true)] // TODO: SUT bug. Constructor dereferences exception without a null guard.
+        [Fact]
         public void ThrowsArgumentNullExceptionWhenExceptionIsNull()
         {
             ArgumentNullException actual = Assert.Throws<ArgumentNullException>(() => new ExceptionHandlingRetryResult((Exception)null, fuzzy.Boolean(), retrySettings, maxRetryCount));
@@ -62,7 +62,7 @@ public abstract class ExceptionHandlingRetryResultTest
             Assert.Equal(maxRetryCount, sut.MaxRetryCount);
         }
 
-        [Fact(Explicit = true)] // TODO: SUT bug. Constructor dereferences exception without a null guard.
+        [Fact]
         public void ThrowsArgumentNullExceptionWhenExceptionIsNull()
         {
             ArgumentNullException actual = Assert.Throws<ArgumentNullException>(() => new ExceptionHandlingRetryResult((Exception)null, fuzzy.Boolean(), retryDelay, maxRetryCount));
