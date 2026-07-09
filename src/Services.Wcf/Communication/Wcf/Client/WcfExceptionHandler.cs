@@ -88,13 +88,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         static readonly XName netDataContractSerializedType = (XNamespace)"http://schemas.microsoft.com/2003/10/Serialization/" + type;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WcfExceptionHandler"/> class.
-        /// </summary>
-        public WcfExceptionHandler()
-        {
-        }
-
-        /// <summary>
         /// Method that examines the exception and determines how that exception can be handled.
         /// </summary>
         /// <param name="exceptionInformation">Information about the exception</param>
