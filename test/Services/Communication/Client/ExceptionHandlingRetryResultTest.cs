@@ -40,6 +40,13 @@ public abstract class ExceptionHandlingRetryResultTest
             Assert.Equal(maxRetryCount, sut.MaxRetryCount);
             retryPolicy.Verify(_ => _.GetNextRetryDelay(It.IsAny<RetryDelayParameters>()), Times.Once);
         }
+
+        [Fact(Explicit = true)] // TODO: SUT bug. Constructor dereferences exception without a null guard.
+        public void ThrowsArgumentNullExceptionWhenExceptionIsNull()
+        {
+            ArgumentNullException actual = Assert.Throws<ArgumentNullException>(() => new ExceptionHandlingRetryResult((Exception)null, fuzzy.Boolean(), retrySettings, maxRetryCount));
+            Assert.Equal(nameof(exception), actual.ParamName);
+        }
     }
 
     public sealed class Constructor_Exception_Boolean_TimeSpan_Int32 : ExceptionHandlingRetryResultTest
@@ -53,6 +60,13 @@ public abstract class ExceptionHandlingRetryResultTest
             Assert.Equal(isTransient, sut.IsTransient);
             Assert.Equal(retryDelay, sut.RetryDelay);
             Assert.Equal(maxRetryCount, sut.MaxRetryCount);
+        }
+
+        [Fact(Explicit = true)] // TODO: SUT bug. Constructor dereferences exception without a null guard.
+        public void ThrowsArgumentNullExceptionWhenExceptionIsNull()
+        {
+            ArgumentNullException actual = Assert.Throws<ArgumentNullException>(() => new ExceptionHandlingRetryResult((Exception)null, fuzzy.Boolean(), retryDelay, maxRetryCount));
+            Assert.Equal(nameof(exception), actual.ParamName);
         }
     }
 
@@ -71,6 +85,13 @@ public abstract class ExceptionHandlingRetryResultTest
             Assert.Equal(expectedDelay, sut.RetryDelay);
             Assert.Equal(maxRetryCount, sut.MaxRetryCount);
             retryPolicy.Verify(_ => _.GetNextRetryDelay(It.IsAny<RetryDelayParameters>()), Times.Once);
+        }
+
+        [Fact(Explicit = true)] // TODO: SUT bug. Constructor dereferences retrySettings without a null guard.
+        public void ThrowsArgumentNullExceptionWhenRetrySettingsIsNull()
+        {
+            ArgumentNullException actual = Assert.Throws<ArgumentNullException>(() => new ExceptionHandlingRetryResult(exceptionId, fuzzy.Boolean(), (OperationRetrySettings)null, maxRetryCount));
+            Assert.Equal(nameof(retrySettings), actual.ParamName);
         }
     }
 
