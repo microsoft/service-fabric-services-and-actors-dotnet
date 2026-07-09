@@ -36,7 +36,7 @@ public abstract class WcfGlobalErrorHandlerTest
 
     public sealed class Constructor : WcfGlobalErrorHandlerTest
     {
-        [Fact(Explicit = true)] // TODO: SUT bug. Null dispatcher is accepted and dereferenced later.
+        [Fact]
         public void ThrowsArgumentNullExceptionWhenDispatcherIsNull()
         {
             var actual = Assert.Throws<ArgumentNullException>(() => new WcfGlobalErrorHandler(null));

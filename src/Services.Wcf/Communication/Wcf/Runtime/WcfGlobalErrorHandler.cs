@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
 
 sealed class WcfGlobalErrorHandler(ChannelDispatcher dispatcher) : IErrorHandler
 {
-    readonly ChannelDispatcher dispatcher = dispatcher;
+    readonly ChannelDispatcher dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
     readonly DataContractSerializer serializer = new(typeof(ServiceExceptionData));
 
     bool IErrorHandler.HandleError(Exception error) => error is not FaultException;
