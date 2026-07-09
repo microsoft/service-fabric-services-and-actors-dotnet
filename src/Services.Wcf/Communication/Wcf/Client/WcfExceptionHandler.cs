@@ -83,8 +83,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
     /// </remarks>
     public class WcfExceptionHandler : IExceptionHandler
     {
-        static readonly XNamespace dataContractSerializerNamespace = Constants.ServiceCommunicationNamespace;
-        static readonly XNamespace netDataContractSerializerNamespace = "http://schemas.microsoft.com/2003/10/Serialization/";
+        const string type = nameof(ServiceExceptionData.Type); // Used by DataContractSerializer, matches NetDataContractSerializer
+        static readonly XName dataContractSerializedType = (XNamespace)Constants.ServiceCommunicationNamespace + type;
+        static readonly XName netDataContractSerializedType = (XNamespace)"http://schemas.microsoft.com/2003/10/Serialization/" + type;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfExceptionHandler"/> class.
@@ -188,8 +189,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         bool TryParseExceptionId(FaultReason reason, out string exceptionId)
         {
             var xml = XDocument.Parse(reason.ToString());
-            exceptionId = xml.Root.Element(dataContractSerializerNamespace + nameof(ServiceExceptionData.Type))?.Value
-                ?? xml.Root.Attribute(netDataContractSerializerNamespace + "Type")?.Value;
+            exceptionId = xml.Root.Element(dataContractSerializedType)?.Value
+                ?? xml.Root.Attribute(netDataContractSerializedType)?.Value; // Used by WcfGlobalErrorHandler before v12
             return !string.IsNullOrWhiteSpace(exceptionId);
         }
     }
