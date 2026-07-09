@@ -12,11 +12,10 @@ using System.Xml;
 using Fuzzy;
 using Microsoft.ServiceFabric.Services.Communication;
 using Microsoft.ServiceFabric.Services.Communication.Wcf;
-using Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
 using Moq;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Services.Wcf;
+namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
 
 public abstract class WcfGlobalErrorHandlerTest
 {
