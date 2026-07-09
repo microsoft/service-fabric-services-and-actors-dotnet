@@ -76,6 +76,22 @@ public abstract class WcfExceptionHandlerTest
         }
 
         [Fact]
+        public void ThrowsArgumentNullExceptionWhenExceptionInformationIsNull()
+        {
+            ExceptionInformation exceptionInformation = null;
+            var actual = Assert.Throws<ArgumentNullException>(() => sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result));
+            Assert.Equal(nameof(exceptionInformation), actual.ParamName);
+        }
+
+        [Fact]
+        public void ThrowsArgumentNullExceptionWhenRetrySettingsIsNull()
+        {
+            ExceptionInformation exceptionInformation = new(new EndpointNotFoundException());
+            var actual = Assert.Throws<ArgumentNullException>(() => sut.TryHandleException(exceptionInformation, null, out ExceptionHandlingResult result));
+            Assert.Equal(nameof(retrySettings), actual.ParamName);
+        }
+
+        [Fact]
         public void ReturnsFalseWhenFaultCodeNameDoesNotMatch()
         {
             string faultCodeName = WcfRemoteExceptionInformation.FaultCodeName + fuzzy.String();
@@ -149,22 +165,6 @@ public abstract class WcfExceptionHandlerTest
 
             Assert.False(handled);
             Assert.Null(result);
-        }
-
-        [Fact]
-        public void ThrowsArgumentNullExceptionWhenExceptionInformationIsNull()
-        {
-            ExceptionInformation exceptionInformation = null;
-            var actual = Assert.Throws<ArgumentNullException>(() => sut.TryHandleException(exceptionInformation, retrySettings, out ExceptionHandlingResult result));
-            Assert.Equal(nameof(exceptionInformation), actual.ParamName);
-        }
-
-        [Fact]
-        public void ThrowsArgumentNullExceptionWhenRetrySettingsIsNull()
-        {
-            ExceptionInformation exceptionInformation = new(new EndpointNotFoundException());
-            var actual = Assert.Throws<ArgumentNullException>(() => sut.TryHandleException(exceptionInformation, null, out ExceptionHandlingResult result));
-            Assert.Equal(nameof(retrySettings), actual.ParamName);
         }
 
         public static TheoryData<ExceptionInformation> FailoverExceptions =>
