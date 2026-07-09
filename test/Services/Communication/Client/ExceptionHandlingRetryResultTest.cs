@@ -32,7 +32,7 @@ public abstract class ExceptionHandlingRetryResultTest
             TimeSpan expectedDelay = fuzzy.TimeSpan();
             _ = retryPolicy.Setup(_ => _.GetNextRetryDelay(It.Is<RetryDelayParameters>(p => p.RetryAttempt == 0 && p.IsTransient == isTransient))).Returns(expectedDelay);
 
-            var sut = new ExceptionHandlingRetryResult(exception, isTransient, retrySettings, maxRetryCount);
+            ExceptionHandlingRetryResult sut = new(exception, isTransient, retrySettings, maxRetryCount);
 
             Assert.Equal(exception.GetType().FullName, sut.ExceptionId);
             Assert.Equal(isTransient, sut.IsTransient);
@@ -47,7 +47,7 @@ public abstract class ExceptionHandlingRetryResultTest
         [Theory, InlineData(true), InlineData(false)]
         public void InitializesProperties(bool isTransient)
         {
-            var sut = new ExceptionHandlingRetryResult(exception, isTransient, retryDelay, maxRetryCount);
+            ExceptionHandlingRetryResult sut = new(exception, isTransient, retryDelay, maxRetryCount);
 
             Assert.Equal(exception.GetType().FullName, sut.ExceptionId);
             Assert.Equal(isTransient, sut.IsTransient);
@@ -64,7 +64,7 @@ public abstract class ExceptionHandlingRetryResultTest
             TimeSpan expectedDelay = fuzzy.TimeSpan();
             _ = retryPolicy.Setup(_ => _.GetNextRetryDelay(It.Is<RetryDelayParameters>(p => p.RetryAttempt == 0 && p.IsTransient == isTransient))).Returns(expectedDelay);
 
-            var sut = new ExceptionHandlingRetryResult(exceptionId, isTransient, retrySettings, maxRetryCount);
+            ExceptionHandlingRetryResult sut = new(exceptionId, isTransient, retrySettings, maxRetryCount);
 
             Assert.Same(exceptionId, sut.ExceptionId);
             Assert.Equal(isTransient, sut.IsTransient);
@@ -79,7 +79,7 @@ public abstract class ExceptionHandlingRetryResultTest
         [Theory, InlineData(true), InlineData(false)]
         public void InitializesProperties(bool isTransient)
         {
-            var sut = new ExceptionHandlingRetryResult(exceptionId, isTransient, retryDelay, maxRetryCount);
+            ExceptionHandlingRetryResult sut = new(exceptionId, isTransient, retryDelay, maxRetryCount);
 
             Assert.Same(exceptionId, sut.ExceptionId);
             Assert.Equal(isTransient, sut.IsTransient);
@@ -96,7 +96,7 @@ public abstract class ExceptionHandlingRetryResultTest
         [Fact]
         public void ReturnsRetryDelayWhenRetrySettingsWasNotProvided()
         {
-            var sut = new ExceptionHandlingRetryResult(exceptionId, fuzzy.Boolean(), retryDelay, maxRetryCount);
+            ExceptionHandlingRetryResult sut = new(exceptionId, fuzzy.Boolean(), retryDelay, maxRetryCount);
             Assert.Equal(retryDelay, sut.GetRetryDelay(retryAttempt));
         }
 
@@ -106,7 +106,7 @@ public abstract class ExceptionHandlingRetryResultTest
             TimeSpan expected = fuzzy.TimeSpan();
             _ = retryPolicy.Setup(_ => _.GetNextRetryDelay(It.Is<RetryDelayParameters>(p => p.RetryAttempt == retryAttempt && p.IsTransient == isTransient))).Returns(expected);
 
-            var sut = new ExceptionHandlingRetryResult(exceptionId, isTransient, retrySettings, maxRetryCount);
+            ExceptionHandlingRetryResult sut = new(exceptionId, isTransient, retrySettings, maxRetryCount);
 
             Assert.Equal(expected, sut.GetRetryDelay(retryAttempt));
             retryPolicy.Verify(_ => _.GetNextRetryDelay(It.Is<RetryDelayParameters>(p => p.RetryAttempt == retryAttempt && p.IsTransient == isTransient)), Times.Once);
