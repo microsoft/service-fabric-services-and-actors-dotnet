@@ -180,7 +180,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
             return false;
         }
 
-        bool TryParseExceptionId(FaultReason reason, out string exceptionId)
+        static bool TryParseExceptionId(FaultReason reason, out string exceptionId)
         {
             try
             {
