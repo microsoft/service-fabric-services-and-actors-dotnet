@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
 sealed class WcfGlobalErrorHandler(ChannelDispatcher dispatcher) : IErrorHandler
 {
     readonly ChannelDispatcher dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-    readonly DataContractSerializer serializer = new(typeof(ServiceExceptionData));
+    static readonly DataContractSerializer serializer = new(typeof(ServiceExceptionData));
 
     bool IErrorHandler.HandleError(Exception error) => error is not FaultException;
 
@@ -38,7 +38,7 @@ sealed class WcfGlobalErrorHandler(ChannelDispatcher dispatcher) : IErrorHandler
         }
     }
 
-    FaultReason FaultReason(Exception exception)
+    static FaultReason FaultReason(Exception exception)
     {
         var message = new StringBuilder()
             .AppendFormat(CultureInfo.CurrentCulture, Services.Wcf.SR.ErrorExceptionSerializationFailed1, exception.GetType().FullName)
