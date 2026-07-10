@@ -132,7 +132,10 @@ public abstract class WcfExceptionHandlerTest
             Assert.Null(result);
         }
 
-        [Theory, MemberData(nameof(RejectedFaultXmlFormats))]
+        [Theory]
+        [InlineData(""), InlineData("NotXml"), InlineData("<NoType />")]
+        [InlineData("<ServiceExceptionData xmlns='urn:ServiceFabric.Communication'><Type></Type></ServiceExceptionData>")]
+        [InlineData("<TestException xmlns:z='http://schemas.microsoft.com/2003/10/Serialization/' z:Type='   ' />")]
         public void ReturnsFalseWhenFaultReasonDoesNotContainExceptionId(string xml)
         {
             FaultException exception = new(new FaultReason(xml), WcfRemoteExceptionInformation.FaultCodeRetry);
@@ -193,20 +196,6 @@ public abstract class WcfExceptionHandlerTest
         [
             NetDataContractSerializerException(),
             DataContractSerializerException(),
-        ];
-
-        // A fault is rejected when its reason XML yields no usable exception ID. WcfExceptionHandler guards the parsed
-        // value with string.IsNullOrWhiteSpace, so an absent, empty, or whitespace ID must all produce no result.
-        public static TheoryData<string> RejectedFaultXmlFormats =>
-        [
-            // Neither the DataContract <Type> element nor the NetDataContract Type attribute is present.
-            "<Root />",
-
-            // Present but empty DataContract <Type> element.
-            """<ServiceExceptionData xmlns="urn:ServiceFabric.Communication"><Type></Type></ServiceExceptionData>""",
-
-            // Present but whitespace NetDataContract Type attribute.
-            """<TestException xmlns:z="http://schemas.microsoft.com/2003/10/Serialization/" z:Type="   " />""",
         ];
 
         static (string, string) NetDataContractSerializerException()

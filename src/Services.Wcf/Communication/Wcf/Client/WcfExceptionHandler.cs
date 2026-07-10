@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
     using System;
     using System.ServiceModel;
     using System.ServiceModel.Security;
+    using System.Xml;
     using System.Xml.Linq;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
@@ -181,10 +182,18 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
 
         bool TryParseExceptionId(FaultReason reason, out string exceptionId)
         {
-            var xml = XDocument.Parse(reason.ToString());
-            exceptionId = xml.Root.Element(dataContractSerializedType)?.Value
-                ?? xml.Root.Attribute(netDataContractSerializedType)?.Value; // Used by WcfGlobalErrorHandler before v12
-            return !string.IsNullOrWhiteSpace(exceptionId);
+            try
+            {
+                var xml = XDocument.Parse(reason.ToString());
+                exceptionId = xml.Root.Element(dataContractSerializedType)?.Value
+                    ?? xml.Root.Attribute(netDataContractSerializedType)?.Value; // Used by WcfGlobalErrorHandler before v12
+                return !string.IsNullOrWhiteSpace(exceptionId);
+            }
+            catch (XmlException)
+            {
+                exceptionId = null;
+                return false;
+            }
         }
     }
 }
