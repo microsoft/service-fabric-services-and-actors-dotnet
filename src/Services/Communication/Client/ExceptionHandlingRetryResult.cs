@@ -87,7 +87,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="maxRetryCount">The maximum number of times the exception identified by the exceptionId parameter needs to be retried for.</param>
         public ExceptionHandlingRetryResult(Exception exception, bool isTransient, OperationRetrySettings retrySettings, int maxRetryCount)
             : this((exception ?? throw new ArgumentNullException(nameof(exception))).GetType().FullName, isTransient, retrySettings, maxRetryCount) {}
-        
+
         internal ExceptionHandlingRetryResult(string exceptionId, bool isTransient, OperationRetrySettings retrySettings, int maxRetryCount)
         {
             this.exceptionId = exceptionId;
