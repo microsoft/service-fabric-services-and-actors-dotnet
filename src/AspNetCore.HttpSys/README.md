@@ -26,6 +26,7 @@ class MyService : StatelessService
             new ServiceInstanceListener(context =>
                 new HttpSysCommunicationListener(context, "ServiceEndpoint", (url, listener) =>
                     Host.CreateDefaultBuilder()
+                        .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
                         .ConfigureWebHostDefaults(webBuilder => webBuilder.UseHttpSys().UseStartup<Startup>().UseUrls(url))
                         .Build()))
         ];

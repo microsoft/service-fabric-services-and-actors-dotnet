@@ -80,8 +80,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.AspNetCore
         }
 
         /// <summary>
-        /// Gets the url suffix to be used based on <see cref="ServiceFabricIntegrationOptions"/> specified in
-        /// <see cref="WebHostBuilderServiceFabricExtension.UseServiceFabricIntegration"/>.
+        /// Gets the url suffix to be used based on <see cref="ServiceFabricIntegrationOptions"/> specified by
+        /// <c>UseServiceFabricIntegration</c>.
         /// </summary>
         public string UrlSuffix
         {

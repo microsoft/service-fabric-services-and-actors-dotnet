@@ -82,6 +82,7 @@ namespace Microsoft.ServiceFabric.Actors
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ActorEventSource.Keywords.Default);
             Assert.Equal("ActorStateProviderUsageEvent", test.Event.EventName);
+            Assert.Equal(ActorEventSource.ActorStateProviderUsageEventTraceFormat, test.Event.Message);
             test.EventPayload(0, "type", type);
             test.EventPayload(1, "clusterOsType", clusterOsType);
             test.EventPayload(2, "runtimePlatform", runtimePlatform);
@@ -111,6 +112,7 @@ namespace Microsoft.ServiceFabric.Actors
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ActorEventSource.Keywords.Default);
             Assert.Equal("CustomActorServiceUsageEvent", test.Event.EventName);
+            Assert.Equal(ActorEventSource.CustomActorServiceUsageEventTraceFormat, test.Event.Message);
             test.EventPayload(0, "type", type);
             test.EventPayload(1, "clusterOsType", clusterOsType);
             test.EventPayload(2, "runtimePlatform", runtimePlatform);
@@ -142,6 +144,7 @@ namespace Microsoft.ServiceFabric.Actors
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ActorEventSource.Keywords.Default);
             Assert.Equal("ActorReminderRegistrationEvent", test.Event.EventName);
+            Assert.Equal(ActorEventSource.ActorReminderRegistrationEventTraceFormat, test.Event.Message);
             test.EventPayload(0, "type", type);
             test.EventPayload(1, "clusterOsType", clusterOsType);
             test.EventPayload(2, "runtimePlatform", runtimePlatform);

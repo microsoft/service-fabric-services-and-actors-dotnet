@@ -8,7 +8,8 @@ using System;
 namespace Microsoft.ServiceFabric.Services.Communication.AspNetCore
 {
     /// <summary>
-    /// Integration options for <see cref="WebHostBuilderServiceFabricExtension.UseServiceFabricIntegration"/> method when used with Microsoft.AspNetCore.Hosting.IWebHostBuilder.
+    /// Integration options for <c>UseServiceFabricIntegration</c> methods when used with Microsoft.AspNetCore.Hosting.IWebHostBuilder
+    /// or Microsoft.Extensions.Hosting.IHostBuilder.
     /// </summary>
     [Flags]
     public enum ServiceFabricIntegrationOptions

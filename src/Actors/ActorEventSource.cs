@@ -23,15 +23,15 @@ namespace Microsoft.ServiceFabric.Actors
         private const int CustomActorServiceUsageEventId = 6;
         private const int ActorReminderRegistrationEventId = 7;
 
-        private const string ActorStateProviderUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
+        internal const string ActorStateProviderUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
             "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
             "stateProviderName = {9}";
 
-        private const string CustomActorServiceUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
+        internal const string CustomActorServiceUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, actorType = {3}, actorServiceType = {4}";
 
-        private const string ActorReminderRegistrationEventTraceFormat = "{0} : clusterOsType = {1}, " +
+        internal const string ActorReminderRegistrationEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
             "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
             "ownerActorId = {9}, reminderPeriod = {10}, reminderName = {11}";

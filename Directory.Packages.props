@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-  <!-- See .github/instructions/nuget.instructions.md -->
+  <!-- See .github/skills/nuget/SKILL.md -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.997-beta" />
     <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />

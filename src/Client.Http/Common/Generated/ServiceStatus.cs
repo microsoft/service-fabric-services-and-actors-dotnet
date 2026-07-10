@@ -40,5 +40,16 @@ namespace Microsoft.ServiceFabric.Common
         /// accepted. The value is 5.
         /// </summary>
         Failed,
+
+        /// <summary>
+        /// Indicates the service is being disabled. Replicas are being removed. The service transitions to Disabled when
+        /// removal finishes. The value is 6.
+        /// </summary>
+        Disabling,
+
+        /// <summary>
+        /// Indicates the service has been disabled. The service has no replicas or instances. The value is 7.
+        /// </summary>
+        Disabled,
     }
 }

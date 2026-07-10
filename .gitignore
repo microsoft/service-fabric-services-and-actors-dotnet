@@ -8,6 +8,7 @@
 **/bin/**/*
 **/gen/**/*
 **/out/**/*
+**/tmp/**/*
 
 # MSBuild's log file
 msbuild.log

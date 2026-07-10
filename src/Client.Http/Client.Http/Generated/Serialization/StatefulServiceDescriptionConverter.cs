@@ -60,6 +60,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var replicaLifecycleDescription = default(ReplicaLifecycleDescription);
             var auxiliaryReplicaCount = default(int?);
             var serviceSensitivityDescription = default(ServiceSensitivityDescription);
+            var serviceOptions = default(int?);
 
             do
             {
@@ -172,6 +173,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     serviceSensitivityDescription = ServiceSensitivityDescriptionConverter.Deserialize(reader);
                 }
+                else if (string.Compare("ServiceOptions", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    serviceOptions = reader.ReadValueAsInt();
+                }
                 else
                 {
                     reader.SkipPropertyValue();
@@ -206,7 +211,8 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 dropSourceReplicaOnMove: dropSourceReplicaOnMove,
                 replicaLifecycleDescription: replicaLifecycleDescription,
                 auxiliaryReplicaCount: auxiliaryReplicaCount,
-                serviceSensitivityDescription: serviceSensitivityDescription);
+                serviceSensitivityDescription: serviceSensitivityDescription,
+                serviceOptions: serviceOptions);
         }
 
         /// <summary>
@@ -320,6 +326,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             if (obj.ServiceSensitivityDescription != null)
             {
                 writer.WriteProperty(obj.ServiceSensitivityDescription, "ServiceSensitivityDescription", ServiceSensitivityDescriptionConverter.Serialize);
+            }
+
+            if (obj.ServiceOptions != null)
+            {
+                writer.WriteProperty(obj.ServiceOptions, "ServiceOptions", JsonWriterExtensions.WriteIntValue);
             }
 
             writer.WriteEndObject();

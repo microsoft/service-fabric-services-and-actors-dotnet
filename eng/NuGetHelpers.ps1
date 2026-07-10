@@ -38,35 +38,3 @@ function AddNuGetPackageSource([string] $configPath, [string] $key, [string] $pa
     Set-Content $configPath $content -NoNewline
     Write-Host "Updated $configPath"
 }
-
-function Get-TransitivePackage([Parameter(Mandatory)] [string] $package, [string] $project, [string] $framework) {
-    [string] $projectPattern = $project ? $project : '*'
-    [string] $pathPattern = "obj\$projectPattern\project.assets.json"
-    if (-not (Test-Path $pathPattern)) {
-        Write-Error "No project.assets.json files match '$pathPattern'. Run 'dotnet restore' first."
-        return
-    }
-    Get-ChildItem $pathPattern | ForEach-Object {
-        [string] $projectName = ($_.FullName -replace '.*\\obj\\(.+)\\project\.assets\.json', '$1')
-        [hashtable] $assets = Get-Content $_ -Raw | ConvertFrom-Json -AsHashtable
-        foreach ($target in $assets.targets.Keys) {
-            [string] $tfm = $target `
-                -replace '\.NETFramework,Version=v(\d+)\.(\d+)\.?(\d*)', 'net$1$2$3' `
-                -replace '\.NETStandard,Version=v(\d+\.\d+)', 'netstandard$1'
-            if ($framework -and $tfm -ne $framework) { continue }
-            [hashtable] $packages = $assets.targets[$target]
-            foreach ($parentId in $packages.Keys) {
-                [hashtable] $parentData = $packages[$parentId]
-                [hashtable] $dependencies = $parentData.dependencies
-                if ($dependencies -and $dependencies.ContainsKey($package)) {
-                    [PSCustomObject] @{
-                        Project = $projectName
-                        Framework = $tfm
-                        RequestedVersion = $dependencies[$package]
-                        RequestedBy = $parentId
-                    }
-                }
-            }
-        }
-    } | Sort-Object Project, Framework, RequestedBy -Unique
-}

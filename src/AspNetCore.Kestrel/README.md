@@ -23,6 +23,7 @@ class MyService : StatelessService
             new ServiceInstanceListener(context =>
                 new KestrelCommunicationListener(context, "ServiceEndpoint", (url, listener) =>
                     Host.CreateDefaultBuilder()
+                        .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
                         .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>().UseUrls(url))
                         .Build()))
         ];

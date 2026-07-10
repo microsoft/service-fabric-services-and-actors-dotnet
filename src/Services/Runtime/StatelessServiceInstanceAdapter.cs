@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Fabric;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
@@ -118,20 +119,62 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         async Task IStatelessServiceInstance.CloseAsync(CancellationToken cancellationToken)
         {
-            await this.CloseCommunicationListenersAsync(cancellationToken);
-            await this.CancelRunAsync();
+            // Tolerate exceptions from each close step so subsequent steps can complete.
+            // All collected exceptions are reported together at the end: a single one is
+            // rethrown preserving its stack, multiple are wrapped in an AggregateException
+            // so no failure is lost.
+            var exceptions = new List<Exception>();
+
+            await this.CloseCommunicationListenersAsync(cancellationToken); // no exception is expected from this call
+
+            try
+            {
+                await this.CancelRunAsync();
+            }
+            catch (Exception ex)
+            {
+                ServiceTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    "Unhandled exception from CancelRunAsync() - {0}",
+                    ex);
+
+                exceptions.Add(ex);
+            }
 
             ServiceTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.traceId,
                 "Calling userServiceInstance.OnCloseAsync()");
 
-            await this.userServiceInstance.OnCloseAsync(cancellationToken);
+            try
+            {
+                await this.userServiceInstance.OnCloseAsync(cancellationToken);
 
-            ServiceTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.traceId,
-                "Completed call to userServiceInstance.OnCloseAsync().");
+                ServiceTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "Completed call to userServiceInstance.OnCloseAsync().");
+            }
+            catch (Exception ex)
+            {
+                ServiceTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    "Unhandled exception from userServiceInstance.OnCloseAsync() - {0}",
+                    ex);
+
+                exceptions.Add(ex);
+            }
+
+            if (exceptions.Count == 1)
+            {
+                ExceptionDispatchInfo.Capture(exceptions[0]).Throw();
+            }
+            else if (exceptions.Count > 1)
+            {
+                throw new AggregateException(exceptions);
+            }
         }
 
         void IStatelessServiceInstance.Abort()
@@ -244,7 +287,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// 2) When replica is being aborted.
         ///
         /// </summary>
-        private async Task CancelRunAsync()
+        protected virtual async Task CancelRunAsync()
         {
             if (this.runAsynCancellationTokenSource != null &&
                 this.runAsynCancellationTokenSource.IsCancellationRequested == false)

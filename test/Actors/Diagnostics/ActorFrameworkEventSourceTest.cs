@@ -41,6 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.Default);
             Assert.Equal("ActorActivated", test.Event.EventName);
+            Assert.Equal(SR.event_ActorActivated, test.Event.Message);
             test.EventPayload(0, "actorType", actorType);
             test.EventPayload(1, "actorId", actorId.ToString());
             test.EventPayload(2, "actorIdKind", (int)actorId.Kind);
@@ -65,6 +66,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.Default);
             Assert.Equal("ActorDeactivated", test.Event.EventName);
+            Assert.Equal(SR.event_ActorDeactivated, test.Event.Message);
             test.EventPayload(0, "actorType", actorType);
             test.EventPayload(1, "actorId", actorId.ToString());
             test.EventPayload(2, "actorIdKind", (int)actorId.Kind);
@@ -89,6 +91,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Verbose, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.MetricActorMethodCallsWaitingForLock);
             Assert.Equal("ActorMethodCallsWaitingForLock", test.Event.EventName);
+            Assert.Equal(SR.event_ActorMethodCallsWaitingForLock, test.Event.Message);
             test.EventPayload(0, "countOfWaitingMethodCalls", countOfWaitingMethodCalls);
             test.EventPayload(1, "actorType", actorType);
             test.EventPayload(2, "actorId", actorId.ToString());
@@ -114,6 +117,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Verbose, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.ActorMethod);
             Assert.Equal("ActorMethodStart", test.Event.EventName);
+            Assert.Equal(SR.event_ActorMethodStart, test.Event.Message);
             test.EventPayload(0, "methodName", methodName);
             test.EventPayload(1, "methodSignature", methodSignature);
             test.EventPayload(2, "actorType", actorType);
@@ -140,6 +144,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Verbose, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.ActorMethod);
             Assert.Equal("ActorMethodStop", test.Event.EventName);
+            Assert.Equal(SR.event_ActorMethodStop, test.Event.Message);
             test.EventPayload(0, "methodExecutionTimeTicks", executionTime.Ticks);
             test.EventPayload(1, "methodName", methodName);
             test.EventPayload(2, "methodSignature", methodSignature);
@@ -167,6 +172,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Warning, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.Default | ActorFrameworkKeywords.ActorMethod);
             Assert.Equal("ActorMethodThrewException", test.Event.EventName);
+            Assert.Equal(SR.event_ActorMethodThrewException, test.Event.Message);
             test.EventPayload(0, "exception", exception);
             test.EventPayload(1, "methodExecutionTimeTicks", executionTime.Ticks);
             test.EventPayload(2, "methodName", methodName);
@@ -195,6 +201,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Verbose, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.ActorState);
             Assert.Equal("ActorSaveStateStart", test.Event.EventName);
+            Assert.Equal(SR.event_ActorSaveStateStart, test.Event.Message);
             test.EventPayload(0, "actorType", actorType);
             test.EventPayload(1, "actorId", actorId.ToString());
             test.EventPayload(2, "actorIdKind", (int)actorId.Kind);
@@ -219,6 +226,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Verbose, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.ActorState);
             Assert.Equal("ActorSaveStateStop", test.Event.EventName);
+            Assert.Equal(SR.event_ActorSaveStateStop, test.Event.Message);
             test.EventPayload(0, "saveStateExecutionTimeTicks", executionTime.Ticks);
             test.EventPayload(1, "actorType", actorType);
             test.EventPayload(2, "actorId", actorId.ToString());
@@ -244,6 +252,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.Default);
             Assert.Equal("ReplicaChangeRoleFromPrimary", test.Event.EventName);
+            Assert.Equal(SR.event_ReplicaChangeRoleFromPrimary, test.Event.Message);
             test.EventPayload(0, "replicaId", service.ReplicaOrInstanceId);
             test.EventPayload(1, "partitionId", service.PartitionId);
             test.EventPayload(2, "serviceName", service.ServiceName);
@@ -265,6 +274,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.Default);
             Assert.Equal("ReplicaChangeRoleToPrimary", test.Event.EventName);
+            Assert.Equal(SR.event_ReplicaChangeRoleToPrimary, test.Event.Message);
             test.EventPayload(0, "replicaId", service.ReplicaOrInstanceId);
             test.EventPayload(1, "partitionId", service.PartitionId);
             test.EventPayload(2, "serviceName", service.ServiceName);
@@ -286,6 +296,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.Default);
             Assert.Equal("ServiceInstanceClose", test.Event.EventName);
+            Assert.Null(test.Event.Message); // TODO: Event definition bug, but event is unused.
             test.EventPayload(0, "instanceId", service.ReplicaOrInstanceId);
             test.EventPayload(1, "partitionId", service.PartitionId);
             test.EventPayload(2, "serviceName", service.ServiceName);
@@ -307,6 +318,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ActorFrameworkKeywords.Default);
             Assert.Equal("ServiceInstanceOpen", test.Event.EventName);
+            Assert.Null(test.Event.Message); // TODO: Event definition bug, but event is unused.
             test.EventPayload(0, "instanceId", service.ReplicaOrInstanceId);
             test.EventPayload(1, "partitionId", service.PartitionId);
             test.EventPayload(2, "serviceName", service.ServiceName);

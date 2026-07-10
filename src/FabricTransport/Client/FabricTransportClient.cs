@@ -15,11 +15,30 @@ using static Microsoft.ServiceFabric.FabricTransport.NativeFabricTransport;
 
 namespace Microsoft.ServiceFabric.FabricTransport.Client
 {
+    /// <summary>
+    /// Connects to a service endpoint and exchanges request-response and one-way messages with it over
+    /// Service Fabric's native transport.
+    /// </summary>
     internal class FabricTransportClient : IDisposable
     {
         private IFabricTransportClient2 nativeClient;
+
+        /// <summary>
+        /// Stores the settings that configure this client's connection and timeouts.
+        /// </summary>
         protected FabricTransportSettings settings;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportClient"/> class targeting the service endpoint at <paramref name="connectionAddress"/>.
+        /// </summary>
+        /// <param name="transportSettings">The settings that configure the connection and its timeouts.</param>
+        /// <param name="connectionAddress">The address of the service endpoint to connect to.</param>
+        /// <param name="eventHandler">The handler notified when the connection is established or lost.</param>
+        /// <param name="contract">The handler that processes one-way callback messages pushed from the service.</param>
+        /// <param name="messageMessageDisposer">The disposer that releases native resources of received messages.</param>
+        /// <exception cref="FabricInvalidAddressException">
+        /// <paramref name="connectionAddress"/> is not a valid FabricTransport endpoint address.
+        /// </exception>
         public FabricTransportClient(
             FabricTransportSettings transportSettings,
             string connectionAddress,
@@ -34,14 +53,25 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
                 "FabricTransportClient.Create");
         }
 
+        /// <summary>
+        /// Gets the settings that configure this client's connection and timeouts.
+        /// </summary>
         public FabricTransportSettings Settings
         {
             get { return this.settings; }
         }
 
-        public bool IsValid { get; set; }
+        /// <summary>
+        /// Gets the address of the service endpoint this client connects to.
+        /// </summary>
         public string ConnectionAddress { get; private set; }
 
+        /// <summary>
+        /// Asynchronously opens the connection to the service endpoint.
+        /// </summary>
+        /// <exception cref="FabricCannotConnectException">The client cannot connect to the service endpoint.</exception>
+        /// <exception cref="FabricConnectionDeniedException">The client connects without security to a secured service endpoint.</exception>
+        /// <exception cref="TimeoutException">The connection is not established within the configured connect timeout.</exception>
         public async Task OpenAsync(CancellationToken cancellationToken)
         {
             try
@@ -67,6 +97,13 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
             }
         }
 
+        /// <summary>
+        /// Asynchronously closes the connection to the service endpoint.
+        /// </summary>
+        /// <remarks>The <paramref name="cancellationToken"/> is accepted for signature consistency but is not currently observed.</remarks>
+        /// <exception cref="FabricCannotConnectException">The client cannot connect to the service endpoint.</exception>
+        /// <exception cref="FabricConnectionDeniedException">The client connects without security to a secured service endpoint.</exception>
+        /// <exception cref="TimeoutException">The connection is not closed within the configured connect timeout.</exception>
         public async Task CloseAsync(CancellationToken cancellationToken)
         {
             try
@@ -92,6 +129,15 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
             }
         }
 
+        /// <summary>
+        /// Asynchronously sends <paramref name="requestMessage"/> to the service and returns its reply.
+        /// </summary>
+        /// <param name="requestMessage">The message to send to the service.</param>
+        /// <param name="timeout">The maximum time to wait for the reply.</param>
+        /// <param name="requestId">The identifier correlating the request with its reply, or <see cref="Guid.Empty"/> to let the transport assign one.</param>
+        /// <exception cref="FabricCannotConnectException">The client cannot connect to the service endpoint.</exception>
+        /// <exception cref="FabricConnectionDeniedException">The client connects without security to a secured service endpoint.</exception>
+        /// <exception cref="TimeoutException">The reply is not received within <paramref name="timeout"/>.</exception>
         public async Task<FabricTransportMessage> RequestResponseAsync(FabricTransportMessage requestMessage,
             TimeSpan timeout, Guid requestId = default(Guid))
         {
@@ -126,6 +172,9 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
             }
         }
 
+        /// <summary>
+        /// Sends <paramref name="message"/> to the service without waiting for a reply.
+        /// </summary>
         public virtual void SendOneWay(FabricTransportMessage message)
         {
             IFabricTransportMessage nativeMessage =
@@ -196,10 +245,15 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
         }
 
         //Used for Dummy Implemmentation
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportClient"/> class without a native client,
+        /// for use by test doubles that override the transport operations.
+        /// </summary>
         protected FabricTransportClient()
         {
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (nativeClient != null)
@@ -209,6 +263,9 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
             }
         }
 
+        /// <summary>
+        /// Aborts the connection to the service endpoint without waiting for pending operations to complete.
+        /// </summary>
         public void Abort()
         {
             Utility.WrapNativeSyncInvokeInMTA(() => this.internalAbort(), "Client.Abort");

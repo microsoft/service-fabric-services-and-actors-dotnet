@@ -1,8 +1,10 @@
 ---
 description: "Sub-agent using Claude Opus. Use as part of multi-model workflows to get a Claude perspective."
-tools: [read, search, web]
-model: ["Claude Opus 4.6"]
-user-invocable: false
+tools: [agent, execute, read, search, web]
+model: ["Claude Opus 4.8"]
 ---
-You are a sub-agent. You will receive a task description with detailed instructions. Follow the instructions exactly
-and return your findings in the format specified by the caller.
+
+- **Understand `.github/copilot-instructions.md` before doing anything else**.
+  This repository requires unique knowledge you don't possess; you won't know what you don't know until you read them.
+
+- **Follow the received instructions exactly**.

@@ -327,6 +327,23 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public ServiceSensitivityDescription ServiceSensitivityDescription { get; set; }
 
         /// <summary>
+        /// Gets or sets ServiceOptions. Flags that specify options applied to the service when it is created. This is a
+        /// flag-based enumeration, so the value can be a combination of the values below
+        /// obtained using the bitwise 'OR' operator.
+        /// 
+        /// - None - No service options are specified. The value is 0.
+        /// - InitiallyDisabled - The service is created in a disabled state and must be
+        /// explicitly enabled before any replicas or instances are placed. The value is 1.
+        /// </summary>
+        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_Named__Stateful_")]
+        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_Singleton__Stateful_")]
+        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_UniformInt64Range__Stateful_")]
+        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_Named__Stateless_")]
+        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_Singleton__Stateless_")]
+        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_UniformInt64Range__Stateless_")]
+        public int? ServiceOptions { get; set; }
+
+        /// <summary>
         /// Gets or sets MinInstanceCount. MinInstanceCount is the minimum number of instances that must be up to meet the
         /// EnsureAvailability safety check during operations like upgrade or deactivate node.
         /// The actual number that is used is max( MinInstanceCount, ceil( MinInstancePercentage/100.0 * InstanceCount) ).
@@ -460,7 +477,8 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     dropSourceReplicaOnMove: this.DropSourceReplicaOnMove,
                     replicaLifecycleDescription: this.ReplicaLifecycleDescription,
                     auxiliaryReplicaCount: this.AuxiliaryReplicaCount,
-                    serviceSensitivityDescription: this.ServiceSensitivityDescription);
+                    serviceSensitivityDescription: this.ServiceSensitivityDescription,
+                    serviceOptions: this.ServiceOptions);
             }
             else if (this.Stateless.IsPresent)
             {
@@ -486,7 +504,8 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     flags: this.Flags,
                     instanceCloseDelayDurationSeconds: this.InstanceCloseDelayDurationSeconds,
                     instanceLifecycleDescription: this.InstanceLifecycleDescription,
-                    instanceRestartWaitDurationSeconds: this.InstanceRestartWaitDurationSeconds);
+                    instanceRestartWaitDurationSeconds: this.InstanceRestartWaitDurationSeconds,
+                    serviceOptions: this.ServiceOptions);
             }
 
             this.ServiceFabricClient.Services.CreateServiceAsync(
