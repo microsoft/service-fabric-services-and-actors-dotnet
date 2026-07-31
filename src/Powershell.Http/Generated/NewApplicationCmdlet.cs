@@ -77,11 +77,21 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public IEnumerable<ManagedApplicationIdentity> ManagedIdentities { get; set; }
 
         /// <summary>
+        /// Gets or sets Options. Specifies optional capabilities requested for the application. This is a bitwise combination
+        /// of the following flags.
+        /// - None (0): No optional capabilities are requested. This is the default.
+        /// - Resettable (1): The application opts in to the Reset-ServiceFabricApplication operation. Each application
+        /// instance is given an isolated working directory per reset cycle.
+        /// </summary>
+        [Parameter(Mandatory = false, Position = 9)]
+        public int? Options { get; set; }
+
+        /// <summary>
         /// Gets or sets ServerTimeout. The server timeout for performing the operation in seconds. This timeout specifies the
         /// time duration that the client is willing to wait for the requested operation to complete. The default value for
         /// this parameter is 60 seconds.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 9)]
+        [Parameter(Mandatory = false, Position = 10)]
         public long? ServerTimeout { get; set; }
 
         /// <inheritdoc/>
@@ -102,7 +112,8 @@ namespace Microsoft.ServiceFabric.Powershell.Http
             typeVersion: this.TypeVersion,
             parameters: this.Parameters?.ToDictionary<string, string>(),
             applicationCapacity: applicationCapacityDescription,
-            managedApplicationIdentity: managedApplicationIdentityDescription);
+            managedApplicationIdentity: managedApplicationIdentityDescription,
+            options: this.Options);
 
             this.ServiceFabricClient.Applications.CreateApplicationAsync(
                 applicationDescription: applicationDescription,

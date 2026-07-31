@@ -39,6 +39,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var parameters = default(IReadOnlyDictionary<string, string>);
             var applicationCapacity = default(ApplicationCapacityDescription);
             var managedApplicationIdentity = default(ManagedApplicationIdentityDescription);
+            var options = default(int?);
 
             do
             {
@@ -67,6 +68,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     managedApplicationIdentity = ManagedApplicationIdentityDescriptionConverter.Deserialize(reader);
                 }
+                else if (string.Compare("Options", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    options = reader.ReadValueAsInt();
+                }
                 else
                 {
                     reader.SkipPropertyValue();
@@ -80,7 +85,8 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 typeVersion: typeVersion,
                 parameters: parameters,
                 applicationCapacity: applicationCapacity,
-                managedApplicationIdentity: managedApplicationIdentity);
+                managedApplicationIdentity: managedApplicationIdentity,
+                options: options);
         }
 
         /// <summary>
@@ -108,6 +114,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             if (obj.ManagedApplicationIdentity != null)
             {
                 writer.WriteProperty(obj.ManagedApplicationIdentity, "ManagedApplicationIdentity", ManagedApplicationIdentityDescriptionConverter.Serialize);
+            }
+
+            if (obj.Options != null)
+            {
+                writer.WriteProperty(obj.Options, "Options", JsonWriterExtensions.WriteIntValue);
             }
 
             writer.WriteEndObject();

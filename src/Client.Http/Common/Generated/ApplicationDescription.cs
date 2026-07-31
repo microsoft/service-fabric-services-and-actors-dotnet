@@ -29,13 +29,20 @@ namespace Microsoft.ServiceFabric.Common
         /// application
         /// </param>
         /// <param name="managedApplicationIdentity">Managed application identity description.</param>
+        /// <param name="options">Specifies optional capabilities requested for the application. This is a bitwise combination
+        /// of the following flags.
+        /// - None (0): No optional capabilities are requested. This is the default.
+        /// - Resettable (1): The application opts in to the Reset-ServiceFabricApplication operation. Each application
+        /// instance is given an isolated working directory per reset cycle.
+        /// </param>
         public ApplicationDescription(
             ApplicationName name,
             string typeName,
             string typeVersion,
             IReadOnlyDictionary<string, string> parameters = default(IReadOnlyDictionary<string, string>),
             ApplicationCapacityDescription applicationCapacity = default(ApplicationCapacityDescription),
-            ManagedApplicationIdentityDescription managedApplicationIdentity = default(ManagedApplicationIdentityDescription))
+            ManagedApplicationIdentityDescription managedApplicationIdentity = default(ManagedApplicationIdentityDescription),
+            int? options = default(int?))
         {
             name.ThrowIfNull(nameof(name));
             typeName.ThrowIfNull(nameof(typeName));
@@ -46,6 +53,7 @@ namespace Microsoft.ServiceFabric.Common
             this.Parameters = parameters;
             this.ApplicationCapacity = applicationCapacity;
             this.ManagedApplicationIdentity = managedApplicationIdentity;
+            this.Options = options;
         }
 
         /// <summary>
@@ -83,5 +91,14 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets managed application identity description.
         /// </summary>
         public ManagedApplicationIdentityDescription ManagedApplicationIdentity { get; }
+
+        /// <summary>
+        /// Gets specifies optional capabilities requested for the application. This is a bitwise combination of the following
+        /// flags.
+        /// - None (0): No optional capabilities are requested. This is the default.
+        /// - Resettable (1): The application opts in to the Reset-ServiceFabricApplication operation. Each application
+        /// instance is given an isolated working directory per reset cycle.
+        /// </summary>
+        public int? Options { get; }
     }
 }

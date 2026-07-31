@@ -4602,6 +4602,21 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="9">
+                <maml:name>Options</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Specifies optional capabilities requested for the application. This is a bitwise combination of the following flags.
+                    - None (0): No optional capabilities are requested. This is the default.
+                    - Resettable (1): The application opts in to the Reset-ServiceFabricApplication operation. Each application instance is given an isolated working directory per reset cycle.
+                    
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">int?</command:parameterValue>
+                <dev:type>
+                    <maml:name>int?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="10">
                 <maml:name>ServerTimeout</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -4655,6 +4670,67 @@
             <command:parameterValue required="false">bool?</command:parameterValue>
                 <dev:type>
                     <maml:name>bool?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="2">
+                <maml:name>ServerTimeout</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The server timeout for performing the operation in seconds. This timeout specifies the time duration that the client is willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">long?</command:parameterValue>
+                <dev:type>
+                    <maml:name>long?</maml:name>
+                </dev:type>
+            </command:parameter>
+            </command:parameters>
+    </command:command>
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+            <command:details>
+                <command:name>Reset-SFApplication</command:name>
+                <command:verb>Reset</command:verb>
+                <command:noun>Application</command:noun>
+                <maml:description>
+                    <maml:para>Resets a Service Fabric application.</maml:para>
+                </maml:description>
+            </command:details>
+            <command:syntax>
+            </command:syntax>
+            <maml:description>
+                <maml:para>Resets a Service Fabric application. An application must have been created with the resettable capability enabled (for example, via New-ServiceFabricApplication -Options Resettable) before it can be reset. Resetting an application recreates the replicas of each of its services with a clean, isolated working directory per reset cycle, without deleting the application itself. Applications that were not created as resettable cannot be reset.
+                
+                By default Service Fabric closes the existing replicas through the normal graceful shutdown sequence before recreating them. If a replica is having issues closing gracefully, the reset operation may take a long time or get stuck. Use the Immediate reset mode to skip the graceful close sequence.
+                
+                Only one reset can be in progress for an application at a time. While a reset is in progress the application reports the Resetting status and further reset requests fail with FABRIC_E_APPLICATION_RESET_IN_PROGRESS.
+                </maml:para>
+            </maml:description>
+            <command:parameters>
+            <command:parameter required="true" pipelineInput="True(ByPropertyName)" position="0">
+                <maml:name>ApplicationId</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The identity of the application. This is typically the full name of the application without the 'fabric:' URI scheme.
+                    Starting from version 6.0, hierarchical names are delimited with the "~" character.
+                    For example, if the application name is "fabric:/myapp/app1", the application identity would be "myapp~app1" in 6.0+ and "myapp/app1" in previous versions.
+                    
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">string</command:parameterValue>
+                <dev:type>
+                    <maml:name>string</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="1">
+                <maml:name>ResetMode</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Specifies how the application replicas are reset. The default value is 'Graceful'. Possible values include: 'Graceful', 'Immediate'
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">ApplicationResetMode?</command:parameterValue>
+                <dev:type>
+                    <maml:name>ApplicationResetMode?</maml:name>
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="2">
