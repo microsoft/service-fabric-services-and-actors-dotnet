@@ -18,7 +18,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {
     sealed class ExceptionDeserializer
     {
+        const int MaxItemsInObjectGraph = 10_000;
         static readonly string TraceEventType = "ExceptionDeserializer";
+        static readonly XmlDictionaryReaderQuotas readerQuotas = new()
+        {
+            MaxDepth = 64,
+            MaxStringContentLength = 1024 * 1024,
+            MaxArrayLength = 16 * 1024,
+            MaxBytesPerRead = 4 * 1024,
+            MaxNameTableCharCount = 16 * 1024,
+        };
         readonly IEnumerable<IExceptionConvertor> convertors;
 
         public ExceptionDeserializer(IEnumerable<IExceptionConvertor> convertors)
@@ -98,12 +107,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 
         RemoteException2 DeserializeRemoteException2(byte[] buffer)
         {
-            var settings = new DataContractSerializerSettings { MaxItemsInObjectGraph = int.MaxValue };
+            var settings = new DataContractSerializerSettings { MaxItemsInObjectGraph = MaxItemsInObjectGraph };
             var serializer = new DataContractSerializer(typeof(RemoteException2), settings);
 
             try
             {
-                using var reader = XmlDictionaryReader.CreateBinaryReader(buffer, XmlDictionaryReaderQuotas.Max);
+                using var reader = XmlDictionaryReader.CreateBinaryReader(buffer, readerQuotas);
                 return (RemoteException2)serializer.ReadObject(reader);
             }
             catch (Exception e)
