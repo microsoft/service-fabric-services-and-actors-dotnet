@@ -27,7 +27,7 @@ jobs:
         os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
       - name: Setup Windows environment
@@ -49,7 +49,7 @@ jobs:
           "results=$results"   >> $env:GITHUB_OUTPUT
       - name: Upload coverage to Codecov
         if: always() && steps.test.outputs.coverage != ''
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{ steps.test.outputs.coverage }}
@@ -58,14 +58,14 @@ jobs:
           fail_ci_if_error: false
       - name: Upload test results to Codecov
         if: always() && steps.test.outputs.results != ''
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{ steps.test.outputs.results }}
           disable_search: true
           flags: ${{ matrix.os }}
           report_type: test_results
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: build-${{ matrix.os }}
