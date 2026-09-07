@@ -11,17 +11,22 @@ namespace Microsoft.ServiceFabric.Common
     public enum CapacityReleaseLevel
     {
         /// <summary>
-        /// Indicates no capacity release.
+        /// Restores the original target replica counts for primary, secondary, and auxiliary replicas.
         /// </summary>
         None,
 
         /// <summary>
-        /// Indicates minor capacity release.
+        /// Releases capacity without making services unavailable. Services configured to drop replicas to zero retain their
+        /// minimum replica set, services configured to drop replicas to their minimum retain their current primary and
+        /// secondary targets, and auxiliary replica targets are reduced to zero.
         /// </summary>
         Minor,
 
         /// <summary>
-        /// Indicates major capacity release.
+        /// Releases additional capacity and can make services unavailable. Services configured to drop replicas to zero have
+        /// their target replica count reduced to zero, services configured to drop replicas to their minimum have their target
+        /// reduced to the minimum replica set size, and auxiliary replica targets are reduced to zero. Services reduced to
+        /// zero become unavailable, and stateful services reduced to zero permanently lose their state.
         /// </summary>
         Major,
     }

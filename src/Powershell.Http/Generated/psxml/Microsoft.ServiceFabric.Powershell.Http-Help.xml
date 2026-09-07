@@ -2241,14 +2241,19 @@
             <command:syntax>
             </command:syntax>
             <maml:description>
-                <maml:para>Sets the capacity release level applied to the Service Fabric cluster.</maml:para>
+                <maml:para>Sets the capacity release level for the cluster. Setting the level to Major can make services unavailable. Stateful services reduced to zero permanently lose their state.</maml:para>
             </maml:description>
             <command:parameters>
             <command:parameter required="true" position="0">
                 <maml:name>Level</maml:name>
                 <maml:Description>
                     <maml:para>
-                    The capacity release level to set for the cluster. Possible values include: 'None', 'Minor', 'Major'
+                    The capacity release level to set for the cluster.
+                    
+                    - None - Restores the original target replica counts for primary, secondary, and auxiliary replicas.
+                    - Minor - Releases capacity without making services unavailable. Services configured to drop replicas to zero retain their minimum replica set, services configured to drop replicas to their minimum retain their current primary and secondary targets, and auxiliary replica targets are reduced to zero.
+                    - Major - Releases additional capacity and can make services unavailable. Services configured to drop replicas to zero have their target replica count reduced to zero, services configured to drop replicas to their minimum have their target reduced to the minimum replica set size, and auxiliary replica targets are reduced to zero. Services reduced to zero become unavailable, and stateful services reduced to zero permanently lose their state.
+                    . Possible values include: 'None', 'Minor', 'Major'
                     </maml:para>
                 </maml:Description>
             <command:parameterValue required="true">CapacityReleaseLevel?</command:parameterValue>

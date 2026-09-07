@@ -184,11 +184,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             writer.WriteStartObject();
             writer.WriteProperty(obj.ServiceKind, "ServiceKind", ServiceKindConverter.Serialize);
             writer.WriteProperty(obj.DefaultMoveCost, "DefaultMoveCost", MoveCostConverter.Serialize);
-            if (obj.CapacityReleaseAction != null)
-            {
-                writer.WriteProperty(obj.CapacityReleaseAction, "CapacityReleaseAction", CapacityReleaseActionConverter.Serialize);
-            }
-
+            writer.WriteProperty(obj.CapacityReleaseAction, "CapacityReleaseAction", CapacityReleaseActionConverter.Serialize);
             if (obj.Flags != null)
             {
                 writer.WriteProperty(obj.Flags, "Flags", JsonWriterExtensions.WriteStringValue);
