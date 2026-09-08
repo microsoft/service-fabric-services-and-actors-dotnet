@@ -5,8 +5,11 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.ServiceFabric.Services.Communication;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2;
@@ -129,12 +132,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 
         public class DeserializeRemoteExceptionAndThrowAsync : ExceptionDeserializerTest
         {
+            readonly ExceptionDeserializer sut = ExceptionDeserializer.CreateDefault([]);
+
             [Fact]
             public async Task ThrowsOriginalExceptionIfItIsKnownExceptionTypeAsync()
             {
                 // Arrange
-                var exceptionDeserializer = ExceptionDeserializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
-
                 var originalException = new FabricInsufficientMaxLoadCapacityException(fuzzy.String());
 
                 List<ArraySegment<byte>> serializedException = exceptionSerializer.SerializeRemoteException(originalException);
@@ -143,7 +146,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 // Act & Assert
                 AggregateException exception = await Assert.ThrowsAsync<AggregateException>(async () =>
                     {
-                        await exceptionDeserializer.DeserializeRemoteExceptionAndThrowAsync(stream);
+                        await sut.DeserializeRemoteExceptionAndThrowAsync(stream);
                     });
 
                 Exception innerException = exception.Flatten().InnerException;
@@ -151,12 +154,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 Assert.Equal(originalException.Message, innerException.Message);
             }
 
-                        [Fact]
+            [Fact]
             public async Task ThrowsServiceExceptionForUnknownExceptions()
             {
                 // Arrange
-                var exceptionDeserializer = ExceptionDeserializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
-
                 var originalException = new UnknownException(fuzzy.String());
 
                 List<ArraySegment<byte>> serializedException = exceptionSerializer.SerializeRemoteException(originalException);
@@ -165,12 +166,65 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 // Act & Assert
                 AggregateException exception = await Assert.ThrowsAsync<AggregateException>(async () =>
                     {
-                        await exceptionDeserializer.DeserializeRemoteExceptionAndThrowAsync(stream);
+                        await sut.DeserializeRemoteExceptionAndThrowAsync(stream);
                     });
 
                 Exception innerException = exception.Flatten().InnerException;
                 Assert.IsType<ServiceException>(innerException);
                 Assert.Equal(originalException.Message, innerException.Message);
+            }
+
+            [Fact]
+            public async Task ThrowsServiceExceptionWhenObjectGraphExceedsQuota()
+            {
+                int maxItems = typeof(ExceptionDeserializer).Field<int>().Value;
+                RemoteException2 remoteException = RemoteException();
+                remoteException.InnerExceptions = [.. Enumerable.Range(0, maxItems).Select(_ => RemoteException())];
+                using MemoryStream stream = Serialize(remoteException);
+
+                _ = await Assert.ThrowsAsync<ServiceException>(() => sut.DeserializeRemoteExceptionAndThrowAsync(stream));
+            }
+
+            [Fact]
+            public async Task ThrowsServiceExceptionWhenStringContentExceedsQuota()
+            {
+                XmlDictionaryReaderQuotas quotas = typeof(ExceptionDeserializer).Field<XmlDictionaryReaderQuotas>().Value;
+                RemoteException2 remoteException = RemoteException();
+                remoteException.Message = new string('a', quotas.MaxStringContentLength + 1);
+                using MemoryStream stream = Serialize(remoteException);
+
+                _ = await Assert.ThrowsAsync<ServiceException>(() => sut.DeserializeRemoteExceptionAndThrowAsync(stream));
+            }
+
+            [Fact]
+            public async Task ThrowsServiceExceptionWhenXmlDepthExceedsQuota()
+            {
+                XmlDictionaryReaderQuotas quotas = typeof(ExceptionDeserializer).Field<XmlDictionaryReaderQuotas>().Value;
+                RemoteException2 remoteException = RemoteException();
+                for (int depth = 0; depth < quotas.MaxDepth; depth++)
+                    remoteException = RemoteException(remoteException);
+                using MemoryStream stream = Serialize(remoteException);
+
+                _ = await Assert.ThrowsAsync<ServiceException>(() => sut.DeserializeRemoteExceptionAndThrowAsync(stream));
+            }
+
+            static RemoteException2 RemoteException(RemoteException2 inner = null) =>
+                new()
+                {
+                    Type = typeof(UnknownException).FullName,
+                    Message = fuzzy.String(),
+                    InnerExceptions = inner is null ? null : [inner],
+                };
+
+            static MemoryStream Serialize(RemoteException2 remoteException)
+            {
+                var settings = new DataContractSerializerSettings { MaxItemsInObjectGraph = int.MaxValue };
+                var serializer = new DataContractSerializer(typeof(RemoteException2), settings);
+                using MemoryStream serialized = new();
+                using var writer = XmlDictionaryWriter.CreateBinaryWriter(serialized);
+                serializer.WriteObject(writer, remoteException);
+                writer.Flush();
+                return new MemoryStream(serialized.ToArray());
             }
         }
 
