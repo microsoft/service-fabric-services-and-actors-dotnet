@@ -1,15 +1,17 @@
 {
   "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "microsoft-docs": {
+      "type": "http",
+      "url": "https://learn.microsoft.com/api/mcp"
+    },
     "NuGet": {
+      "type": "stdio",
       "command": "dnx",
-      "args": [
-        "NuGet.Mcp.Server",
-        "--source",
-        "https://api.nuget.org/v3/index.json",
-        "--yes"
-      ],
-      "type": "stdio"
+      "args": [ "NuGet.Mcp.Server", "--source", "https://api.nuget.org/v3/index.json", "--yes" ]
     }
-  },
-  "inputs": []
+  }
 }

@@ -1,6 +1,6 @@
 ---
 description: "Sub-agent using Claude Opus. Use as part of multi-model workflows to get a Claude perspective."
-tools: [agent, execute, read, search, web]
+tools: [execute, github/pull_request_read, github/get_file_contents, read, search, web]
 model: ["Claude Opus 4.8"]
 ---
 

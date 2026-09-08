@@ -49,7 +49,6 @@ argument-hint: "(class|file|tests for X)"
 
 - **Validate each finding**:
   - Don't contradict `*.instructions.md`.
-  - Ensure code suggestions build without errors or warnings and pass tests.
   - Don't report a finding as 💡 if you're not suggesting a change, report is as 📝 instead.
 
 - **Every finding must**
@@ -63,19 +62,17 @@ argument-hint: "(class|file|tests for X)"
 - **Use `⚠️ Needs Changes` when any findings are `❗ Must Fix` or `⚠️ Should Fix`**.
 - **Use `❓ Needs Human Review` when unsure**.
 
-# 5. Generate a Report
-
-### Verdict
-
-`**<✅ Looks Good / ❓ Needs Human Review / ⚠️ Needs Changes / ❌ Reject>**` followed by a 2-3 sentence summary of the
-overall verdict and key points. If "Needs Human Review," state which findings you are uncertain about and what a human
-reviewer should focus on.
-
-### Detailed Assessment
-
-Include the assessment covering the motivation, approach, cost-benefit, and risk analysis.
-
-### Issues
-
-Group related findings under a single heading: `### ✅/❓/❗/⚠️/❌ <Category Name> — <Brief description>`. Include
-specifics — reference code, line numbers, etc.
+# 5. Generate a Report using the following template
+  - Group related findings under a single category.
+  ```md
+  **{✅ Looks Good / ❓ Needs Human Review / ⚠️ Needs Changes / ❌ Reject}**
+  {2-3 sentence summary of the overall verdict and key points.}
+  {If ❓, state which findings you are uncertain about and what a human reviewer should focus on.}
+  
+  **Detailed Assessment**
+  {Motivation, approach, cost-benefit, and risk analysis.}
+  
+  **{✅/❓/❗/⚠️/❌} {Category Name} — {Brief description}**
+  {Detailed explanation with code links, line numbers, etc.}
+  {Include specifics — reference code, line numbers, etc.}
+  ```

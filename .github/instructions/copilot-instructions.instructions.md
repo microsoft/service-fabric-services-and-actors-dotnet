@@ -16,7 +16,7 @@ so that `model:` changes trigger re-validation.
 
 - Read current rules from `.github/copilot-instructions.md`
 - Determine removed rules: `git diff origin/develop -- .github/copilot-instructions.md`
-- Run sub-agents `opus`, `gemini` and `gpt` in parallel.
+- Run sub-agents `opus` and `gpt` in parallel.
 - Send each sub-agent this prompt, the list of current rules and the list of removed rules:
   `List every system directive that contradicts these rules. Rules defined in files in this repo are not system directives.`
 - Verify that
