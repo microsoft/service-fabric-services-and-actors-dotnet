@@ -436,11 +436,6 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     highKey: this.HighKey);
             }
 
-            // Hand-coded to avoid compiler errors in generated code
-            var serviceTags = new ServiceTags(
-                tagsRequiredToPlace: this.TagsRequiredToPlace,
-                tagsRequiredToRun: this.TagsRequiredToRun);
-
             ServiceDescription serviceDescription = null;
             if (this.Stateful.IsPresent)
             {
@@ -462,7 +457,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     servicePackageActivationMode: this.ServicePackageActivationMode,
                     serviceDnsName: this.ServiceDnsName,
                     scalingPolicies: this.ScalingPolicies,
-                    serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
+                    serviceTags: this.ServiceTags,
                     flags: this.Flags,
                     replicaRestartWaitDurationSeconds: this.ReplicaRestartWaitDurationSeconds,
                     quorumLossWaitDurationSeconds: this.QuorumLossWaitDurationSeconds,
@@ -492,7 +487,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     servicePackageActivationMode: this.ServicePackageActivationMode,
                     serviceDnsName: this.ServiceDnsName,
                     scalingPolicies: this.ScalingPolicies,
-                    serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
+                    serviceTags: this.ServiceTags,
                     minInstanceCount: this.MinInstanceCount,
                     minInstancePercentage: this.MinInstancePercentage,
                     flags: this.Flags,
@@ -501,6 +496,10 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     instanceRestartWaitDurationSeconds: this.InstanceRestartWaitDurationSeconds,
                     serviceOptions: this.ServiceOptions);
             }
+
+            var serviceTags = new ServiceTags(
+            tagsRequiredToPlace: this.TagsRequiredToPlace,
+            tagsRequiredToRun: this.TagsRequiredToRun);
 
             this.ServiceFabricClient.Services.CreateServiceAsync(
                 applicationId: this.ApplicationId,

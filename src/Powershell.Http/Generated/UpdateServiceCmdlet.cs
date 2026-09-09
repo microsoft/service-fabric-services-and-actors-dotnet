@@ -298,11 +298,6 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     namesToRemove: this.NamesToRemove);
             }
 
-            // Hand-coded to avoid compiler errors in generated code
-            var serviceTags = new ServiceTags(
-                tagsRequiredToPlace: this.TagsRequiredToPlace,
-                tagsRequiredToRun: this.TagsRequiredToRun);
-
             ServiceUpdateDescription serviceUpdateDescription = null;
             if (this.Stateful.IsPresent)
             {
@@ -315,7 +310,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     defaultMoveCost: this.DefaultMoveCost,
                     scalingPolicies: this.ScalingPolicies,
                     serviceDnsName: this.ServiceDnsName,
-                    serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
+                    serviceTags: this.ServiceTags,
                     repartitionDescription: repartitionSchemeDescription,
                     targetReplicaSetSize: this.TargetReplicaSetSize,
                     minReplicaSetSize: this.MinReplicaSetSize,
@@ -339,7 +334,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     defaultMoveCost: this.DefaultMoveCost,
                     scalingPolicies: this.ScalingPolicies,
                     serviceDnsName: this.ServiceDnsName,
-                    serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
+                    serviceTags: this.ServiceTags,
                     repartitionDescription: repartitionSchemeDescription,
                     instanceCount: this.InstanceCount,
                     minInstanceCount: this.MinInstanceCount,
@@ -348,6 +343,10 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     instanceLifecycleDescription: this.InstanceLifecycleDescription,
                     instanceRestartWaitDurationSeconds: this.InstanceRestartWaitDurationSeconds);
             }
+
+            var serviceTags = new ServiceTags(
+            tagsRequiredToPlace: this.TagsRequiredToPlace,
+            tagsRequiredToRun: this.TagsRequiredToRun);
 
             this.ServiceFabricClient.Services.UpdateServiceAsync(
                 serviceId: this.ServiceId,
