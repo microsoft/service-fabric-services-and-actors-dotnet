@@ -1,13 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>Microsoft.ServiceFabric.FabricTransport</RootNamespace>
     <OutputType>Exe</OutputType>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="Fuzzy" />
+    <PackageReference Include="Inspector" />
+    <PackageReference Include="Microsoft.Bcl.Memory" Condition="$(TargetFramework.StartsWith('net4'))" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+    <PackageReference Include="Moq" />
     <PackageReference Include="xunit.v3" />
   </ItemGroup>
   <ItemGroup>
@@ -15,9 +19,6 @@
     <ProjectReference Include="..\TestFramework\Microsoft.ServiceFabric.TestFramework.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ServiceCommunicationTestSettings.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Microsoft.ServiceFabric.FabricTransport.Test.dll.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

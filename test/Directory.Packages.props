@@ -14,6 +14,7 @@
     <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2" />
   </ItemGroup>
   <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
+    <PackageVersion Include="Microsoft.Bcl.Memory" Version="9.0.17" /> <!-- 10.0.9 conflicts: S.VT 4.5.0->4.6.2 -->
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
     <PackageVersion Include="System.Collections.Immutable" Version="8.0.0" /> <!-- x.v.a->6.0.0; (M.D.T.TE, S.R.M)->8.0.0 -->
     <PackageVersion Include="System.Reflection.Metadata" Version="8.0.1" /> <!-- M.TP.OM->1.6.0; M.D.T.TE->8.0.0; M.ANC.H->8.0.1 -->

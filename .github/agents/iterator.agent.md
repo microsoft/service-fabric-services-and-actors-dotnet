@@ -50,15 +50,23 @@ This repository requires unique knowledge you don't possess; you won't know what
   - Do not change the prepared review prompt.
 
 5. **Address `❗ Must Fix` and `⚠️ Should Fix` findings one at a time**.
-  - Don't bundle multiple findings into a single `coder` invocation, even if they apply to the same file.
-  - Prepare prompt for the `coder`.
-    - Start the prompt with `Address the following finding.`
-    - Append a single reported finding from the report. Don't alter the finding in any way.
-    - Don't change this prompt in any other way, in particular:
-      - don't add any commit instructions.
-  - Run the `coder` subagent with the prepared prompt.
-  - Wait for it to complete before starting the next.
-  - If the `coder` refuses to implement the finding, save it as described in step 6 and continue addressing others.
+  - _Don't bundle multiple findings into a single `coder` invocation, even if they apply to the same file_.
+  - _Prepare prompt for the `coder`_.
+    ```md
+    Address the following review finding. If you refuse implementing the suggested changes, update the code to make your
+    reasoning evident and prevent reporting of similar findings in future reviews. Add comments if the reasoning cannot
+    be expressed in code itself.
+    ---
+    {Single finding from the review report}
+    ---
+    ```
+    - Don't change this prompt in any other way.
+    - Don't add any commit instructions.
+  - _Run the `coder` subagent with the prepared prompt_.
+  - _Wait for it to complete before starting the next_.
+  - _Skip the findings the `coder` refuses to implement and continue addressing other findings_. These findings don't need
+    human review. The `reviewer` and the `coder` should continue iterating until the code is clear enough to stop reporting
+    findings that cannot be implemented.
 
 6. **Save each new finding that `❓ Needs Human Review`**.
   - Append the entire finding from the `reviewer` report to the `{file path}-needs-human-review.md`.
