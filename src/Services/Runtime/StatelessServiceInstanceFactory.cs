@@ -3,47 +3,43 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Services.Runtime
+using System;
+using System.Fabric;
+
+namespace Microsoft.ServiceFabric.Services.Runtime;
+
+class StatelessServiceInstanceFactory : IStatelessServiceFactory, IDisposable
 {
-    using System;
-    using System.Fabric;
+    readonly Func<StatelessServiceContext, StatelessService> serviceFactory;
+    readonly RuntimeContext runtimeContext;
 
-    internal class StatelessServiceInstanceFactory : IStatelessServiceFactory, IDisposable
+    public StatelessServiceInstanceFactory(
+        RuntimeContext runtimeContext,
+        Func<StatelessServiceContext, StatelessService> serviceFactory)
     {
-        private readonly Func<StatelessServiceContext, StatelessService> serviceFactory;
-        private readonly RuntimeContext runtimeContext;
-
-        public StatelessServiceInstanceFactory(
-            RuntimeContext runtimeContext,
-            Func<StatelessServiceContext, StatelessService> serviceFactory)
-        {
-            this.runtimeContext = runtimeContext;
-            this.serviceFactory = serviceFactory;
-        }
-
-        IStatelessServiceInstance IStatelessServiceFactory.CreateInstance(
-            string serviceTypeName,
-            Uri serviceName,
-            byte[] initializationData,
-            Guid partitionId,
-            long instanceId)
-        {
-            var instanceContext = new StatelessServiceContext(
-                this.runtimeContext.NodeContext,
-                this.runtimeContext.CodePackageContext,
-                serviceTypeName,
-                serviceName,
-                initializationData,
-                partitionId,
-                instanceId);
-
-            var service = this.serviceFactory(instanceContext);
-            return new StatelessServiceInstanceAdapter(service.Context, service);
-        }
-
-        public void Dispose()
-        {
-            this.runtimeContext?.Dispose();
-        }
+        this.runtimeContext = runtimeContext ?? throw new ArgumentNullException(nameof(runtimeContext));
+        this.serviceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
     }
+
+    IStatelessServiceInstance IStatelessServiceFactory.CreateInstance(
+        string serviceTypeName,
+        Uri serviceName,
+        byte[] initializationData,
+        Guid partitionId,
+        long instanceId)
+    {
+        var instanceContext = new StatelessServiceContext(
+            runtimeContext.NodeContext,
+            runtimeContext.CodePackageContext,
+            serviceTypeName,
+            serviceName,
+            initializationData,
+            partitionId,
+            instanceId);
+
+        StatelessService service = serviceFactory(instanceContext) ?? throw new InvalidOperationException($"{nameof(serviceFactory)} returned null");
+        return new StatelessServiceInstanceAdapter(service.Context, service);
+    }
+
+    public void Dispose() => runtimeContext.Dispose();
 }
