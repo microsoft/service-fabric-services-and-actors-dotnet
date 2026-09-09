@@ -33,6 +33,17 @@ namespace Microsoft.ServiceFabric.Client
         /// maximum results if they do not fit in the message as per the max message size restrictions defined in the
         /// configuration. If this parameter is zero or not specified, the paged query includes as many results as possible
         /// that fit in the return message.</param>
+        /// <param name ="nodeQueryOptions">Specifies the optional per-node fields to populate on each node returned by the
+        /// query.
+        /// The value is a flag-based enumeration, so the value could be a combination of these values obtained using the
+        /// bitwise 'OR' operator.
+        /// If this parameter is zero or not specified, no optional fields are populated and the response shape is unchanged.
+        /// 
+        /// - None - Does not populate any optional per-node fields. The value is 0.
+        /// - PlacementProperties - Populates the PlacementProperties field on each node with its effective placement
+        /// properties (the NodeType-level properties merged with the per-node properties from the InfrastructureManifest). The
+        /// value is 1.
+        /// </param>
         /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
         /// time duration that the client is willing to wait for the requested operation to complete. The default value for
         /// this parameter is 60 seconds.</param>
@@ -48,6 +59,7 @@ namespace Microsoft.ServiceFabric.Client
             ContinuationToken continuationToken = default(ContinuationToken),
             NodeStatusFilter? nodeStatusFilter = NodeStatusFilter.Default,
             long? maxResults = 0,
+            int? nodeQueryOptions = 0,
             long? serverTimeout = 60,
             CancellationToken cancellationToken = default(CancellationToken));
 
@@ -58,6 +70,17 @@ namespace Microsoft.ServiceFabric.Client
         /// The response includes the name, status, ID, health, uptime, and other details about the node.
         /// </remarks>
         /// <param name ="nodeName">The name of the node.</param>
+        /// <param name ="nodeQueryOptions">Specifies the optional per-node fields to populate on each node returned by the
+        /// query.
+        /// The value is a flag-based enumeration, so the value could be a combination of these values obtained using the
+        /// bitwise 'OR' operator.
+        /// If this parameter is zero or not specified, no optional fields are populated and the response shape is unchanged.
+        /// 
+        /// - None - Does not populate any optional per-node fields. The value is 0.
+        /// - PlacementProperties - Populates the PlacementProperties field on each node with its effective placement
+        /// properties (the NodeType-level properties merged with the per-node properties from the InfrastructureManifest). The
+        /// value is 1.
+        /// </param>
         /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
         /// time duration that the client is willing to wait for the requested operation to complete. The default value for
         /// this parameter is 60 seconds.</param>
@@ -71,6 +94,7 @@ namespace Microsoft.ServiceFabric.Client
         /// <exception cref="OperationCanceledException">Thrown when cancellation is requested for the cancellation token.</exception>
         Task<NodeInfo> GetNodeInfoAsync(
             NodeName nodeName,
+            int? nodeQueryOptions = 0,
             long? serverTimeout = 60,
             CancellationToken cancellationToken = default(CancellationToken));
 

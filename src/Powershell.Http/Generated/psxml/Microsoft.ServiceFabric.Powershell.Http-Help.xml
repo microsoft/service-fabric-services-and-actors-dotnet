@@ -2768,6 +2768,9 @@
                         <maml:name>NodeName</maml:name>
                 </command:parameter>
                 <command:parameter required="false">
+                        <maml:name>NodeQueryOptions</maml:name>
+                </command:parameter>
+                <command:parameter required="false">
                         <maml:name>ServerTimeout</maml:name>
                 </command:parameter>
                 </command:syntaxItem>
@@ -2778,6 +2781,9 @@
                 </command:parameter>
                 <command:parameter required="false">
                         <maml:name>MaxResults</maml:name>
+                </command:parameter>
+                <command:parameter required="false">
+                        <maml:name>NodeQueryOptions</maml:name>
                 </command:parameter>
                 <command:parameter required="false">
                         <maml:name>ServerTimeout</maml:name>
@@ -2825,6 +2831,24 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="3">
+                <maml:name>NodeQueryOptions</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Specifies the optional per-node fields to populate on each node returned by the query.
+                    The value is a flag-based enumeration, so the value could be a combination of these values obtained using the bitwise 'OR' operator.
+                    If this parameter is zero or not specified, no optional fields are populated and the response shape is unchanged.
+                    
+                    - None - Does not populate any optional per-node fields. The value is 0.
+                    - PlacementProperties - Populates the PlacementProperties field on each node with its effective placement properties (the NodeType-level properties merged with the per-node properties from the InfrastructureManifest). The value is 1.
+                    
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">int?</command:parameterValue>
+                <dev:type>
+                    <maml:name>int?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="4">
                 <maml:name>ServerTimeout</maml:name>
                 <maml:Description>
                     <maml:para>

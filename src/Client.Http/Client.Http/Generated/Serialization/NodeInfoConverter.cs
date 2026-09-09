@@ -54,6 +54,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var nodeTags = default(IEnumerable<string>);
             var isNodeByNodeUpgradeInProgress = default(bool?);
             var infrastructurePlacementID = default(string);
+            var placementProperties = default(IReadOnlyDictionary<string, string>);
 
             do
             {
@@ -142,6 +143,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     infrastructurePlacementID = reader.ReadValueAsString();
                 }
+                else if (string.Compare("PlacementProperties", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    placementProperties = reader.ReadDictionary(JsonReaderExtensions.ReadValueAsString);
+                }
                 else
                 {
                     reader.SkipPropertyValue();
@@ -170,7 +175,8 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 nodeDownAt: nodeDownAt,
                 nodeTags: nodeTags,
                 isNodeByNodeUpgradeInProgress: isNodeByNodeUpgradeInProgress,
-                infrastructurePlacementID: infrastructurePlacementID);
+                infrastructurePlacementID: infrastructurePlacementID,
+                placementProperties: placementProperties);
         }
 
         /// <summary>
@@ -277,6 +283,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             if (obj.InfrastructurePlacementID != null)
             {
                 writer.WriteProperty(obj.InfrastructurePlacementID, "InfrastructurePlacementID", JsonWriterExtensions.WriteStringValue);
+            }
+
+            if (obj.PlacementProperties != null)
+            {
+                writer.WriteDictionaryProperty(obj.PlacementProperties, "PlacementProperties", (w, v) => writer.WriteStringValue(v));
             }
 
             writer.WriteEndObject();
