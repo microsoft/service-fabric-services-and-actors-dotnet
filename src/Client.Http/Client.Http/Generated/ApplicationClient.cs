@@ -104,6 +104,47 @@ namespace Microsoft.ServiceFabric.Client.Http
         }
 
         /// <inheritdoc />
+        public Task ResetApplicationAsync(
+            string applicationId,
+            ResetApplicationDescription resetApplicationDescription,
+            long? serverTimeout = 60,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            applicationId.ThrowIfNull(nameof(applicationId));
+            resetApplicationDescription.ThrowIfNull(nameof(resetApplicationDescription));
+            serverTimeout?.ThrowIfOutOfInclusiveRange("serverTimeout", 1, 4294967295);
+            var requestId = Guid.NewGuid().ToString();
+            var url = "Applications/{applicationId}/$/Reset";
+            url = url.Replace("{applicationId}", applicationId);
+            var queryParams = new List<string>();
+            
+            // Append to queryParams if not null.
+            serverTimeout?.AddToQueryParameters(queryParams, $"timeout={serverTimeout}");
+            queryParams.Add("api-version=12.0");
+            url += "?" + string.Join("&", queryParams);
+            
+            string content;
+            using (var sw = new StringWriter())
+            {
+                ResetApplicationDescriptionConverter.Serialize(new JsonTextWriter(sw), resetApplicationDescription);
+                content = sw.ToString();
+            }
+
+            HttpRequestMessage RequestFunc()
+            {
+                var request = new HttpRequestMessage()
+                {
+                    Method = HttpMethod.Post,
+                    Content = new StringContent(content, Encoding.UTF8),
+                };
+                request.Content.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
+                return request;
+            }
+
+            return this.httpClient.SendAsync(RequestFunc, url, requestId, cancellationToken);
+        }
+
+        /// <inheritdoc />
         public Task<ApplicationLoadInfo> GetApplicationLoadInfoAsync(
             string applicationId,
             long? serverTimeout = 60,
