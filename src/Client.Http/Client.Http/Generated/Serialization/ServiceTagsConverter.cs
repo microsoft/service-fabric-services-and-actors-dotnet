@@ -35,6 +35,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         {
             var tagsRequiredToPlace = default(IEnumerable<string>);
             var tagsRequiredToRun = default(IEnumerable<string>);
+            var tags = default(IEnumerable<string>);
 
             do
             {
@@ -47,6 +48,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     tagsRequiredToRun = reader.ReadList(JsonReaderExtensions.ReadValueAsString);
                 }
+                else if (string.Compare("ServiceTags", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    tags = reader.ReadList(JsonReaderExtensions.ReadValueAsString);
+                }
                 else
                 {
                     reader.SkipPropertyValue();
@@ -56,7 +61,8 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
 
             return new ServiceTags(
                 tagsRequiredToPlace: tagsRequiredToPlace,
-                tagsRequiredToRun: tagsRequiredToRun);
+                tagsRequiredToRun: tagsRequiredToRun,
+                tags: tags);
         }
 
         /// <summary>
@@ -76,6 +82,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             if (obj.TagsRequiredToRun != null)
             {
                 writer.WriteEnumerableProperty(obj.TagsRequiredToRun, "TagsRequiredToRun", (w, v) => writer.WriteStringValue(v));
+            }
+
+            if (obj.Tags != null)
+            {
+                writer.WriteEnumerableProperty(obj.Tags, "ServiceTags", (w, v) => writer.WriteStringValue(v));
             }
 
             writer.WriteEndObject();
