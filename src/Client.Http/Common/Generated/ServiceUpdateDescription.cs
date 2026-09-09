@@ -45,6 +45,9 @@ namespace Microsoft.ServiceFabric.Common
         /// - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
         /// - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
         /// - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
+        /// - ServiceTags - Indicates the ServiceTags (the per-service tag list used for notification filtering) property is
+        /// set. The value is 134217728.
+        /// - CapacityReleaseAction - Indicates the CapacityReleaseAction property is set. The value is 268435456.
         /// </param>
         /// <param name="placementConstraints">The placement constraints as a string. Placement constraints are boolean
         /// expressions on node properties and allow for restricting a service to particular nodes based on the service
@@ -62,6 +65,11 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="serviceDnsName">The DNS name of the service.</param>
         /// <param name="serviceTags">Service tags collections for placement and running of the service.</param>
         /// <param name="repartitionDescription">The repartition description as an object.</param>
+        /// <param name="capacityReleaseAction">Specifies the service target policy configured for capacity release. Possible
+        /// values include: 'None', 'DropToZero', 'DropToMin'
+        /// 
+        /// Specifies the service target policy configured for capacity release.
+        /// </param>
         protected ServiceUpdateDescription(
             ServiceKind? serviceKind,
             string flags = default(string),
@@ -73,7 +81,8 @@ namespace Microsoft.ServiceFabric.Common
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
             string serviceDnsName = default(string),
             ServiceTags serviceTags = default(ServiceTags),
-            RepartitionSchemeDescription repartitionDescription = default(RepartitionSchemeDescription))
+            RepartitionSchemeDescription repartitionDescription = default(RepartitionSchemeDescription),
+            CapacityReleaseAction? capacityReleaseAction = default(CapacityReleaseAction?))
         {
             serviceKind.ThrowIfNull(nameof(serviceKind));
             this.ServiceKind = serviceKind;
@@ -87,6 +96,7 @@ namespace Microsoft.ServiceFabric.Common
             this.ServiceDnsName = serviceDnsName;
             this.ServiceTags = serviceTags;
             this.RepartitionDescription = repartitionDescription;
+            this.CapacityReleaseAction = capacityReleaseAction;
         }
 
         /// <summary>
@@ -118,6 +128,9 @@ namespace Microsoft.ServiceFabric.Common
         /// - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
         /// - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
         /// - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
+        /// - ServiceTags - Indicates the ServiceTags (the per-service tag list used for notification filtering) property is
+        /// set. The value is 134217728.
+        /// - CapacityReleaseAction - Indicates the CapacityReleaseAction property is set. The value is 268435456.
         /// </summary>
         public string Flags { get; }
 
@@ -169,6 +182,14 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets the repartition description as an object.
         /// </summary>
         public RepartitionSchemeDescription RepartitionDescription { get; }
+
+        /// <summary>
+        /// Gets specifies the service target policy configured for capacity release. Possible values include: 'None',
+        /// 'DropToZero', 'DropToMin'
+        /// 
+        /// Specifies the service target policy configured for capacity release.
+        /// </summary>
+        public CapacityReleaseAction? CapacityReleaseAction { get; }
 
         /// <summary>
         /// Gets the kind of service (Stateless or Stateful).

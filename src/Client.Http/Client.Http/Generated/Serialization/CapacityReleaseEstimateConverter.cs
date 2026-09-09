@@ -12,16 +12,16 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// Converter for <see cref="ServiceTags" />.
+    /// Converter for <see cref="CapacityReleaseEstimate" />.
     /// </summary>
-    internal class ServiceTagsConverter
+    internal class CapacityReleaseEstimateConverter
     {
         /// <summary>
         /// Deserializes the JSON representation of the object.
         /// </summary>
         /// <param name="reader">The <see cref="T: Newtonsoft.Json.JsonReader" /> to read from.</param>
         /// <returns>The object Value.</returns>
-        internal static ServiceTags Deserialize(JsonReader reader)
+        internal static CapacityReleaseEstimate Deserialize(JsonReader reader)
         {
             return reader.Deserialize(GetFromJsonProperties);
         }
@@ -31,26 +31,31 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         /// </summary>
         /// <param name="reader">The <see cref="T: Newtonsoft.Json.JsonReader" /> to read from, reader must be placed at first property.</param>
         /// <returns>The object Value.</returns>
-        internal static ServiceTags GetFromJsonProperties(JsonReader reader)
+        internal static CapacityReleaseEstimate GetFromJsonProperties(JsonReader reader)
         {
-            var tagsRequiredToPlace = default(IEnumerable<string>);
-            var tagsRequiredToRun = default(IEnumerable<string>);
-            var tags = default(IEnumerable<string>);
+            var level = default(CapacityReleaseLevel?);
+            var metricName = default(string);
+            var usedCapacity = default(long?);
+            var totalCapacity = default(long?);
 
             do
             {
                 var propName = reader.ReadPropertyName();
-                if (string.Compare("TagsRequiredToPlace", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                if (string.Compare("Level", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    tagsRequiredToPlace = reader.ReadList(JsonReaderExtensions.ReadValueAsString);
+                    level = CapacityReleaseLevelConverter.Deserialize(reader);
                 }
-                else if (string.Compare("TagsRequiredToRun", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                else if (string.Compare("MetricName", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    tagsRequiredToRun = reader.ReadList(JsonReaderExtensions.ReadValueAsString);
+                    metricName = reader.ReadValueAsString();
                 }
-                else if (string.Compare("ServiceTags", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                else if (string.Compare("UsedCapacity", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    tags = reader.ReadList(JsonReaderExtensions.ReadValueAsString);
+                    usedCapacity = reader.ReadValueAsLong();
+                }
+                else if (string.Compare("TotalCapacity", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    totalCapacity = reader.ReadValueAsLong();
                 }
                 else
                 {
@@ -59,10 +64,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             }
             while (reader.TokenType != JsonToken.EndObject);
 
-            return new ServiceTags(
-                tagsRequiredToPlace: tagsRequiredToPlace,
-                tagsRequiredToRun: tagsRequiredToRun,
-                tags: tags);
+            return new CapacityReleaseEstimate(
+                level: level,
+                metricName: metricName,
+                usedCapacity: usedCapacity,
+                totalCapacity: totalCapacity);
         }
 
         /// <summary>
@@ -70,25 +76,14 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         /// </summary>
         /// <param name="writer">The <see cref="T: Newtonsoft.Json.JsonWriter" /> to write to.</param>
         /// <param name="obj">The object to serialize to JSON.</param>
-        internal static void Serialize(JsonWriter writer, ServiceTags obj)
+        internal static void Serialize(JsonWriter writer, CapacityReleaseEstimate obj)
         {
             // Required properties are always serialized, optional properties are serialized when not null.
             writer.WriteStartObject();
-            if (obj.TagsRequiredToPlace != null)
-            {
-                writer.WriteEnumerableProperty(obj.TagsRequiredToPlace, "TagsRequiredToPlace", (w, v) => writer.WriteStringValue(v));
-            }
-
-            if (obj.TagsRequiredToRun != null)
-            {
-                writer.WriteEnumerableProperty(obj.TagsRequiredToRun, "TagsRequiredToRun", (w, v) => writer.WriteStringValue(v));
-            }
-
-            if (obj.Tags != null)
-            {
-                writer.WriteEnumerableProperty(obj.Tags, "ServiceTags", (w, v) => writer.WriteStringValue(v));
-            }
-
+            writer.WriteProperty(obj.Level, "Level", CapacityReleaseLevelConverter.Serialize);
+            writer.WriteProperty(obj.MetricName, "MetricName", JsonWriterExtensions.WriteStringValue);
+            writer.WriteProperty(obj.UsedCapacity, "UsedCapacity", JsonWriterExtensions.WriteLongValue);
+            writer.WriteProperty(obj.TotalCapacity, "TotalCapacity", JsonWriterExtensions.WriteLongValue);
             writer.WriteEndObject();
         }
     }

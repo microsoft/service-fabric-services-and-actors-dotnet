@@ -43,6 +43,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var serviceDnsName = default(string);
             var serviceTags = default(ServiceTags);
             var repartitionDescription = default(RepartitionSchemeDescription);
+            var capacityReleaseAction = default(CapacityReleaseAction?);
             var targetReplicaSetSize = default(int?);
             var minReplicaSetSize = default(int?);
             var replicaRestartWaitDurationSeconds = default(string);
@@ -96,6 +97,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 else if (string.Compare("RepartitionDescription", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     repartitionDescription = RepartitionSchemeDescriptionConverter.Deserialize(reader);
+                }
+                else if (string.Compare("CapacityReleaseAction", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    capacityReleaseAction = CapacityReleaseActionConverter.Deserialize(reader);
                 }
                 else if (string.Compare("TargetReplicaSetSize", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
@@ -155,6 +160,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 serviceDnsName: serviceDnsName,
                 serviceTags: serviceTags,
                 repartitionDescription: repartitionDescription,
+                capacityReleaseAction: capacityReleaseAction,
                 targetReplicaSetSize: targetReplicaSetSize,
                 minReplicaSetSize: minReplicaSetSize,
                 replicaRestartWaitDurationSeconds: replicaRestartWaitDurationSeconds,
@@ -178,6 +184,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             writer.WriteStartObject();
             writer.WriteProperty(obj.ServiceKind, "ServiceKind", ServiceKindConverter.Serialize);
             writer.WriteProperty(obj.DefaultMoveCost, "DefaultMoveCost", MoveCostConverter.Serialize);
+            writer.WriteProperty(obj.CapacityReleaseAction, "CapacityReleaseAction", CapacityReleaseActionConverter.Serialize);
             if (obj.Flags != null)
             {
                 writer.WriteProperty(obj.Flags, "Flags", JsonWriterExtensions.WriteStringValue);

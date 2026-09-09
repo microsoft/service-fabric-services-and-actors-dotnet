@@ -773,6 +773,92 @@ namespace Microsoft.ServiceFabric.Client
             CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Gets the current capacity release level for the cluster.
+        /// </summary>
+        /// <remarks>
+        /// Gets the capacity release level currently applied to the Service Fabric cluster.
+        /// </remarks>
+        /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
+        /// time duration that the client is willing to wait for the requested operation to complete. The default value for
+        /// this parameter is 60 seconds.</param>
+        /// <param name ="cancellationToken">Cancels the client-side operation.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// </returns>
+        /// <exception cref="InvalidCredentialsException">Thrown when invalid credentials are used while making request to cluster.</exception>
+        /// <exception cref="ServiceFabricRequestException">Thrown when request to Service Fabric cluster failed due to an underlying issue such as network connectivity, DNS failure or timeout.</exception>
+        /// <exception cref="ServiceFabricException">Thrown when the requested operation failed at server. Exception contains Error code <see cref="FabricError.ErrorCode"/>, message indicating the failure. It also contains a flag wether the exception is transient or not, client operations can be retried if its transient.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when cancellation is requested for the cancellation token.</exception>
+        Task<CapacityReleaseLevelResult> GetCapacityReleaseLevelAsync(
+            long? serverTimeout = 60,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Sets the capacity release level for the cluster.
+        /// </summary>
+        /// <remarks>
+        /// Sets the capacity release level for the cluster. Setting the level to Major can make services unavailable. Stateful
+        /// services reduced to zero permanently lose their state.
+        /// </remarks>
+        /// <param name ="level">The capacity release level to set for the cluster.
+        /// 
+        /// - None - Restores the original target replica counts for primary, secondary, and auxiliary replicas.
+        /// - Minor - Releases capacity without making services unavailable. Services configured to drop replicas to zero
+        /// retain their minimum replica set, services configured to drop replicas to their minimum retain their current
+        /// primary and secondary targets, and auxiliary replica targets are reduced to zero.
+        /// - Major - Releases additional capacity and can make services unavailable. Services configured to drop replicas to
+        /// zero have their target replica count reduced to zero, services configured to drop replicas to their minimum have
+        /// their target reduced to the minimum replica set size, and auxiliary replica targets are reduced to zero. Services
+        /// reduced to zero become unavailable, and stateful services reduced to zero permanently lose their state.
+        /// . Possible values include: 'None', 'Minor', 'Major'</param>
+        /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
+        /// time duration that the client is willing to wait for the requested operation to complete. The default value for
+        /// this parameter is 60 seconds.</param>
+        /// <param name ="cancellationToken">Cancels the client-side operation.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// </returns>
+        /// <exception cref="InvalidCredentialsException">Thrown when invalid credentials are used while making request to cluster.</exception>
+        /// <exception cref="ServiceFabricRequestException">Thrown when request to Service Fabric cluster failed due to an underlying issue such as network connectivity, DNS failure or timeout.</exception>
+        /// <exception cref="ServiceFabricException">Thrown when the requested operation failed at server. Exception contains Error code <see cref="FabricError.ErrorCode"/>, message indicating the failure. It also contains a flag wether the exception is transient or not, client operations can be retried if its transient.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when cancellation is requested for the cancellation token.</exception>
+        Task SetCapacityReleaseLevelAsync(
+            CapacityReleaseLevel? level,
+            long? serverTimeout = 60,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Gets projected used capacity relative to cluster total capacity for each metric at each capacity release level.
+        /// </summary>
+        /// <remarks>
+        /// Reports projected used capacity relative to cluster total capacity for each cluster metric at each reported
+        /// capacity release level. This is a paged query. When additional results are available, the response includes a
+        /// continuation token that can be used to retrieve the next page.
+        /// </remarks>
+        /// <param name ="continuationToken">The continuation token to obtain next set of results</param>
+        /// <param name ="maxResults">The maximum number of results to be returned as part of the paged queries. This parameter
+        /// defines the upper bound on the number of results returned. The results returned can be less than the specified
+        /// maximum results if they do not fit in the message as per the max message size restrictions defined in the
+        /// configuration. If this parameter is zero or not specified, the paged query includes as many results as possible
+        /// that fit in the return message.</param>
+        /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
+        /// time duration that the client is willing to wait for the requested operation to complete. The default value for
+        /// this parameter is 60 seconds.</param>
+        /// <param name ="cancellationToken">Cancels the client-side operation.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// </returns>
+        /// <exception cref="InvalidCredentialsException">Thrown when invalid credentials are used while making request to cluster.</exception>
+        /// <exception cref="ServiceFabricRequestException">Thrown when request to Service Fabric cluster failed due to an underlying issue such as network connectivity, DNS failure or timeout.</exception>
+        /// <exception cref="ServiceFabricException">Thrown when the requested operation failed at server. Exception contains Error code <see cref="FabricError.ErrorCode"/>, message indicating the failure. It also contains a flag wether the exception is transient or not, client operations can be retried if its transient.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when cancellation is requested for the cancellation token.</exception>
+        Task<PagedData<CapacityReleaseEstimate>> GetCapacityReleaseEstimationAsync(
+            ContinuationToken continuationToken = default(ContinuationToken),
+            long? maxResults = 0,
+            long? serverTimeout = 60,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Changes the verbosity of service placement health reporting.
         /// </summary>
         /// <remarks>
