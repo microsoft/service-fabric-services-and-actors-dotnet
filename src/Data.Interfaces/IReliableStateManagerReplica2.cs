@@ -6,7 +6,8 @@
 namespace Microsoft.ServiceFabric.Data
 {
     /// <summary>
-    /// Defines replica of a reliable state provider. 
+    /// Defines a reliable state manager replica that additionally notifies the service after its state has been restored
+    /// following data loss, through <see cref="IStateProviderReplica2.OnRestoreCompletedAsync"/>.
     /// </summary>
     public interface IReliableStateManagerReplica2 : IReliableStateManagerReplica, IStateProviderReplica2
     {

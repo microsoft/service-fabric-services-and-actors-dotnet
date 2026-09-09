@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Data.Notifications
     using Microsoft.ServiceFabric.Data;
 
     /// <summary>
-    /// Event arguments for transactions.
+    /// Provides data for the <see cref="IReliableStateManager.TransactionChanged"/> event.
     /// </summary>
     public class NotifyTransactionChangedEventArgs : EventArgs
     {
@@ -18,10 +18,10 @@ namespace Microsoft.ServiceFabric.Data.Notifications
         private readonly ITransaction transaction;
 
         /// <summary>
-        /// Initializes a new instance of the <cref name="NotifyStateManagerSingleEntityChangedEventArgs"/>
+        /// Initializes a new instance of the <see cref="NotifyTransactionChangedEventArgs"/> class.
         /// </summary>
-        /// <param name="transaction">Transaction that the change is related to.</param>
-        /// <param name="action">The type of notification.</param>
+        /// <param name="transaction">The transaction that the change is related to.</param>
+        /// <param name="action">One of the enumeration values that specifies the action that caused the event.</param>
         public NotifyTransactionChangedEventArgs(ITransaction transaction, NotifyTransactionChangedAction action)
         {
             this.action = action;
@@ -29,11 +29,8 @@ namespace Microsoft.ServiceFabric.Data.Notifications
         }
 
         /// <summary>
-        /// Type of action for which the event was created.
+        /// Gets the action that caused the event.
         /// </summary>
-        /// <value>
-        /// The type of notification.
-        /// </value>
         public NotifyTransactionChangedAction Action
         {
             get
@@ -43,11 +40,8 @@ namespace Microsoft.ServiceFabric.Data.Notifications
         }
 
         /// <summary>
-        /// Gets the transaction.
+        /// Gets the <see cref="ITransaction"/> whose state change raised the event.
         /// </summary>
-        /// <value>
-        /// The transaction associated with the operation.
-        /// </value>
         public ITransaction Transaction
         {
             get

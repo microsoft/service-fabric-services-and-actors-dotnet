@@ -8,16 +8,17 @@ namespace Microsoft.ServiceFabric.Data
     using System;
 
     /// <summary>
-    /// Defines methods for interacting with all reliable state in Service Fabric.
+    /// Represents reliable state managed by an <see cref="IReliableStateManager"/>.
     /// </summary>
     public interface IReliableState
     {
         /// <summary>
-        /// Gets a value indicating the unique name for the <see cref="IReliableState"/> instance.
+        /// Gets the name of this reliable state.
         /// </summary>
-        /// <value>
-        /// The <see cref="System.Uri"/> name of this <see cref="IReliableState"/> instance.
-        /// </value>
+        /// <remarks>
+        /// The name uniquely identifies this reliable state within its owning <see cref="IReliableStateManager"/>,
+        /// across <see cref="IReliableState"/> types, including unrelated types.
+        /// </remarks>
         Uri Name { get; }
     }
 }

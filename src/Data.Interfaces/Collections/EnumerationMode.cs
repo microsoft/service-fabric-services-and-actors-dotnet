@@ -5,20 +5,13 @@
 
 namespace Microsoft.ServiceFabric.Data.Collections
 {
-    /// <summary>
-    /// Specifies if items returned during enumeration of reliable collections should be 
-    /// unordered or ordered.
-    /// </summary>
+    /// <summary>Specifies whether items returned during enumeration of an <see cref="IReliableCollection{T}"/> are ordered.</summary>
     public enum EnumerationMode : int
     {
-        /// <summary>
-        /// Results are returned as an unordered enumeration. Fastest enumeration mode.
-        /// </summary>
+        /// <summary>Returns results in arbitrary order.</summary>
         Unordered = 0,
 
-        /// <summary>
-        /// Results are be returned as an ordered enumeration.
-        /// </summary>
+        /// <summary>Returns results in ascending key order.</summary>
         Ordered = 1,
     }
 }

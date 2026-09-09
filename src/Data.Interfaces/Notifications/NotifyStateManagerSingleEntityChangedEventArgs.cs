@@ -8,19 +8,22 @@ namespace Microsoft.ServiceFabric.Data.Notifications
     using Microsoft.ServiceFabric.Data;
 
     /// <summary>
-    /// Provides data for the DictionaryChanged event caused by a transactional single entity operation.
+    /// Provides data for the <see cref="IReliableStateManager.StateManagerChanged"/> event caused by a transactional single entity operation.
     /// </summary>
+    /// <remarks>
+    /// Raised when a single <see cref="IReliableState"/> provider is added to or removed from the State Manager within a transaction.
+    /// </remarks>
     public class NotifyStateManagerSingleEntityChangedEventArgs : NotifyStateManagerChangedEventArgs
     {
         private readonly ITransaction transaction;
         private readonly IReliableState reliableState;
 
         /// <summary>
-        /// Initializes a new instance of the <cref name="NotifyStateManagerSingleEntityChangedEventArgs"/>
+        /// Initializes a new instance of the <see cref="NotifyStateManagerSingleEntityChangedEventArgs"/> class.
         /// </summary>
-        /// <param name="transaction">Transaction that the change is related to.</param>
-        /// <param name="reliableState"><cref name="IReliableState"/> that was changed.</param>
-        /// <param name="action">The type of the change.</param>
+        /// <param name="transaction">The transaction that the change is related to.</param>
+        /// <param name="reliableState">The reliable state that was changed.</param>
+        /// <param name="action">One of the enumeration values that specifies the action that caused the event.</param>
         public NotifyStateManagerSingleEntityChangedEventArgs(
             ITransaction transaction,
             IReliableState reliableState,
@@ -31,11 +34,8 @@ namespace Microsoft.ServiceFabric.Data.Notifications
         }
 
         /// <summary>
-        /// Gets the transaction.
+        /// Gets the <see cref="ITransaction"/> within which the change occurred.
         /// </summary>
-        /// <value>
-        /// The transaction associated with the operation.
-        /// </value>
         public ITransaction Transaction
         {
             get
@@ -45,11 +45,8 @@ namespace Microsoft.ServiceFabric.Data.Notifications
         }
 
         /// <summary>
-        /// Gets the reliable state
+        /// Gets the <see cref="IReliableState"/> that was added or removed.
         /// </summary>
-        /// <value>
-        /// The <cref name="IReliableState"/> associated with the notification.
-        /// </value>
         public IReliableState ReliableState
         {
             get

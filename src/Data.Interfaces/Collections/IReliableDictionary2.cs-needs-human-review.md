@@ -1,0 +1,11 @@
+#### ⚠️ F2 — XML comment lines exceed the 120-column limit
+
+**Author (gemini):** coding.instructions.md requires wrapping text lines at the first word boundary after column 120. Several XML comment lines are too long, including the `ActiveSecondary` example line (~148 chars), the `TransactionFaultedException` line (~160 chars), and the `InvalidOperationException` line (~165 chars). Break these lines to fit within the limit.
+
+**Cross-check — gpt (Agree):** The codified 120-col rule in [coding.instructions.md](.github/instructions/coding.instructions.md#L36) applies; exact measurement showed several overlong comment lines (e.g. lines 18, 21, 22, 37, 38, 40, 41, 45, 51, 54, 55, 61). The finding's examples map to real overlong lines even though the cited line numbers drifted.
+
+**Cross-check — opus (Abstain):** The cited lines do exceed 120, but there is a genuine unresolved conflict: (1) the repo's established convention keeps each `<exception>` on a single line, including in the base interface where lines also far exceed 120; coding.instructions.md itself notes "Typical lines will be longer," signaling a soft target for doc prose. (2) The diff shows the author deliberately collapsed the multi-line `TransactionFaultedException`/`InvalidOperationException` blocks into single lines in this very change — re-wrapping would reverse a decision made during this work, and the user asked to avoid contradicting previously-addressed changes. (3) Wrapping only this file would make it inconsistent with its base interface. (4) One flagged line (the `ActiveSecondary` example) is an unchanged context line, and "don't reformat the surrounding code" argues against touching it. No decisive basis to say the change improves the code. **Abstain.**
+
+> Synthesis note: F2 received one `Agree` and one `Abstain` (no `Disagree`), so it remains as authored. But given the request explicitly scopes out "code style changes," and opus's reservations about contradicting an in-change decision and base-interface consistency, this finding is the primary item warranting human judgment before acting.
+
+**Human decision:** _Pending._ The user's request explicitly scopes out code-style changes, and line wrapping at column 120 is a code-style rule. Awaiting human direction on whether to wrap these lines despite the scope exclusion and base-interface inconsistency.

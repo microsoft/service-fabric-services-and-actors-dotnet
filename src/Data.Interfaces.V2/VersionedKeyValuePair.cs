@@ -8,10 +8,8 @@ namespace Microsoft.ServiceFabric.Data
     using System.Collections.Generic;
 
     /// <summary>
-    /// Defines a key-value pair with a sequence number.
+    /// Represents a key-value pair together with the sequence number that identifies its version.
     /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
     public struct VersionedKeyValuePair<TKey, TValue>
     {
         /// <summary>
@@ -25,26 +23,23 @@ namespace Microsoft.ServiceFabric.Data
         public TValue Value { get; }
 
         /// <summary>
-        /// Gets the sequence number.
+        /// Gets the sequence number that identifies the version of the <see cref="Key"/>.
         /// </summary>
         public long SequenceNumber => VersionedKey.SequenceNumber;
 
         /// <summary>
-        /// Gets the versioned key.
+        /// Gets the <see cref="VersionedKey{TKey}"/>.
         /// </summary>
         public VersionedKey<TKey> VersionedKey { get; }
 
         /// <summary>
-        /// Gets the key-value pair.
+        /// Gets the <see cref="KeyValuePair{TKey, TValue}"/>.
         /// </summary>
         public KeyValuePair<TKey, TValue> KeyValuePair => new KeyValuePair<TKey, TValue>(Key, Value);
 
         /// <summary>
-        /// Initializes a new instance of the VersionedKeyValuePair structure with the specified key, value, and sequence number.
+        /// Initializes a new instance of the <see cref="VersionedKeyValuePair{TKey, TValue}"/> struct.
         /// </summary>
-        /// <param name="key">The key.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="sequenceNumber">The item's sequence number.</param>
         public VersionedKeyValuePair(TKey key, TValue value, long sequenceNumber)
         {
             VersionedKey = new VersionedKey<TKey>(key, sequenceNumber);

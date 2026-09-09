@@ -10,16 +10,17 @@ namespace Microsoft.ServiceFabric.Data
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Defines methods a reliable state provider replica must implement for Service Fabric to interact with it.
+    /// Defines the additional member a <see cref="IStateProviderReplica">reliable state provider replica</see> must implement for Service Fabric to interact with it.
     /// </summary>
     public interface IStateProviderReplica2 : IStateProviderReplica
     {
         /// <summary>
-        /// Function called after restore has been performed on the replica.
+        /// Sets the callback invoked after the framework restores the replica's state following data loss.
         /// </summary>
-        /// <value>
-        /// Function called when the replica's state has been restored successfully by the framework
-        /// </value>
+        /// <remarks>
+        /// This callback runs only after a successful restore during <see cref="IStateProviderReplica.OnDataLossAsync"/>
+        /// processing. Exceptions thrown by the callback are reported as a replica health error and propagated to the caller.
+        /// </remarks>
         Func<CancellationToken, Task> OnRestoreCompletedAsync { set; }
     }
 }

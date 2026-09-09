@@ -10,14 +10,13 @@ namespace Microsoft.ServiceFabric.Data
     /// <summary>
     /// Represents a custom serializer for type <typeparamref name="T"/>.
     /// </summary>
-    /// <typeparam name="T">Type to serialize and deserialize.</typeparam>
     /// <remarks>
     /// Use <see cref="IReliableStateManager.TryAddStateSerializer{T}(IStateSerializer{T})"/> to register a custom serializer.
     /// </remarks>
     /// <example>
-    /// In this example, implementation of the Read and Write overloads simply call their counterpart overloads.
-    /// The currentValue and baseValue parameters are not set by the platform and should be ignored.
-    /// <code>
+    /// In this example, the differential <c>Read</c> and <c>Write</c> overloads delegate to the simpler overloads.
+    /// The <c>baseValue</c> parameters on the differential <c>Read</c> and <c>Write</c> overloads are not set by the platform and should be ignored.
+    /// <code language="csharp">
     /// class Order
     /// {
     ///     public byte Warehouse { get; set; }
@@ -28,34 +27,34 @@ namespace Microsoft.ServiceFabric.Data
     ///
     /// class OrderSerializer : IStateSerializer&lt;Order&gt;
     /// {
-    ///     void Write(Order value, BinaryWriter writer)
+    ///     public void Write(Order value, BinaryWriter binaryWriter)
     ///     {
-    ///         writer.Write(value.Warehouse);
-    ///         writer.Write(value.District);
-    ///         writer.Write(value.Customer);
-    ///         writer.Write(value.OrderNumber);
+    ///         binaryWriter.Write(value.Warehouse);
+    ///         binaryWriter.Write(value.District);
+    ///         binaryWriter.Write(value.Customer);
+    ///         binaryWriter.Write(value.OrderNumber);
     ///     }
     ///
-    ///     Order Read(BinaryReader reader)
+    ///     public Order Read(BinaryReader binaryReader)
     ///     {
     ///         Order value = new Order();
     ///
-    ///         value.Warehouse = reader.ReadByte();
-    ///         value.District = reader.ReadInt16();
-    ///         value.Customer = reader.ReadInt32();
-    ///         value.OrderNumber = reader.ReadInt64();
+    ///         value.Warehouse = binaryReader.ReadByte();
+    ///         value.District = binaryReader.ReadInt16();
+    ///         value.Customer = binaryReader.ReadInt32();
+    ///         value.OrderNumber = binaryReader.ReadInt64();
     ///
     ///         return value;
     ///     }
     ///
-    ///     void Write(Order currentValue, Order newValue, BinaryWriter writer)
+    ///     public void Write(Order baseValue, Order targetValue, BinaryWriter binaryWriter)
     ///     {
-    ///         this.Write(newValue, writer);
+    ///         this.Write(targetValue, binaryWriter);
     ///     }
     ///
-    ///     Order Read(Order baseValue, BinaryReader reader)
+    ///     public Order Read(Order baseValue, BinaryReader binaryReader)
     ///     {
-    ///         return this.Read(reader);
+    ///         return this.Read(binaryReader);
     ///     }
     /// }
     /// </code>
@@ -63,48 +62,46 @@ namespace Microsoft.ServiceFabric.Data
     public interface IStateSerializer<T>
     {
         /// <summary>
-        /// Deserializes from the given <see cref="BinaryReader"/> to <typeparamref name="T"/>.
+        /// Returns a value of type <typeparamref name="T"/> deserialized from <paramref name="binaryReader"/>.
         /// </summary>
-        /// <param name="binaryReader">The <see cref="BinaryReader"/> to deserialize from.</param>
-        /// <returns>The deserialized value.</returns>
         /// <remarks>
         /// When accessing the <see cref="BinaryReader"/> base stream, care must be taken when moving the position in the stream.
-        /// Reading must begin at the current stream position and end at the current position plus the length of your data.
+        /// Reading must begin at the current stream position and end at the current position plus the length of the serialized data.
         /// </remarks>
         T Read(BinaryReader binaryReader);
 
         /// <summary>
-        /// Serializes a value and writes it to the given <see cref="BinaryWriter"/>.
+        /// Serializes the value and writes it to <paramref name="binaryWriter"/>.
         /// </summary>
-        /// <param name="value">The value to serialize.</param>
-        /// <param name="binaryWriter">The <see cref="BinaryWriter"/> to serialize to.</param>
         /// <remarks>
         /// When accessing the <see cref="BinaryWriter"/> base stream, care must be taken when moving the position in the stream.
-        /// Writing must begin at the current stream position and end at the current position plus the length of your data.
+        /// Writing must begin at the current stream position and end at the current position plus the length of the serialized data.
         /// </remarks>
         void Write(T value, BinaryWriter binaryWriter);
 
-        /// <summary>
-        /// Deserializes from the given <see cref="BinaryReader"/> to <typeparamref name="T"/>.
-        /// </summary>
-        /// <param name="baseValue">The base value for the deserialization.</param>
-        /// <param name="binaryReader">The <see cref="BinaryReader"/> to deserialize from.</param>
-        /// <returns>The deserialized value.</returns>
+        /// <inheritdoc cref="Read(BinaryReader)"/>
         /// <remarks>
+        /// <para>
         /// When accessing the <see cref="BinaryReader"/> base stream, care must be taken when moving the position in the stream.
-        /// Reading must begin at the current stream position and end at the current position plus the length of your data.
+        /// Reading must begin at the current stream position and end at the current position plus the length of the serialized data.
+        /// </para>
+        /// <para>
+        /// The platform currently does not populate <paramref name="baseValue"/>; implementers can ignore it.
+        /// See the example on <see cref="IStateSerializer{T}"/>.
+        /// </para>
         /// </remarks>
         T Read(T baseValue, BinaryReader binaryReader);
 
-        /// <summary>
-        /// Serializes an object and writes it to the given <see cref="BinaryWriter"/>.
-        /// </summary>
-        /// <param name="baseValue">The base value for the serialization.</param>
-        /// <param name="targetValue">The value to serialize.</param>
-        /// <param name="binaryWriter">The <see cref="BinaryWriter"/> to serialize to.</param>
+        /// <inheritdoc cref="Write(T, BinaryWriter)"/>
         /// <remarks>
+        /// <para>
         /// When accessing the <see cref="BinaryWriter"/> base stream, care must be taken when moving the position in the stream.
-        /// Writing must begin at the current stream position and end at the current position plus the length of your data.
+        /// Writing must begin at the current stream position and end at the current position plus the length of the serialized data.
+        /// </para>
+        /// <para>
+        /// The platform currently does not populate <paramref name="baseValue"/>; implementers can ignore it.
+        /// See the example on <see cref="IStateSerializer{T}"/>.
+        /// </para>
         /// </remarks>
         void Write(T baseValue, T targetValue, BinaryWriter binaryWriter);
     }

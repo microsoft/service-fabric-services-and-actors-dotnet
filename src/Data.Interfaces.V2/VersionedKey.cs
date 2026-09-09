@@ -6,9 +6,8 @@
 namespace Microsoft.ServiceFabric.Data
 {
     /// <summary>
-    /// Defines a key with a sequence number.
+    /// Represents a key together with the sequence number that identifies its version.
     /// </summary>
-    /// <typeparam name="TKey"></typeparam>
     public struct VersionedKey<TKey>
     {
         /// <summary>
@@ -17,15 +16,13 @@ namespace Microsoft.ServiceFabric.Data
         public TKey Key { get; }
 
         /// <summary>
-        /// Gets the sequence number.
+        /// Gets the sequence number that identifies the version of the <see cref="Key"/>.
         /// </summary>
         public long SequenceNumber { get; }
 
         /// <summary>
-        /// Initializes a new instance of the VersionedKey structure with the specified key and sequence number.
+        /// Initializes a new instance of the <see cref="VersionedKey{TKey}"/> struct.
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="sequenceNumber"></param>
         public VersionedKey(TKey key, long sequenceNumber)
         {
             Key = key;

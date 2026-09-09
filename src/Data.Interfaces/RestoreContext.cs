@@ -7,138 +7,37 @@ namespace Microsoft.ServiceFabric.Data
 {
     using System;
     using System.Fabric;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
-    /// <cref name="RestoreContext"/> contains the <cref name="RestoreContext.RestoreAsync(RestoreDescription)"/> that can be used to restore the state of the replica from a backup. 
+    /// Provides the ability to restore a replica's state from a backup.
     /// </summary>
     public struct RestoreContext
     {
         private readonly IStateProviderReplica stateProviderReplica;
 
         /// <summary>
-        /// Initializes a new instance of the <cref name="RestoreContext"/> structure.
+        /// Initializes a new instance of the <see cref="RestoreContext"/> struct.
         /// </summary>
-        /// <param name="stateProviderReplica">
-        /// An <see cref="IStateProviderReplica"/> representing a reliable state provider replica.
-        /// </param>
+        /// <exception cref="ArgumentNullException"><paramref name="stateProviderReplica"/> is <see langword="null"/>.</exception>
         public RestoreContext(IStateProviderReplica stateProviderReplica)
         {
             this.stateProviderReplica = stateProviderReplica;
         }
 
-        /// <summary>
-        /// Restores a backup described by <see cref="RestoreDescription"/>.
-        /// </summary>
-        /// <param name="restoreDescription">Description for the restore request.</param>
-        /// <exception cref="System.Fabric.FabricMissingFullBackupException">
-        /// Indicates that the input backup folder does not contain a full backup.
-        /// For a backup folder to be restorable, it must contain exactly one full backup and any number of incremental backups.
-        /// </exception>
-        /// <exception cref="System.ArgumentException">
-        /// Indicates that one of the arguments is not valid. For example, when restoring a Reliable Service if RestorePolicy is set to Safe, 
-        /// but the input backup folder contains a version of the state that is older than the state maintained in the current replica.
-        /// 
-        /// When restoring an Actor Service this exception is thrown if specified <see cref="Microsoft.ServiceFabric.Data.RestoreDescription.BackupFolderPath"/>
-        /// is empty.
-        /// </exception>
-        /// <exception cref="System.IO.DirectoryNotFoundException">
-        /// Indicates that the supplied restore directory does not exist.
-        /// </exception>
-        /// <exception cref="System.Fabric.FabricObjectClosedException">
-        /// Indicates that the replica is closing.
-        /// </exception>
-        /// <exception cref="System.InvalidOperationException">
-        /// Indicates that current restore operation is not valid. For example, the <see cref="System.Fabric.ServicePartitionKind"/> 
-        /// of the partition from where backup was taken is different than that of current partition being restored.
-        /// </exception>
-        /// <exception cref="System.IO.FileNotFoundException">
-        /// Indicates the expected backup files under the supplied restore directory is not found.
-        /// </exception>
-        /// <exception cref="System.Fabric.FabricException">
-        /// Indicates either the restore operation encountered an unexpected error or the backup files in restore directory are not valid.
-        /// The <see cref="System.Fabric.FabricException.ErrorCode"/> property indicates the type of error that occurred.
-        /// <list type="bullet">
-        ///     <item>
-        ///         <term><see cref="System.Fabric.FabricErrorCode.InvalidBackup"/></term>
-        ///         <description>
-        ///         Indicates that the backup files supplied in the restore directory are either missing files or have extra unexpected files.
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term><see cref="System.Fabric.FabricErrorCode.InvalidRestoreData"/></term>
-        ///         <description>
-        ///         Indicates that metadata files (restore.dat) present in restore directory is either corrupt or contains invalid information.
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term><see cref="System.Fabric.FabricErrorCode.InvalidBackupChain"/></term>
-        ///         <description>
-        ///         Indicates that the backup chain (i.e. one full backup and zero or more contiguous incremental backups that were taken after it) 
-        ///         supplied in the restore directory is broken. 
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term><see cref="System.Fabric.FabricErrorCode.DuplicateBackups"/></term>
-        ///         <description>
-        ///         Indicates that the backup chain (i.e. one full backup and zero or more contiguous incremental backups that were taken after it) 
-        ///         supplied in the restore directory contains duplicate backups. 
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term><see cref="System.Fabric.FabricErrorCode.RestoreSafeCheckFailed"/></term>
-        ///         <description>
-        ///         If <see cref="Microsoft.ServiceFabric.Data.RestorePolicy.Safe"/> is specified as part of <see cref="Microsoft.ServiceFabric.Data.RestoreDescription"/>, it 
-        ///         indicates that the backup provided for restore has older data than currently present in service.
-        ///         </description>
-        ///     </item>
-        /// </list>
-        /// </exception>
-        /// <returns>
-        /// Task that represents the asynchronous restore operation.
-        /// </returns>
-        /// <remarks>
-        /// This API must be called from OnDataLossAsync method. Only one RestoreAsync API can be inflight per replica at any given point of time.
-        /// 
-        /// Note that exceptions thrown by this API differ depending on of underlying state provider. The exceptions that are currently documented for
-        /// this API applies only to out-of-box state providers provided by Service Fabric for Reliable Services and Reliable Actors.
-        /// <para>
-        /// Following exceptions are thrown by this API when invoked in Reliable Service:
-        /// <list type="bullet">
-        ///     <item>
-        ///         <description><see cref="System.Fabric.FabricMissingFullBackupException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.ArgumentException"/></description>
-        ///     </item>
-        /// </list>
-        /// </para>
-        /// <para>
-        /// Following exceptions are thrown by this API when invoked in Actor Service with KvsActorStateProvider as its state provider (which is the
-        /// default state provider for Reliable Actors):
-        /// <list type="bullet">
-        ///     <item>
-        ///         <description><see cref="System.ArgumentException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.IO.DirectoryNotFoundException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.Fabric.FabricObjectClosedException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.InvalidOperationException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.IO.FileNotFoundException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.Fabric.FabricException"/></description>
-        ///     </item>
-        /// </list>
-        /// </para>
-        /// </remarks>
+        /// <inheritdoc path="/summary" cref="RestoreAsync(RestoreDescription, CancellationToken)"/>
+        /// <inheritdoc path="/remarks" cref="RestoreAsync(RestoreDescription, CancellationToken)"/>
+        /// <inheritdoc path="/exception[@cref='T:System.ArgumentException']" cref="RestoreAsync(RestoreDescription, CancellationToken)"/>
+        /// <inheritdoc path="/exception[@cref='T:System.Fabric.FabricException']" cref="RestoreAsync(RestoreDescription, CancellationToken)"/>
+        /// <inheritdoc path="/exception[@cref='T:System.Fabric.FabricMissingFullBackupException']" cref="RestoreAsync(RestoreDescription, CancellationToken)"/>
+        /// <inheritdoc path="/exception[@cref='T:System.Fabric.FabricObjectClosedException']" cref="RestoreAsync(RestoreDescription, CancellationToken)"/>
+        /// <inheritdoc path="/exception[@cref='T:System.InvalidOperationException']" cref="RestoreAsync(RestoreDescription, CancellationToken)"/>
+        /// <inheritdoc path="/exception[@cref='T:System.IO.DirectoryNotFoundException']" cref="RestoreAsync(RestoreDescription, CancellationToken)"/>
+        /// <inheritdoc path="/exception[@cref='T:System.IO.FileNotFoundException']" cref="RestoreAsync(RestoreDescription, CancellationToken)"/>
+        /// <inheritdoc path="/exception[@cref='T:System.IO.InvalidDataException']" cref="RestoreAsync(RestoreDescription, CancellationToken)"/>
+        /// <inheritdoc path="/exception[@cref='T:System.NotImplementedException']" cref="RestoreAsync(RestoreDescription, CancellationToken)"/>
         public Task RestoreAsync(RestoreDescription restoreDescription)
         {
             return this.stateProviderReplica.RestoreAsync(
@@ -148,117 +47,99 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// Restore a backup described by <see cref="RestoreDescription"/>.
+        /// Asynchronously restores the replica's state from the backup described by <paramref name="restoreDescription"/>.
         /// </summary>
-        /// <param name="restoreDescription">Description for the restore request.</param>
-        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <exception cref="FabricMissingFullBackupException">
-        /// Indicates that the input backup folder does not contain a full backup.
-        /// For a backup folder to be restorable, it must contain exactly one full backup and any number of incremental backups.
-        /// </exception>
-        /// <exception cref="System.ArgumentException">
-        /// Indicates that one of the arguments is not valid. For example, when restoring a Reliable Service if RestorePolicy is set to Safe, 
-        /// but the input backup folder contains a version of the state that is older than the state maintained in the current replica.
-        /// 
-        /// When restoring an Actor Service this exception is thrown if specified <see cref="Microsoft.ServiceFabric.Data.RestoreDescription.BackupFolderPath"/>
-        /// is empty.
-        /// </exception>
-        /// <exception cref="System.IO.DirectoryNotFoundException">
-        /// Indicates that the supplied restore directory does not exist.
-        /// </exception>
-        /// <exception cref="System.Fabric.FabricObjectClosedException">
-        /// Indicates that the replica is closing.
-        /// </exception>
-        /// <exception cref="System.InvalidOperationException">
-        /// Indicates that current restore operation is not valid. For example, the <see cref="System.Fabric.ServicePartitionKind"/> 
-        /// of the partition from where backup was taken is different than that of current partition being restored.
-        /// </exception>
-        /// <exception cref="System.IO.FileNotFoundException">
-        /// Indicates the expected backup files under the supplied restore directory is not found.
-        /// </exception>
-        /// <exception cref="System.Fabric.FabricException">
-        /// Indicates either the restore operation encountered an unexpected error or the backup files in restore directory are not valid.
-        /// The <see cref="System.Fabric.FabricException.ErrorCode"/> property indicates the type of error that occurred.
-        /// <list type="bullet">
-        ///     <item>
-        ///         <term><see cref="System.Fabric.FabricErrorCode.InvalidBackup"/></term>
-        ///         <description>
-        ///         Indicates that the backup files supplied in the restore directory are either missing files or have extra unexpected files.
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term><see cref="System.Fabric.FabricErrorCode.InvalidRestoreData"/></term>
-        ///         <description>
-        ///         Indicates that metadata files (restore.dat) present in restore directory is either corrupt or contains invalid information.
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term><see cref="System.Fabric.FabricErrorCode.InvalidBackupChain"/></term>
-        ///         <description>
-        ///         Indicates that the backup chain (i.e. one full backup and zero or more contiguous incremental backups that were taken after it) 
-        ///         supplied in the restore directory is broken. 
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term><see cref="System.Fabric.FabricErrorCode.DuplicateBackups"/></term>
-        ///         <description>
-        ///         Indicates that the backup chain (i.e. one full backup and zero or more contiguous incremental backups that were taken after it) 
-        ///         supplied in the restore directory contains duplicate backups. 
-        ///         </description>
-        ///     </item>
-        ///     <item>
-        ///         <term><see cref="System.Fabric.FabricErrorCode.RestoreSafeCheckFailed"/></term>
-        ///         <description>
-        ///         If <see cref="Microsoft.ServiceFabric.Data.RestorePolicy.Safe"/> is specified as part of <see cref="Microsoft.ServiceFabric.Data.RestoreDescription"/>, it 
-        ///         indicates that the backup provided for restore has older data than currently present in service.
-        ///         </description>
-        ///     </item>
-        /// </list>
-        /// </exception>
-        /// <returns>
-        /// Task that represents the asynchronous restore operation.
-        /// </returns>
         /// <remarks>
-        /// This API must be called from OnDataLossAsync method. Only one RestoreAsync API can be inflight per replica at any given point of time.
-        /// 
-        /// Note that exceptions thrown by this API differ depending on of underlying state provider. The exceptions that are currently documented for
-        /// this API applies only to out-of-box state providers provided by Service Fabric for Reliable Services and Reliable Actors.
         /// <para>
-        /// Following exceptions are thrown by this API when invoked in Reliable Service:
-        /// <list type="bullet">
-        ///     <item>
-        ///         <description><see cref="System.Fabric.FabricMissingFullBackupException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.ArgumentException"/></description>
-        ///     </item>
-        /// </list>
+        /// This API must be called from the callback assigned to <see cref="IStateProviderReplica.OnDataLossAsync"/>.
+        /// Only one restore can be in flight per replica at a time.
         /// </para>
         /// <para>
-        /// Following exceptions are thrown by this API when invoked in Actor Service with KvsActorStateProvider as its state provider (which is the
-        /// default state provider for Reliable Actors):
-        /// <list type="bullet">
-        ///     <item>
-        ///         <description><see cref="System.ArgumentException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.IO.DirectoryNotFoundException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.Fabric.FabricObjectClosedException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.InvalidOperationException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.IO.FileNotFoundException"/></description>
-        ///     </item>
-        ///     <item>
-        ///         <description><see cref="System.Fabric.FabricException"/></description>
-        ///     </item>
-        /// </list>
+        /// Exceptions thrown by this API differ depending on the underlying state provider. The exceptions that are currently
+        /// documented for this API apply only to the out-of-box state providers that support restore: any Reliable Services
+        /// state provider, the <c>KvsActorStateProvider</c> used for actor types with <c>StatePersistence.Persisted</c>
+        /// (on .NET Framework and on Windows .NET), and the <c>ReliableCollectionsActorStateProvider</c> used for
+        /// <c>StatePersistence.Persisted</c> on non-Windows .NET.
         /// </para>
         /// </remarks>
+        /// <exception cref="ArgumentException">
+        /// <para>
+        /// The specified <see cref="RestoreDescription.BackupFolderPath"/> is <see langword="null"/>, empty, or contains only whitespace.
+        /// </para>
+        /// <para>
+        /// For Reliable Services, this also occurs when <see cref="RestoreDescription.Policy"/> is set to <see cref="RestorePolicy.Safe"/>
+        /// but the input backup folder contains a version that is not ahead of the state maintained in the current replica.
+        /// </para>
+        /// </exception>
+        /// <exception cref="DirectoryNotFoundException">
+        /// The supplied backup folder does not exist.
+        /// </exception>
+        /// <exception cref="FabricException">
+        /// The restore operation failed. The <see cref="FabricException.ErrorCode"/> property indicates the specific reason.
+        /// <list type="bullet">
+        ///     <item>
+        ///         <term><see cref="FabricErrorCode.InvalidBackup"/></term>
+        ///         <description>
+        ///         The backup files supplied in the backup folder are either missing or contain extra unexpected files.
+        ///         </description>
+        ///     </item>
+        ///     <item>
+        ///         <term><see cref="FabricErrorCode.InvalidRestoreData"/></term>
+        ///         <description>
+        ///         The metadata files (restore.dat) present in the backup folder are either corrupt or contain invalid information.
+        ///         </description>
+        ///     </item>
+        ///     <item>
+        ///         <term><see cref="FabricErrorCode.InvalidBackupChain"/></term>
+        ///         <description>
+        ///         The backup chain (i.e. one full backup and zero or more contiguous incremental backups that were taken after it)
+        ///         supplied in the backup folder is broken.
+        ///         </description>
+        ///     </item>
+        ///     <item>
+        ///         <term><see cref="FabricErrorCode.DuplicateBackups"/></term>
+        ///         <description>
+        ///         The backup chain (i.e. one full backup and zero or more contiguous incremental backups that were taken after it)
+        ///         supplied in the backup folder contains duplicate backups.
+        ///         </description>
+        ///     </item>
+        ///     <item>
+        ///         <term><see cref="FabricErrorCode.RestoreSafeCheckFailed"/></term>
+        ///         <description>
+        ///         <see cref="RestorePolicy.Safe"/> is specified as part of <see cref="RestoreDescription"/> and
+        ///         the backup provided is not ahead of the state currently present in the service.
+        ///         </description>
+        ///     </item>
+        /// </list>
+        /// </exception>
+        /// <exception cref="FabricMissingFullBackupException">
+        /// The input backup folder does not contain a full backup.
+        /// For a backup folder to be restorable, it must contain exactly one full backup and any number of incremental backups.
+        /// </exception>
+        /// <exception cref="FabricObjectClosedException">
+        /// The replica is closing.
+        /// </exception>
+        /// <exception cref="FileNotFoundException">
+        /// The expected backup files under the supplied backup folder are not found.
+        /// </exception>
+        /// <exception cref="InvalidDataException">
+        /// For Reliable Services, the backup or checkpoint data in the supplied backup folder is corrupt, such as when a
+        /// backup file fails checksum verification or full-backup metadata is missing or inconsistent.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// The call is made outside the callback assigned to <see cref="IStateProviderReplica.OnDataLossAsync"/>, another
+        /// restore is already in flight on the same replica, or the restore is otherwise invalid for the target partition.
+        /// For example, the <see cref="ServicePartitionKind"/> of the partition from which the backup was taken differs from
+        /// that of the current partition being restored.
+        /// </exception>
+        /// <exception cref="NotImplementedException">
+        /// The actor service is backed by <c>VolatileActorStateProvider</c> or <c>NullActorStateProvider</c>, neither of
+        /// which supports restore.
+        /// <c>NullActorStateProvider</c> is selected for actor types whose <c>[StatePersistence]</c> attribute specifies
+        /// <c>StatePersistence.None</c> or that omit the attribute entirely;
+        /// <c>VolatileActorStateProvider</c> is selected for <c>StatePersistence.Volatile</c>.
+        /// </exception>
+        /// <exception cref="OperationCanceledException">The operation was canceled via <paramref name="cancellationToken"/>.</exception>
         public Task RestoreAsync(RestoreDescription restoreDescription, CancellationToken cancellationToken)
         {
             return this.stateProviderReplica.RestoreAsync(

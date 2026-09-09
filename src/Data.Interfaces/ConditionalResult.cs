@@ -6,26 +6,16 @@
 namespace Microsoft.ServiceFabric.Data
 {
     /// <summary>
-    /// Result class returned by Reliable Collections APIs that may or may not return a value.
+    /// Represents the result of an operation that may or may not return a value.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value returned by this <cref name="ConditionalValue{TValue}"/>.</typeparam>
     public struct ConditionalValue<TValue>
     {
-        /// <summary>
-        /// Is there a value.
-        /// </summary>
         private readonly bool hasValue;
-
-        /// <summary>
-        /// The value.
-        /// </summary>
         private readonly TValue value;
 
         /// <summary>
-        /// Initializes a new instance of the <cref name="ConditionalValue{TValue}"/> class with the given value.
+        /// Initializes a new instance of the <see cref="ConditionalValue{TValue}"/> struct.
         /// </summary>
-        /// <param name="hasValue">Indicates whether the value is valid.</param>
-        /// <param name="value">The value.</param>
         public ConditionalValue(bool hasValue, TValue value)
         {
             this.hasValue = hasValue;
@@ -33,9 +23,8 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// Gets a value indicating whether the current <cref name="ConditionalValue{TValue}"/> object has a valid value of its underlying type.
+        /// Gets a value that indicates whether the current <see cref="ConditionalValue{TValue}"/> object has a valid value.
         /// </summary>
-        /// <returns><languageKeyword>true</languageKeyword>: Value is valid, <languageKeyword>false</languageKeyword> otherwise.</returns>
         public bool HasValue
         {
             get
@@ -45,9 +34,9 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// Gets the value of the current <cref name="ConditionalValue{TValue}"/> object if it has been assigned a valid underlying value.
+        /// Gets the value of the current <see cref="ConditionalValue{TValue}"/> object.
         /// </summary>
-        /// <returns>The value of the object. If HasValue is <languageKeyword>false</languageKeyword>, returns the default value for type of the TValue parameter.</returns>
+        /// <value>Meaningful only when <see cref="HasValue"/> is <see langword="true"/>.</value>
         public TValue Value
         {
             get

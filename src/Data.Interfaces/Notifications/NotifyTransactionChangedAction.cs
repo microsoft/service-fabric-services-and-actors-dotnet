@@ -6,12 +6,12 @@
 namespace Microsoft.ServiceFabric.Data.Notifications
 {
     /// <summary>
-    /// Describes the action that caused the TransactionChanged event.
+    /// Describes the action that caused the <see cref="IReliableStateManager.TransactionChanged"/> event.
     /// </summary>
     public enum NotifyTransactionChangedAction : int
     {
-        /// <summary> 
-        /// Transaction has committed.
+        /// <summary>
+        /// Indicates that the transaction has been committed.
         /// </summary>
         Commit = 0,
     }

@@ -6,22 +6,22 @@
 namespace Microsoft.ServiceFabric.Data.Notifications
 {
     /// <summary>
-    /// Describes the action that caused the StateManagerChanged event.
+    /// Describes the action that caused the <see cref="IReliableStateManager.StateManagerChanged"/> event.
     /// </summary>
     public enum NotifyStateManagerChangedAction : int
     {
-        /// <summary> 
-        /// A state provider has been added.
+        /// <summary>
+        /// Indicates that an <see cref="IReliableState"/> has been added to the state manager.
         /// </summary>
         Add = 0,
 
-        /// <summary> 
-        /// A state provider has been removed.
+        /// <summary>
+        /// Indicates that an <see cref="IReliableState"/> has been removed from the state manager.
         /// </summary>
         Remove = 1,
 
-        /// <summary> 
-        /// State manager has been rebuilt.
+        /// <summary>
+        /// Indicates that the entire state manager has been rebuilt, typically during recovery, restore, or end of copy.
         /// </summary>
         Rebuild = 2,
     }

@@ -10,58 +10,46 @@ namespace Microsoft.ServiceFabric.Data.Collections
     using System.Threading.Tasks;
 
     /// <summary>
-    /// <para>Defines methods for manipulating Reliable Collections.</para>
+    /// Represents a Reliable Collection of elements of type <typeparamref name="T"/>.
     /// </summary>
     /// <remarks>
-    /// <para>More information on Reliable Collections can be seen
-    /// <see href="https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-reliable-collections">here</see>.</para>
+    /// An <see cref="ITransaction"/> is the unit of concurrency. Multiple transactions can be in-flight at any time, but operations
+    /// within a given transaction must be called sequentially: APIs that take a transaction and return a <see cref="Task"/> must be
+    /// awaited one at a time.
     /// </remarks>
-    /// <typeparam name="T">The type of the elements in the collection.</typeparam>
+    /// <seealso href="https://learn.microsoft.com/azure/service-fabric/service-fabric-reliable-services-reliable-collections">Reliable Collections</seealso>
     public interface IReliableCollection<T> : IReliableState
     {
         /// <summary>
-        /// <para>Gets the number of elements contained in the <see cref="IReliableCollection{T}"/>.</para>
+        /// Asynchronously returns the number of elements in the <see cref="IReliableCollection{T}"/>.
         /// </summary>
-        /// <param name="tx">
-        /// The transaction to associate this operation with. See examples of
-        /// transactions <see href="https://docs.microsoft.com/azure/service-fabric/service-fabric-work-with-reliable-collections">here</see>.
-        /// </param>
+        /// <exception cref="ArgumentNullException"><paramref name="tx"/> is <see langword="null"/>.</exception>
         /// <exception cref="FabricNotReadableException">
-        /// <para>Indicates that the IReliableCollection cannot serve reads at the moment.
+        /// The <see cref="IReliableCollection{T}"/> cannot serve reads.
         /// This exception can be thrown in all <see cref="ReplicaRole"/>s.
         /// One reason it may be thrown in the <see cref="ReplicaRole.Primary"/> role is loss of <see cref="IStatefulServicePartition.ReadStatus"/>.
-        /// One reason it may be thrown in the <see cref="ReplicaRole.ActiveSecondary"/> role is that Reliable Collection's state is not yet consistent.</para>
+        /// One reason it may be thrown in the <see cref="ReplicaRole.ActiveSecondary"/> role is that the state of the <see cref="IReliableCollection{T}"/> is not yet consistent.
         /// </exception>
-        /// <exception cref="TransactionFaultedException">The transaction has been internally faulted by the system. Retry the operation on a new transaction</exception>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown when a method call is invalid for the object's current state.
-        /// Example, transaction used is already terminated: committed or aborted by the user.
-        /// If this exception is thrown, it is highly likely that there is a bug in the service code of the use of transactions.
-        /// </exception>
-        /// <exception cref="FabricNotPrimaryException">
-        /// <para>Thrown when attempting to perform this operation on a <see cref="IReliableCollection{T}"/> 
-        /// that is not in the <see cref="ReplicaRole.Primary"/> role.
-        /// In some instances, read operations, such as this one, can be performed from secondary replicas 
-        /// depending on the implementation of the IReliableCollection used.</para>
-        /// </exception>
-        /// <returns>
-        /// <para>A task that represents the asynchronous operation, indicating the number of elements.</para>
-        /// </returns>
+        /// <exception cref="InvalidOperationException">The transaction has already been committed or aborted, or the <see cref="IReliableCollection{T}"/> has not been registered.</exception>
+        /// <exception cref="TransactionFaultedException">The transaction has been internally faulted by the system. Retry the operation on a new transaction.</exception>
         Task<long> GetCountAsync(ITransaction tx);
 
         /// <summary>
-        /// <para>Removes all state from the <see cref="IReliableCollection{T}"/>, including replicated and persisted state.</para>
+        /// Asynchronously removes all state from the <see cref="IReliableCollection{T}"/>, including replicated and persisted state.
         /// </summary>
+        /// <remarks>
+        /// Not every <see cref="IReliableCollection{T}"/> implementation supports clearing.
+        /// </remarks>
         /// <exception cref="FabricNotPrimaryException">
-        /// <para>Thrown when attempting to perform this operation
-        /// on a <cref name="IReliableCollection{T}"/> that is not in the <see cref="ReplicaRole.Primary"/> role.</para>
+        /// The <see cref="IReliableCollection{T}"/> is not in the <see cref="ReplicaRole.Primary"/> role.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">The <see cref="IReliableCollection{T}"/> has not been registered.</exception>
+        /// <exception cref="NotImplementedException">
+        /// The <see cref="IReliableCollection{T}"/> implementation does not implement clearing.
         /// </exception>
         /// <exception cref="TimeoutException">
-        /// <para>Indicates that this operation failed to complete within the given timeout.</para>
+        /// The operation failed to complete within the default timeout.
         /// </exception>
-        /// <returns>
-        /// <para>A task that represents the asynchronous clear operation.</para>
-        /// </returns>
         Task ClearAsync();
     }
 }

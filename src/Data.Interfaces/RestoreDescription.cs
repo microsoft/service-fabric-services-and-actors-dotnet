@@ -6,7 +6,7 @@
 namespace Microsoft.ServiceFabric.Data
 {
     /// <summary>
-    /// A RestoreDescription contains all of the information necessary to restore a stateful service replica. 
+    /// Contains the information needed to restore a stateful service replica from a backup.
     /// </summary>
     public struct RestoreDescription
     {
@@ -14,13 +14,9 @@ namespace Microsoft.ServiceFabric.Data
         private readonly RestorePolicy restorePolicy;
 
         /// <summary>
-        /// Initializes a new instance of the <cref name="RestoreDescription"/> structure
+        /// Initializes a new instance of the <see cref="RestoreDescription"/> struct.
         /// </summary>
-        /// <param name="backupFolderPath">
-        /// The directory where the replica is to be restored from.
-        /// This parameter cannot be null, empty, or consist only of whitespace. 
-        /// UNC paths may also be provided.
-        /// </param>
+        /// <inheritdoc path="/param[@name='backupFolderPath']" cref="RestoreDescription(string, RestorePolicy)"/>
         public RestoreDescription(string backupFolderPath)
         {
             this.backupFolderPath = backupFolderPath;
@@ -28,14 +24,10 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// Initializes a new instance of the RestoreDescription structure.
+        /// Initializes a new instance of the <see cref="RestoreDescription"/> struct.
         /// </summary>
-        /// <param name="backupFolderPath">
-        /// The directory where the replica is to be restored from.
-        /// This parameter cannot be null, empty, or consist only of whitespace. 
-        /// UNC paths may also be provided.
-        /// </param>
-        /// <param name="restorePolicy">The restore policy.</param>
+        /// <param name="backupFolderPath">The directory to restore the replica from.</param>
+        /// <param name="restorePolicy">One of the enumeration values that specifies the policy used to restore the replica.</param>
         public RestoreDescription(string backupFolderPath, RestorePolicy restorePolicy)
         {
             this.backupFolderPath = backupFolderPath;
@@ -43,17 +35,12 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// Gets the directory which will be used to restore the replica's state.
-        /// This parameter cannot be null, empty, or consist only of whitespace. 
-        /// UNC paths may also be provided.
+        /// Gets the directory used to restore the replica's state.
         /// </summary>
         /// <remarks>
-        /// Folder must at least contain one full backup.
-        /// In addition, it could include one or more incremental backups.
+        /// The folder must contain exactly one full backup and may include any number of incremental backups.
+        /// UNC paths are supported.
         /// </remarks>
-        /// <value>
-        /// The directory which will be used to restore the replica's state.
-        /// </value>
         public string BackupFolderPath
         {
             get
@@ -63,11 +50,9 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// Gets the restore policy.
+        /// Gets the policy used to restore the replica.
         /// </summary>
-        /// <value>
-        /// Policy to be used for the restore.
-        /// </value>
+        /// <value>The default is <see cref="RestorePolicy.Safe"/>.</value>
         public RestorePolicy Policy
         {
             get

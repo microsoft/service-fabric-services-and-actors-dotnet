@@ -8,21 +8,20 @@ namespace Microsoft.ServiceFabric.Data.Notifications
     using Microsoft.ServiceFabric.Data;
 
     /// <summary>
-    /// Provides data for the StateManagerChanged event caused by a rebuild.
-    /// Commonly called during recovery, restore and end of copy.
+    /// Provides data for the <see cref="IReliableStateManager.StateManagerChanged"/> event caused by a rebuild.
     /// </summary>
+    /// <remarks>
+    /// Rebuild notifications are raised during recovery, restore, and at the end of copy.
+    /// </remarks>
     public class NotifyStateManagerRebuildEventArgs : NotifyStateManagerChangedEventArgs
     {
-        /// <summary>
-        /// The state providers.
-        /// </summary>
         private readonly IAsyncEnumerable<IReliableState> reliableStates;
 
         /// <summary>
-        /// Initializes a new instance of the <cref name="NotifyStateManagerChangedEventArgs"/>
+        /// Initializes a new instance of the <see cref="NotifyStateManagerRebuildEventArgs"/> class.
         /// </summary>
         /// <param name="reliableStates">
-        /// <cref name="IAsyncEnumerable"/> of all the ReliableState after the rebuild.
+        /// An asynchronous sequence of <see cref="IReliableState"/> providers after the rebuild.
         /// </param>
         public NotifyStateManagerRebuildEventArgs(IAsyncEnumerable<IReliableState> reliableStates) : base(NotifyStateManagerChangedAction.Rebuild)
         {
@@ -30,11 +29,8 @@ namespace Microsoft.ServiceFabric.Data.Notifications
         }
 
         /// <summary>
-        /// Enumerable of all the new state providers now in the State Manager.
+        /// Gets the new set of <see cref="IReliableState"/> providers now in the <see cref="IReliableStateManager"/>.
         /// </summary>
-        /// <value>
-        /// Asynchronous enumerable that contains the new set of <cref name="IReliableState"/>s.
-        /// </value>
         public IAsyncEnumerable<IReliableState> ReliableStates
         {
             get

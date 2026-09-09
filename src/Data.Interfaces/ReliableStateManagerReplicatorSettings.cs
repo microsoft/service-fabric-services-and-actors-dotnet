@@ -10,294 +10,458 @@ namespace Microsoft.ServiceFabric.Data
     using System.Text;
 
     /// <summary>
-    /// Settings that configure the replicator
+    /// Configures the replicator used by the <see cref="IReliableStateManager"/>.
     /// </summary>
     public class ReliableStateManagerReplicatorSettings
     {
         /// <summary>
-        /// Gets or sets how long the replicator waits after it transmits a message from the primary to the secondary for the secondary to acknowledge that it has received the message.
-        /// The default value is 5 seconds.
+        /// Gets or sets how long the replicator waits after it transmits a message from the primary to the secondary for
+        /// the secondary to acknowledge that it has received the message and, if no acknowledgement is received,
+        /// retransmits the message.
         /// </summary>
-        /// <returns>The retry interval.</returns>
+        /// <value>
+        /// The default is 5 seconds.
+        /// </value>
         public TimeSpan? RetryInterval { get; set; }
 
         /// <summary>
-        /// Gets or sets the amount of time that the replicator waits after receiving an operation before sending back an acknowledgment.
-        /// The default value is 5 milliseconds.
+        /// Gets or sets the amount of time that the replicator waits after receiving an operation before sending back
+        /// an acknowledgment.
         /// </summary>
-        /// <returns>The batch acknowledgment interval.</returns>
+        /// <value>
+        /// The default is 15 milliseconds.
+        /// </value>
         public TimeSpan? BatchAcknowledgementInterval { get; set; }
 
         /// <summary>
-        /// Gets or sets the address in {ip}:{port} format that this replicator will use when communicating with other replicators.
-        /// The default value is "localhost:0", which picks a dynamic port number in runtime.
-        /// If replicator is running inside a container, you should try setting up <see cref="ReliableStateManagerReplicatorSettings.ReplicatorListenAddress" /> and <see cref="ReliableStateManagerReplicatorSettings.ReplicatorPublishAddress" />.
+        /// Gets or sets the address in <c>{ip}:{port}</c> format that this replicator uses when communicating with other
+        /// replicators.
         /// </summary>
-        /// <returns>The replicator address.</returns>
+        /// <value>
+        /// The default is <c>"localhost:0"</c>, which picks a dynamic port number at runtime.
+        /// </value>
+        /// <remarks>
+        /// If the replicator runs inside a container, set <see cref="ReplicatorListenAddress"/> and <see cref="ReplicatorPublishAddress"/>
+        /// instead.
+        /// </remarks>
         public string ReplicatorAddress { get; set; }
 
         /// <summary>
-        /// Gets or sets the address in {ip}:{port} format that this replicator will use to receive information from other replicators.
-        /// The default value is "localhost:0", which picks a dynamic port number in runtime.
-        /// {ip} part of the listen address can be obtained from <see cref="System.Fabric.CodePackageActivationContext.ServiceListenAddress" />.
+        /// Gets or sets the address in <c>{ip}:{port}</c> format that this replicator uses to receive information from other
+        /// replicators.
         /// </summary>
-        /// <returns>The replicator address.</returns>
+        /// <value>
+        /// The default is the empty string, which causes the replicator to use <see cref="ReplicatorAddress"/>
+        /// for receiving information from other replicators.
+        /// </value>
+        /// <remarks>
+        /// The <c>{ip}</c> part of the listen address can be obtained from <see cref="CodePackageActivationContext.ServiceListenAddress"/>.
+        /// </remarks>
         public string ReplicatorListenAddress { get; set; }
 
         /// <summary>
-        /// Gets or sets the address in {ip}:{port} format that this replicator will use to send information to other replicators.
-        /// The default value is "localhost:0", which picks a dynamic port number in runtime.
-        /// {ip} part of the publish address can be obtained from <see cref="System.Fabric.CodePackageActivationContext.ServicePublishAddress" />.
+        /// Gets or sets the address in <c>{ip}:{port}</c> format that this replicator uses to send information to other
+        /// replicators.
         /// </summary>
-        /// <returns>The replicator address.</returns>
+        /// <value>
+        /// The default is the empty string, which causes the replicator to use <see cref="ReplicatorAddress"/>
+        /// for sending information to other replicators.
+        /// </value>
+        /// <remarks>
+        /// The <c>{ip}</c> part of the publish address can be obtained from <see cref="CodePackageActivationContext.ServicePublishAddress"/>.
+        /// </remarks>
         public string ReplicatorPublishAddress { get; set; }
 
         /// <summary>
         /// Gets or sets the security credentials for securing the traffic between replicators.
         /// </summary>
-        /// <returns>The security credentials.</returns>
+        /// <value>
+        /// The default is <see langword="null"/>.
+        /// </value>
         public SecurityCredentials SecurityCredentials { get; set; }
 
         /// <summary>
-        /// Gets or sets the initial size of the copy operation queue inside the replicator, which contains copy operations.
-        /// Default value is 64.
-        /// The value is the number of operations in the copy operation queue. Must be a power of 2.
+        /// Gets or sets the initial size of the copy operation queue inside the replicator.
         /// </summary>
-        /// <returns>The initial copy queue size.</returns>
+        /// <value>
+        /// The default is 64.
+        /// </value>
+        /// <remarks>
+        /// The value is the number of operations and must be a power of 2.
+        /// </remarks>
         public long? InitialCopyQueueSize { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum size of the copy operation queue inside replicator, which contains copy operations.
-        /// Default value is 1024.
-        /// The value is the max number of operations in the copy operation queue. Must be a power of 2.
+        /// Gets or sets the maximum size of the copy operation queue inside the replicator.
         /// </summary>
-        /// <returns>The max copy queue size.</returns>
+        /// <value>
+        /// The default is 16384.
+        /// </value>
+        /// <remarks>
+        /// The value is the maximum number of operations and must be a power of 2.
+        /// </remarks>
         public long? MaxCopyQueueSize { get; set; }
 
         /// <summary>
-        /// Gets or sets the max replication message size.
-        /// Default value is 50MB.
-        /// The unit is Bytes.
+        /// Gets or sets the maximum replication message size.
         /// </summary>
-        /// <returns>The max replication message size.</returns>
+        /// <value>
+        /// The default is 52428800 (50 MB).
+        /// </value>
+        /// <remarks>
+        /// The value is specified in bytes.
+        /// </remarks>
         public long? MaxReplicationMessageSize { get; set; }
 
         /// <summary>
-        /// Gets or sets the initial primary replication queue size.
-        /// Default value is 64.
-        /// The value is the number of operations in the primary replication queue. Must be a power of 2.
+        /// Gets or sets the initial size of the primary replication queue.
         /// </summary>
-        /// <returns>The initial primary replication queue size.</returns>
+        /// <value>
+        /// The default is 64.
+        /// </value>
+        /// <remarks>
+        /// The value is the number of operations and must be a power of 2.
+        /// </remarks>
         public long? InitialPrimaryReplicationQueueSize { get; set; }
 
         /// <summary>
-        /// Gets or sets the max primary replication queue size.
-        /// Default value is 8192.
-        /// The value is the max number of operations in the primary replication queue. Must be a power of 2.
+        /// Gets or sets the maximum size of the primary replication queue.
         /// </summary>
-        /// <returns>The max primary replication queue size.</returns>
+        /// <value>
+        /// The default is 8192.
+        /// </value>
+        /// <remarks>
+        /// The value is the maximum number of operations and must be a power of 2 and greater than 64.
+        /// </remarks>
         public long? MaxPrimaryReplicationQueueSize { get; set; }
 
         /// <summary>
-        /// Gets or sets the max primary replication queue memory size.
-        /// Default value is 0, which implies there is no memory limitation.
-        /// The unit is Bytes.
+        /// Gets or sets the maximum memory size of the primary replication queue.
         /// </summary>
-        /// <returns>The max primary replication queue memory size.</returns>
+        /// <value>
+        /// The default is 0, which means there is no memory limit.
+        /// </value>
+        /// <remarks>
+        /// The value is specified in bytes.
+        /// </remarks>
         public long? MaxPrimaryReplicationQueueMemorySize { get; set; }
 
         /// <summary>
-        /// Gets or sets the initial secondary replication queue size.
-        /// Default value is 64.
-        /// The value is the number of operations in the secondary replication queue. Must be a power of 2.
+        /// Gets or sets the initial size of the secondary replication queue.
         /// </summary>
-        /// <returns>The initial secondary replication queue size.</returns>
+        /// <value>
+        /// The default is 64.
+        /// </value>
+        /// <remarks>
+        /// The value is the number of operations and must be a power of 2.
+        /// </remarks>
         public long? InitialSecondaryReplicationQueueSize { get; set; }
 
         /// <summary>
-        /// Gets or sets the max secondary replication queue size.
-        /// Default value is 16384.
-        /// The value is the max number of operations in the secondary replication queue. Must be a power of 2.
+        /// Gets or sets the maximum size of the secondary replication queue.
         /// </summary>
-        /// <returns>The max secondary replication queue size.</returns>
+        /// <value>
+        /// The default is 16384.
+        /// </value>
+        /// <remarks>
+        /// The value is the maximum number of operations and must be a power of 2 and greater than 64.
+        /// </remarks>
         public long? MaxSecondaryReplicationQueueSize { get; set; }
 
         /// <summary>
-        /// Gets or sets the max secondary replication queue memory size.
-        /// Default value is 0, which implies there is no memory limitation.
-        /// The unit is Bytes.
+        /// Gets or sets the maximum memory size of the secondary replication queue.
         /// </summary>
-        /// <returns>The max secondary replication queue size.</returns>
+        /// <value>
+        /// The default is 0, which means there is no memory limit.
+        /// </value>
+        /// <remarks>
+        /// The value is specified in bytes.
+        /// </remarks>
         public long? MaxSecondaryReplicationQueueMemorySize { get; set; }
 
         /// <summary>
-        /// Gets or sets the GUID identifier for the log container that is shared by a number of replicas on the windows fabric node including this one.
-        /// Default value is "" which causes the replicator to use the global shared log for the node.
+        /// Gets or sets the GUID identifier for the log container shared by a number of replicas on the node including this
+        /// one.
         /// </summary>
-        /// <returns>The shared log id.</returns>
+        /// <value>
+        /// The default is an empty string, which causes the replicator to use the global shared log for the node.
+        /// </value>
+        /// <remarks>
+        /// <see cref="SharedLogId"/> and <see cref="SharedLogPath"/> must either both be specified or both be omitted.
+        /// When specified, the value must be a valid GUID.
+        /// </remarks>
         public string SharedLogId { get; set; }
 
         /// <summary>
-        /// Gets or sets the full pathname to the log container that is shared by a number of replicas on the node including this one.
-        /// Default value is "" which causes the replicator to use the global shared log for the node.
+        /// Gets or sets the full pathname to the log container shared by a number of replicas on the node including this
+        /// one.
         /// </summary>
-        /// <returns>The shared log path.</returns>
+        /// <value>
+        /// The default is an empty string, which causes the replicator to use the global shared log for the node.
+        /// </value>
+        /// <remarks>
+        /// <see cref="SharedLogPath"/> and <see cref="SharedLogId"/> must either both be specified or both be omitted.
+        /// When specified, the value must be an absolute path.
+        /// </remarks>
         public string SharedLogPath { get; set; }
 
         /// <summary>
-        /// Deprecated
+        /// Gets or sets the maximum stream size.
         /// </summary>
-        /// <returns>The max stream size.</returns>
+        /// <value>
+        /// The default is 1024, which applies only when <see cref="OptimizeLogForLowerDiskUsage"/> is explicitly set to
+        /// <see langword="false"/>. While <see cref="OptimizeLogForLowerDiskUsage"/> stays at its default of
+        /// <see langword="true"/>, the replicator uses a sparse log and the effective maximum stream size is 204800 (200 GB).
+        /// </value>
+        /// <remarks>
+        /// This property is deprecated.
+        /// </remarks>
         public int? MaxStreamSizeInMB { get; set; }
 
         /// <summary>
-        /// Gets or sets the amount of extra persistent storage space reserved for the replicator specified in kilobytes that is associated with this replica. This
-        /// value must be a multiple of 4.
-        /// The default value is 4.
-        /// The unit is KB.
+        /// Gets or sets the amount of persistent storage space reserved for replication-log metadata on this replica.
         /// </summary>
-        /// <returns>The max metadata size.</returns>
+        /// <value>
+        /// The default is 4.
+        /// </value>
+        /// <remarks>
+        /// The value is specified in KB and must be a non-negative multiple of 4.
+        /// </remarks>
         public int? MaxMetadataSizeInKB { get; set; }
 
         /// <summary>
-        /// Gets or sets the largest record size which the replicator may write specified in kilobytes for the log that is associated with this replica. This
-        /// value must be a multiple of 4 and greater than or equal to 128.
-        /// The default value is 1024.
-        /// The unit is KB.
+        /// Gets or sets the largest record size that the replicator may write for the log associated with this replica.
         /// </summary>
-        /// <returns>The max record size.</returns>
+        /// <value>
+        /// The default is 1024.
+        /// </value>
+        /// <remarks>
+        /// The value is specified in KB and must be a multiple of 4 and at least 128.
+        /// When <see cref="OptimizeLogForLowerDiskUsage"/> is explicitly <see langword="false"/> and
+        /// <see cref="MaxStreamSizeInMB"/> is set, the maximum stream size must be at least 16 times this value
+        /// (<c>MaxStreamSizeInMB * 1024 &gt;= 16 * MaxRecordSizeInKB</c>).
+        /// </remarks>
         public int? MaxRecordSizeInKB { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum write queue depth that the core logger can use as specified in kilobytes for the log that is associated with this replica. This
-        /// value is the maximum number of bytes that can be outstanding during core logger updates. It may be 0 for the core logger
-        /// to compute an appropriate value or a multiple of 4.
-        /// The default value is 0.
-        /// The unit is KB.
+        /// Gets or sets the maximum write queue depth that the core logger can use for the log associated with this replica.
         /// </summary>
-        /// <returns>The max write queue depth.</returns>
+        /// <value>
+        /// The default is 0.
+        /// </value>
+        /// <remarks>
+        /// The value is the maximum amount of data that can be outstanding during core logger updates.
+        /// It may be 0, in which case the core logger computes an appropriate value; otherwise it must be a positive multiple of
+        /// 4.
+        /// The value is specified in KB.
+        /// </remarks>
         public int? MaxWriteQueueDepthInKB { get; set; }
 
         /// <summary>
-        /// Gets or sets the checkpoint threshold. A checkpoint will be initiated when the log usage exceeds this value.
-        /// Default value is 50.
-        /// The unit is MB.
+        /// Gets or sets the log usage threshold above which a checkpoint is initiated.
         /// </summary>
-        /// <returns>The checkpoint threshold.</returns>
+        /// <value>
+        /// The default is 50.
+        /// </value>
+        /// <remarks>
+        /// The value is specified in MB and must be at least 1.
+        /// When <see cref="OptimizeLogForLowerDiskUsage"/> is explicitly <see langword="false"/> and
+        /// <see cref="MaxStreamSizeInMB"/> is set, this value must not exceed it.
+        /// </remarks>
         public int? CheckpointThresholdInMB { get; set; }
 
         /// <summary>
-        /// Gets or sets the max size for an accumulated backup log across backups.
-        /// An incremental backup requests will fail if the backup logs generated by the request causes the total amount of logs accumulated including the last full backup to be greater than MaxAccumulatedBackupLogSizeInMB.
-        /// In such cases, user is required to take a full backup.
-        /// Default value is 800.
-        /// The unit is MB.
+        /// Gets or sets the maximum size for an accumulated backup log across backups.
         /// </summary>
-        /// <returns>The max accumulated backup log size in MB.</returns>
+        /// <value>
+        /// The default is 800.
+        /// </value>
+        /// <remarks>
+        /// An incremental backup request fails when the backup logs it generates would cause the total amount of logs accumulated
+        /// since the last full backup to exceed this value. In that case, take a full backup.
+        /// The value is specified in MB and must be at least 1.
+        /// When <see cref="MaxStreamSizeInMB"/> is set, this value must also be smaller than it.
+        /// </remarks>
         public int? MaxAccumulatedBackupLogSizeInMB { get; set; }
 
         /// <summary>
-        /// Deprecated
+        /// Gets or sets a value that indicates whether the replicator is optimized for local SSD storage.
         /// </summary>
-        /// <returns>If the OptimizeForLocalSSD option is enabled.</returns>
+        /// <value>
+        /// <see langword="true"/> if the replicator is optimized for local SSD storage; otherwise, <see langword="false"/>.
+        /// The default is <see langword="false"/>.
+        /// </value>
+        /// <remarks>
+        /// This property is deprecated.
+        /// </remarks>
         public bool? OptimizeForLocalSSD { get; set; }
 
         /// <summary>
-        /// Gets or sets a flag, when true indicates the log should optimize in a way where less disk space is used for the log at the cost of IO performance. If false, the log will use more disk space but have better IO performance.
-        /// Default value is true.
+        /// Gets or sets a value that indicates whether the log should be optimized to use less disk space at the cost of
+        /// IO performance.
         /// </summary>
-        /// <returns>If the OptimizeLogForLowerDiskUsage option is enabled.</returns>
+        /// <value>
+        /// <see langword="true"/> if the log uses less disk space at the cost of IO performance; otherwise, <see langword="false"/>.
+        /// The default is <see langword="true"/>.
+        /// </value>
+        /// <remarks>
+        /// When set to <see langword="false"/>, the log uses more disk space but has better IO performance.
+        /// </remarks>
         public bool? OptimizeLogForLowerDiskUsage { get; set; }
 
         /// <summary>
-        /// Gets or sets a flag, when true indicates the secondary replicator should clear the in-memory queue after acknowledging the operations to the primary (After the operations are flushed to disk).
-        /// Default value is false.
-        /// Settings this to "TRUE" can result in additional disk reads on the new primary, while catching up replicas after a failover.
+        /// Gets or sets a value that indicates whether the secondary replicator should clear the in-memory queue after acknowledging
+        /// operations to the primary.
         /// </summary>
-        /// <returns>If the SecondaryClearAcknowledgedOperations option is enabled.</returns>
+        /// <value>
+        /// <see langword="true"/> if the secondary replicator clears the in-memory queue after acknowledging operations
+        /// (after they are flushed to disk); otherwise, <see langword="false"/>. The default is <see langword="false"/>.
+        /// </value>
+        /// <remarks>
+        /// Setting this to <see langword="true"/> can result in additional disk reads on the new primary when catching up
+        /// replicas after a failover.
+        /// </remarks>
         public bool? SecondaryClearAcknowledgedOperations { get; set; }
 
         /// <summary>
-        /// Sets the interval after which the replicator sends a warning health report that the API is slow and is taking longer than expected duration.
-        /// Default value is 5 minutes.
+        /// Gets or sets the interval after which the replicator sends a warning health report indicating that the API is
+        /// slow and taking longer than expected.
         /// </summary>
+        /// <value>
+        /// The default is 5 minutes.
+        /// </value>
+        /// <remarks>
+        /// The value must not be negative or <see cref="TimeSpan.MaxValue"/>.
+        /// Set this value to <see cref="TimeSpan.Zero"/> to disable slow API monitoring.
+        /// </remarks>
         public TimeSpan? SlowApiMonitoringDuration { get; set; }
 
         /// <summary>
-        /// Gets or sets the minimum log size. A truncation will not be initiated if it would reduce the size of the log to below this value.
-        /// Default value is 0.
+        /// Gets or sets the minimum log size.
         /// </summary>
-        /// <returns>The minimum log size.</returns>
+        /// <value>
+        /// The default is 0, which directs the replicator to derive the minimum log size from
+        /// <see cref="CheckpointThresholdInMB"/>, using half of it but no less than 1.
+        /// </value>
+        /// <remarks>
+        /// A truncation is not initiated if it would reduce the size of the log below the resulting value.
+        /// Any explicitly specified nonzero value must be at least 1. It must also be smaller than the effective maximum
+        /// stream size: the value of <see cref="MaxStreamSizeInMB"/> when <see cref="OptimizeLogForLowerDiskUsage"/> is
+        /// explicitly <see langword="false"/>; otherwise 204800 (200 GB), the sparse-log value.
+        /// </remarks>
         public int? MinLogSizeInMB { get; set; }
 
         /// <summary>
-        /// Gets or sets the truncation threshold factor. A truncation will be initiated when the log usage exceeds this value times MinLogSizeInMB.
-        /// Default value is 2.
+        /// Gets or sets the multiplier applied to <see cref="MinLogSizeInMB"/> to determine the log usage threshold
+        /// above which truncation is initiated.
         /// </summary>
-        /// <returns>The truncation threshold.</returns>
+        /// <value>
+        /// The default is 2.
+        /// </value>
+        /// <remarks>
+        /// Must be greater than 1. In addition, the product of <see cref="MinLogSizeInMB"/> and this factor must be
+        /// smaller than the effective maximum stream size: the value of <see cref="MaxStreamSizeInMB"/> when
+        /// <see cref="OptimizeLogForLowerDiskUsage"/> is explicitly <see langword="false"/>; otherwise 204800 (200 GB),
+        /// the sparse-log value.
+        /// </remarks>
         public int? TruncationThresholdFactor { get; set; }
 
         /// <summary>
-        /// Gets or sets the throttling threshold factor. Throttling will be initiated when the log usage exceeds this value times MinLogSizeInMB.
-        /// Default value is 3.
+        /// Gets or sets the multiplier applied to <see cref="MinLogSizeInMB"/> and <see cref="CheckpointThresholdInMB"/>
+        /// to determine the log usage threshold above which throttling is initiated; throttling starts at the larger
+        /// of the two products.
         /// </summary>
-        /// <returns>The throttling threshold.</returns>
+        /// <value>
+        /// The default is 4.
+        /// </value>
+        /// <remarks>
+        /// Must be greater than <see cref="TruncationThresholdFactor"/> and at least 3.
+        /// In addition, the throttling threshold, which is the larger of <see cref="MinLogSizeInMB"/> and
+        /// <see cref="CheckpointThresholdInMB"/> multiplied by this factor, must be smaller than the effective maximum stream size:
+        /// the value of <see cref="MaxStreamSizeInMB"/> when <see cref="OptimizeLogForLowerDiskUsage"/> is explicitly
+        /// <see langword="false"/>; otherwise 204800 (200 GB), the sparse-log value.
+        /// </remarks>
         public int? ThrottlingThresholdFactor { get; set; }
 
 #if NETFRAMEWORK
         // 12529905 - Disable new configuration for LogTruncationIntervalSeconds in CoreCLR
         /// <summary>
-        /// Gets or sets a time interval at which log truncation will be initiated
+        /// Gets or sets the time interval at which log truncation is initiated.
         /// </summary>
+        /// <value>
+        /// The default is 0.
+        /// </value>
+        /// <remarks>
+        /// The value must not be negative.
+        /// </remarks>
         public int? LogTruncationIntervalSeconds { get; set; }
 
         /// <summary>
-        /// Configuration that enables incremental backups to be chained across primary replicas.
-        /// When this flag is turned off, a primary replica can only take an incremental backup if it took the last backup at the same epoch.
-        /// When this flag is turned on, a primary replica can take an incremental backup whether or not it was the replica that took the last backup with the same dataloss number.
+        /// Gets or sets a value that indicates whether incremental backups can be chained across primary replicas.
         /// </summary>
+        /// <value>
+        /// <see langword="true"/> if a primary replica can take an incremental backup whether or not it took the last backup
+        /// with the same data-loss number; otherwise, <see langword="false"/>.
+        /// The default is <see langword="false"/>.
+        /// </value>
+        /// <remarks>
+        /// When <see langword="false"/>, a primary replica can take an incremental backup only if it took the last backup at
+        /// the same epoch.
+        /// </remarks>
         internal bool? EnableIncrementalBackupsAcrossReplicas { get; set; }
 
         /// <summary>
-        /// Controls if send window size for primary queues should be in bytes of number of messages
-        /// Default is false
+        /// Gets or sets a value that indicates whether the send window size for primary queues is measured in bytes rather
+        /// than number of messages.
         /// </summary>
+        /// <value>
+        /// <see langword="true"/> if the send window size is measured in bytes; otherwise, <see langword="false"/>.
+        /// The default is <see langword="false"/>.
+        /// </value>
         internal bool? EnableSendWindowSizeInBytes { get; set; }
 
         /// <summary>
-        /// If enableSendWindowSizeInBytes is set then specifies the amount of bytes from replication queue
-        /// that can be put on wire
+        /// Gets or sets the number of bytes from the replication queue that can be put on the wire when
+        /// <see cref="EnableSendWindowSizeInBytes"/> is set.
         /// </summary>
+        /// <value>
+        /// The default is 0.
+        /// </value>
         internal uint? MaxReplicationQueueSendWindowSizeInBytes { get; set; }
 
         /// <summary>
-        /// If enableSendWindowSizeInBytes is set then specifies the amount of bytes from copy queue
-        /// that can be put on wire
+        /// Gets or sets the number of bytes from the copy queue that can be put on the wire when
+        /// <see cref="EnableSendWindowSizeInBytes"/> is set.
         /// </summary>
+        /// <value>
+        /// The default is 0.
+        /// </value>
         internal uint? MaxCopyQueueSendWindowSizeInBytes { get; set; }
 
         /// <summary>
-        /// Controls if multiple replicas within process should use their own individual heaps or shared heap.
-        /// Default is false
+        /// Gets or sets a value that indicates whether multiple replicas within a process use their own individual heaps
+        /// rather than a shared heap.
         /// </summary>
+        /// <value>
+        /// <see langword="true"/> if each replica uses its own individual heap; otherwise, <see langword="false"/>.
+        /// The default is <see langword="true"/>.
+        /// </value>
         internal bool? UseIndividualHeapPerReplica { get; set; }
 
         /// <summary>
-        /// Controls the initial size of the heap owned by a replicas in a process, when UseIndividualHeapPerReplica is enabled.
-        /// Default is 0
+        /// Gets or sets the initial size, in kilobytes, of the heap owned by a replica in a process when
+        /// <see cref="UseIndividualHeapPerReplica"/> is enabled.
         /// </summary>
+        /// <value>
+        /// The default is 0.
+        /// </value>
         internal uint? InitialReplicaHeapSizeInKB { get; set; }
 #endif
 
         /// <summary>
-        /// Determines whether the specified ReplicatorSettings is equal to the current object.
+        /// Returns a value that indicates whether the specified object is of exactly the same type and each V2 setting set on
+        /// that object matches the corresponding setting on the current instance.
         /// </summary>
-        /// <param name="obj">
-        /// Object to check against.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
         public override bool Equals(object obj)
         {
             if (obj == null || obj.GetType() != GetType())
@@ -309,12 +473,7 @@ namespace Microsoft.ServiceFabric.Data
             return InternalEquals(this, arg);
         }
 
-        /// <summary>
-        /// Serves as a hash function for this type.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="int"/> representing the hash code.
-        /// </returns>
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
@@ -322,11 +481,9 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// Returns a string that represents the current object.
+        /// Returns a multi-line listing of the V2 settings, and .NET Framework-only settings when applicable, that have
+        /// been set on this instance.
         /// </summary>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
         public override string ToString()
         {
             var builder = new StringBuilder();

@@ -9,45 +9,54 @@ namespace Microsoft.ServiceFabric.Data
     using System.Text;
 
     /// <summary>
-    /// Settings that configure the replicator
+    /// Configures the replicator used by the <see cref="IReliableStateManager"/>, adding copy-batching, stable-read, and replication-batching settings.
     /// </summary>
     public class ReliableStateManagerReplicatorSettings2 : ReliableStateManagerReplicatorSettings
     {
         /// <summary>
-        /// Controls the size of copy log message that is used in building a replica. Higher value will copy more log records in each message.
-        /// Default value is 0 which means copy one log record at a time.
+        /// Gets or sets the size, in kilobytes, of the copy log message used to build a replica. A higher value copies more log records in each message.
         /// </summary>
+        /// <value>
+        /// The default is 0, which copies one log record at a time. The value must be greater than or equal to 0.
+        /// </value>
         public long? CopyBatchSizeInKB { get; set; }
 
         /// <summary>
-        /// Flag controls Stable reads feature. Stable reads allows every replica to only return values on read which are quorum acked.
-        /// Default is false
+        /// Gets or sets a value that indicates whether stable reads are enabled. Stable reads allow every replica to return only values that are quorum acknowledged on a read.
         /// </summary>
+        /// <value>
+        /// <see langword="true" /> if stable reads are enabled; otherwise, <see langword="false" />. The default is <see langword="false" />.
+        /// </value>
         public bool? EnableStableReads { get; set; }
 
         /// <summary>
-        /// Determines whether build can be canceled if the log is full.
-        /// Default is 0
+        /// Gets or sets a value that indicates whether a build can be canceled when the log is full.
         /// </summary>
+        /// <value>
+        /// <see langword="true" /> if a build can be canceled when the log is full; otherwise, <see langword="false" />. The default is <see langword="false" />.
+        /// </value>
         public bool? ShouldAbortCopyForTruncation { get; set; }
         
         /// <summary>
-        /// Size of a ReplicationBatch.
-        /// Default is 1
+        /// Gets or sets the number of operations in a replication batch.
         /// </summary>
+        /// <value>
+        /// The default is 1.
+        /// </value>
         public long? ReplicationBatchSize { get; set; }
 
         /// <summary>
-        /// Interval at which we force send Replication Batch even if it hasn't reach ReplicationBatchSize.
-        /// Default value is 0.015 Seconds (15 milliseconds)
+        /// Gets or sets the interval at which a replication batch is force sent even if it hasn't reached <see cref="ReplicationBatchSize" />.
         /// </summary>
+        /// <value>
+        /// The default is 0.015 seconds (15 milliseconds).
+        /// </value>
         public TimeSpan? ReplicationBatchSendInterval { get; set; }
 
         /// <summary>
-        /// Equals is used for delta comparison of current this object with passed in delta obj.
+        /// Determines whether the specified delta settings equal the current settings, comparing only the properties that are set on <paramref name="obj"/>, and returns <see langword="true" /> if every set property matches; otherwise, <see langword="false" />.
         /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
+        /// <param name="obj">The delta settings to compare with the current settings.</param>
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -73,24 +82,13 @@ namespace Microsoft.ServiceFabric.Data
             }
         }
 
-        /// <summary>
-        /// Serves as a hash function for this type.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="int"/> representing the hash code.
-        /// </returns>
+        /// <inheritdoc/>
         public override int GetHashCode()
         {
             // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
             return base.GetHashCode();
         }
-        /// <summary>
-        /// Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
-
+        /// <inheritdoc/>
         public override string ToString()
         {
             var builder = new StringBuilder(base.ToString());
@@ -154,16 +152,11 @@ namespace Microsoft.ServiceFabric.Data
             return isEqual && BaseInternalEquals(updated as ReliableStateManagerReplicatorSettings);
         }
 
-        /// <summary>
-        /// Copied from ReliableStateManagerReplicatorSettings's InternalEquals.
-        /// We can use base.InternalEquals but
-        /// * base.InternalEquals is private in ReliableStateManagerReplicatorSettings
-        /// * Since base.InternalEquals is private, we will have to use reflection to call in dotnet core (for production coreclr apps), which looks ugly.
-        /// * ReliableStateManagerReplicatorSettings will never change as Data.Interfaces is frozen now. So, this code will not go out of sync.
-        /// * We can't use base.Equals as that checks GetType() runtime checks which fails if we pass ReliableStateManagerReplicatorSettings2 object as argument.
-        /// </summary>
-        /// <param name="updated"></param>
-        /// <returns></returns>
+        // Copied from ReliableStateManagerReplicatorSettings.InternalEquals because:
+        // * InternalEquals is private, so it can't be called directly.
+        // * Calling it via reflection on .NET Core (production coreclr apps) would be ugly.
+        // * ReliableStateManagerReplicatorSettings is frozen, so this copy won't go out of sync.
+        // * base.Equals can't be used either: its GetType() runtime check fails when a ReliableStateManagerReplicatorSettings2 is passed.
         private bool BaseInternalEquals(ReliableStateManagerReplicatorSettings updated)
         {
             bool areEqual = true;

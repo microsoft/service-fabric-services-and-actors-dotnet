@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -8,12 +8,19 @@ namespace Microsoft.ServiceFabric.Data
     using System;
 
     /// <summary>
-    /// <see cref="OrdinalString"/> is a wrapper of <see cref="string"/> that uses <see cref="StringComparison.Ordinal"/> for <see cref="IComparable"/> and <see cref="IEquatable{T}"/> interface implementations.
+    /// Wraps a <see cref="string"/> to use <see cref="StringComparison.Ordinal"/> for <see cref="IComparable{T}"/> and <see cref="IEquatable{T}"/> implementations.
     /// </summary>
     /// <remarks>
-    /// <see cref="OrdinalString"/> supports explicit conversion from <see cref="OrdinalString"/> to <see cref="string"/> and implicit conversion from <see cref="string"/> to <see cref="OrdinalString"/>.
-    /// This implicit conversion from <see cref="string"/> to <see cref="OrdinalString"/> is implemented to help the customer minimize code change if string was used in upstream code. 
-    /// However, to ensure that we have a well defined comparison behavior, we only allow explicit conversion from <see cref="OrdinalString"/> to <see cref="string"/>.
+    /// <para>
+    /// Use <see cref="OrdinalString"/> instead of <see cref="string"/> as a Reliable Dictionary key to avoid data corruption and inconsistent enumeration caused by the default culture-sensitive string comparison.
+    /// </para>
+    /// <para>
+    /// The implicit conversion from string to OrdinalString minimizes code changes when upstream code uses string.
+    /// Conversion from OrdinalString to string is explicit to keep comparison behavior well-defined.
+    /// </para>
+    /// <para>
+    /// The wrapped string can be <see langword="null"/>, which is the value of <c>default(OrdinalString)</c>. Conversions and <see cref="ToString"/> return the wrapped <see langword="null"/> unchanged, while equality and comparison apply <see cref="StringComparison.Ordinal"/> rules to a <see langword="null"/> value. <see cref="GetHashCode"/> throws because it dereferences the value.
+    /// </para>
     /// </remarks>
     public struct OrdinalString : IEquatable<OrdinalString>, IComparable<OrdinalString>
     {
@@ -22,13 +29,14 @@ namespace Microsoft.ServiceFabric.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="OrdinalString"/> struct.
         /// </summary>
+        /// <param name="value">The value to wrap. May be <see langword="null"/>.</param>
         public OrdinalString(string value)
         {
             this.value = value;
         }
 
         /// <summary>
-        /// Defines an explicit conversion of a given <see cref="OrdinalString"/> to a <see cref="string"/>.
+        /// Returns the wrapped <see cref="string"/>, which may be <see langword="null"/>.
         /// </summary>
         public static explicit operator string(OrdinalString value)
         {
@@ -36,7 +44,7 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// Defines an implicit conversion of a given <see cref="string"/> to an <see cref="OrdinalString"/>.
+        /// Returns an <see cref="OrdinalString"/> that wraps the given <see cref="string"/>, which may be <see langword="null"/>.
         /// </summary>
         public static implicit operator OrdinalString(string value)
         {
@@ -44,137 +52,68 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// Determines whether two specified <see cref="OrdinalString"/>s have the same value.
+        /// Returns <see langword="true"/> if the value of <paramref name="left"/> is the same as the value of <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </summary>
-        /// <param name="left">
-        /// The first <see cref="OrdinalString"/> to compare</param>
-        /// <param name="right">
-        /// The second <see cref="OrdinalString"/> to compare</param>
-        /// <returns>
-        /// <see cref="Boolean"/>
-        /// <c>true</c> if the value of <c>left</c> is the same as the value of <c>right</c>; otherwise, <c>false</c>.
-        /// </returns>
         public static bool operator ==(OrdinalString left, OrdinalString right)
         {
             return left.Equals(right);
         }
 
         /// <summary>
-        /// Determines whether two specified <see cref="OrdinalString"/>s have different values.
+        /// Returns <see langword="true"/> if the value of <paramref name="left"/> is different from the value of <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </summary>
-        /// <param name="left">
-        /// The first <see cref="OrdinalString"/> to compare</param>
-        /// <param name="right">
-        /// The second <see cref="OrdinalString"/> to compare</param>
-        /// <returns>
-        /// <see cref="Boolean"/>
-        /// <c>true</c> if the value of <c>left</c> is different from the value of <c>right</c>; otherwise, <c>false</c>.
-        /// </returns>
         public static bool operator !=(OrdinalString left, OrdinalString right)
         {
             return !left.Equals(right);
         }
 
         /// <summary>
-        /// Determines if the first <see cref="OrdinalString"/> is smaller than the second <see cref="OrdinalString"/>.
+        /// Returns <see langword="true"/> if the value of <paramref name="left"/> is less than the value of <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </summary>
-        /// <param name="left">
-        /// The first <see cref="OrdinalString"/> to compare</param>
-        /// <param name="right">
-        /// The second <see cref="OrdinalString"/> to compare</param>
-        /// <returns>
-        /// <see cref="Boolean"/>
-        /// <c>true</c> if the value of <c>left</c> is smaller than the value of <c>right</c>; otherwise, <c>false</c>.
-        /// </returns>
         public static bool operator <(OrdinalString left, OrdinalString right)
         {
             return left.CompareTo(right) < 0;
         }
 
         /// <summary>
-        /// Determines if the first <see cref="OrdinalString"/> is greater than the second <see cref="OrdinalString"/>.
+        /// Returns <see langword="true"/> if the value of <paramref name="left"/> is greater than the value of <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </summary>
-        /// <param name="left">
-        /// The first <see cref="OrdinalString"/> to compare</param>
-        /// <param name="right">
-        /// The second <see cref="OrdinalString"/> to compare</param>
-        /// <returns>
-        /// <see cref="Boolean"/>
-        /// <c>true</c> if the value of <c>left</c> is greater than the value of <c>right</c>; otherwise, <c>false</c>.
-        /// </returns>
         public static bool operator >(OrdinalString left, OrdinalString right)
         {
             return left.CompareTo(right) > 0;
         }
 
         /// <summary>
-        /// Determines if the first <see cref="OrdinalString"/> is less than or equal to the second <see cref="OrdinalString"/>.
+        /// Returns <see langword="true"/> if the value of <paramref name="left"/> is less than or equal to the value of <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </summary>
-        /// <param name="left">
-        /// The first <see cref="OrdinalString"/> to compare</param>
-        /// <param name="right">
-        /// The second <see cref="OrdinalString"/> to compare</param>
-        /// <returns>
-        /// <see cref="Boolean"/>
-        /// <c>true</c> if the value of <c>left</c> is less than or equal to the value of <c>right</c>; otherwise, <c>false</c>.
-        /// </returns>
         public static bool operator <=(OrdinalString left, OrdinalString right)
         {
             return left.CompareTo(right) <= 0;
         }
 
         /// <summary>
-        /// Determines if the first <see cref="OrdinalString"/> is greater than or equal to the second <see cref="OrdinalString"/>.
+        /// Returns <see langword="true"/> if the value of <paramref name="left"/> is greater than or equal to the value of <paramref name="right"/>; otherwise, <see langword="false"/>.
         /// </summary>
-        /// <param name="left">
-        /// The first <see cref="OrdinalString"/> to compare</param>
-        /// <param name="right">
-        /// The second <see cref="OrdinalString"/> to compare</param>
-        /// <returns>
-        /// <see cref="Boolean"/>
-        /// <c>true</c> if the value of <c>left</c> is greater than or equal to the value of <c>right</c>; otherwise, <c>false</c>.
-        /// </returns>
         public static bool operator >=(OrdinalString left, OrdinalString right)
         {
             return left.CompareTo(right) >= 0;
         }
 
-        /// <summary>
-        /// Converts the value of this instance to a <see cref="string"/>.
-        /// </summary>
+        /// <inheritdoc/>
+        /// <remarks>Returns <see langword="null"/> when the wrapped <see cref="string"/> is <see langword="null"/>.</remarks>
         public override string ToString()
         {
             return this.value;
         }
 
-        /// <summary>
-        /// Determines whether this instance and another specified <see cref="OrdinalString"/> object 
-        /// have the same value.
-        /// </summary>
-        /// <param name="value">
-        /// The <see cref="OrdinalString"/> to compare to this instance.
-        /// </param>
-        /// <returns>
-        /// <see cref="Boolean"/>
-        /// <c>true</c> if the value of the <c>value</c> parameter is the same as the value of this instance; 
-        /// otherwise, <c>false</c>. If <c>value</c> is <c>null</c>, the method returns <c>false</c>.
-        /// </returns>
+        /// <inheritdoc/>
+        /// <remarks>Two <see langword="null"/> wrapped values are equal.</remarks>
         public bool Equals(OrdinalString value)
         {
             return string.Equals(this.value, value.value, StringComparison.Ordinal);
         }
 
-        /// <summary>
-        /// Determines whether this instance and a specified <see cref="object"/>, which must also 
-        /// be an <see cref="OrdinalString"/> object, have the same value.
-        /// </summary>
-        /// <param name="obj">
-        /// The <see cref="OrdinalString"/> to compare to this instance.</param>
-        /// <returns>
-        /// <see cref="Boolean"/>
-        /// <c>true</c> if <c>obj</c> is an <see cref="OrdinalString"/> and its value is the same as this instance; 
-        /// otherwise, <c>false</c>. If <c>obj</c> is <c>null</c>, the method returns <c>false</c>.
-        /// </returns>
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             if (obj is OrdinalString other)
@@ -185,31 +124,17 @@ namespace Microsoft.ServiceFabric.Data
             return false;
         }
 
-        /// <summary>
-        /// Returns the hash code for this <see cref="OrdinalString"/>.
-        /// </summary>
-        /// <returns>
-        /// <see cref="Int32"/>
-        /// A 32-bit signed integer hash code.
-        /// </returns>
+        /// <inheritdoc/>
+        /// <exception cref="NullReferenceException">
+        /// The <see cref="OrdinalString"/> is <c>default(OrdinalString)</c> or was created from a <see langword="null"/> <see cref="string"/>.
+        /// </exception>
         public override int GetHashCode()
         {
             return this.value.GetHashCode();
         }
 
-        /// <summary>
-        /// Compares this instance with a specified <see cref="OrdinalString"/> object and indicates 
-        /// whether this instance precedes, follows, or appears in the same position 
-        /// in the sort order as the specified <see cref="OrdinalString"/>.
-        /// </summary>
-        /// <param name="other">
-        /// The <see cref="OrdinalString"/> to compare with this instance.
-        /// </param>
-        /// <returns>
-        /// <see cref="Int32"/>
-        /// A 32-bit signed integer that indicates whether this instance precedes, follows, or appears in the 
-        /// same position in the sort order as the <c>other</c> parameter.
-        /// </returns>
+        /// <inheritdoc/>
+        /// <remarks>A <see langword="null"/> wrapped value sorts before any non-<see langword="null"/> value.</remarks>
         public int CompareTo(OrdinalString other)
         {
             return string.CompareOrdinal(this.value, other.value);

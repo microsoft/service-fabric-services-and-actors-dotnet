@@ -11,100 +11,40 @@ namespace Microsoft.ServiceFabric.Data.Collections
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Represents a reliable collection of key/value pairs that are persisted and replicated.
+    /// Represents a Reliable Collection of key/value pairs that are persisted and replicated, adding ordered key enumeration
+    /// via <see cref="CreateKeyEnumerableAsync(ITransaction)"/> and a non-transactional <see cref="Count"/>.
     /// </summary>
-    /// <typeparam name="TKey">The type of the keys in the reliable dictionary.</typeparam>
-    /// <typeparam name="TValue">
-    /// The type of the values in the reliable dictionary.</typeparam>
-    /// <remarks>Keys or values stored in this dictionary MUST NOT be mutated outside the context of an operation on the 
-    /// dictionary.  It is highly recommended to make both <typeparamref name="TKey"/> and <typeparamref name="TValue"/> 
-    /// immutable in order to avoid accidental data corruption.
-    /// 
-    /// <para>
-    /// The transaction is the unit of concurrency. Users can have multiple transactions in-flight at any given point of time, but for a given transaction each API must be called one at a time.
-    /// When calling any asynchronous Reliable Collection method that takes an <see cref="ITransaction"/>, you must wait for completion of the returned Task before calling
-    /// another method using the same transaction.
-    /// </para>
-    /// </remarks>
+    /// <inheritdoc path="/remarks" cref="IReliableDictionary{TKey,TValue}"/>
     public interface IReliableDictionary2<TKey, TValue> : IReliableDictionary<TKey, TValue>
         where TKey : IComparable<TKey>, IEquatable<TKey>
     {
-        /// <summary>
-        /// Creates an async enumerator over the <see cref="IReliableDictionary2{TKey,TValue}"/> to enumerate the keys.
-        /// </summary>
-        /// <param name="txn">Transaction to associate this operation with.</param>
-        /// <exception cref="FabricNotReadableException">
-        /// Exception indicates that the Reliable Dictionary cannot serve reads at the moment.
-        /// <see cref="FabricNotReadableException"/> can be thrown in all <see cref="ReplicaRole"/>s.
-        /// One example for it being thrown in the <see cref="ReplicaRole.Primary"/> is loss of <see cref="IStatefulServicePartition.ReadStatus"/>.
-        /// One example for it being thrown in the <see cref="ReplicaRole.ActiveSecondary"/> is that Reliable Collection's state is not yet consistent.
-        /// </exception>
-        /// <exception cref="TransactionFaultedException">The transaction has been internally faulted by the system. Retry the operation on a new transaction</exception>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown when a method call is invalid for the object's current state.
-        /// Example, transaction used is already terminated: committed or aborted by the user.
-        /// If this exception is thrown, it is highly likely that there is a bug in the service code of the use of transactions.
-        /// </exception>
-        /// <exception cref="System.Fabric.FabricObjectClosedException">Indicates that the Reliable Dictionary is closed or deleted.</exception>
-        /// <remarks>
-        /// The enumerarable returned from the reliable dictionary is safe to use concurrently with reads and writes
-        /// to the dictionary. It represents a snapshot consistent view of the dictionary.
-        /// </remarks>
-        /// <returns>An enumerable for the reliable dictionary keys.</returns>
+        /// <inheritdoc cref="CreateKeyEnumerableAsync(ITransaction, EnumerationMode, TimeSpan, CancellationToken)"/>
         Task<IAsyncEnumerable<TKey>> CreateKeyEnumerableAsync(ITransaction txn);
 
-        /// <summary>
-        /// Creates an async enumerator over the <see cref="IReliableDictionary2{TKey,TValue}"/> to enumerate the keys.
-        /// </summary>
-        /// <param name="txn">Transaction to associate this operation with.</param>
-        /// <param name="enumerationMode">This parameter is ignored. Results are always returned in ordered mode.</param>
-        /// <exception cref="FabricNotReadableException">
-        /// Exception indicates that the Reliable Dictionary cannot serve reads at the moment.
-        /// <see cref="FabricNotReadableException"/> can be thrown in all <see cref="ReplicaRole"/>s.
-        /// One example for it being thrown in the <see cref="ReplicaRole.Primary"/> is loss of <see cref="IStatefulServicePartition.ReadStatus"/>.
-        /// One example for it being thrown in the <see cref="ReplicaRole.ActiveSecondary"/> is that Reliable Collection's state is not yet consistent.
-        /// </exception>
-        /// <exception cref="TransactionFaultedException">The transaction has been internally faulted by the system. Retry the operation on a new transaction</exception>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown when a method call is invalid for the object's current state.
-        /// Example, transaction used is already terminated: committed or aborted by the user.
-        /// If this exception is thrown, it is highly likely that there is a bug in the service code of the use of transactions.
-        /// </exception>
-        /// <exception cref="System.Fabric.FabricObjectClosedException">Indicates that the Reliable Dictionary is closed or deleted.</exception>
-        /// <remarks>
-        /// The enumerarable returned from the <see cref="IReliableDictionary2{TKey,TValue}"/> is safe to use concurrently with reads and writes
-        /// to the dictionary. It represents a snapshot consistent view of the dictionary. Keys are always enumerated in ordered mode.
-        /// </remarks>
-        /// <returns>An enumerable for the <see cref="IReliableDictionary2{TKey,TValue}"/> keys.</returns>
+        /// <inheritdoc cref="CreateKeyEnumerableAsync(ITransaction, EnumerationMode, TimeSpan, CancellationToken)"/>
         Task<IAsyncEnumerable<TKey>> CreateKeyEnumerableAsync(ITransaction txn, EnumerationMode enumerationMode);
 
         /// <summary>
-        /// Creates an async enumerator over the <see cref="IReliableDictionary2{TKey,TValue}"/> to enumerate the keys.
+        /// Asynchronously returns an enumerable over the keys of the <see cref="IReliableDictionary2{TKey,TValue}"/>.
         /// </summary>
-        /// <param name="txn">Transaction to associate this operation with.</param>
-        /// <param name="enumerationMode">This parameter is ignored. Results are always returned in ordered mode.</param>
-        /// <param name="timeout">
-        /// The amount of time to wait for the operation to complete before throwing a TimeoutException. Primarily used to prevent deadlocks. The default is 4 seconds.
-        /// </param>
-        /// <param name="cancellationToken">The token to monitor for cancellation requests. The default is None.</param>
+        /// <param name="txn">The <see cref="ITransaction"/> to associate this operation with.</param>
+        /// <param name="enumerationMode">An ignored enumeration mode. Results are always returned in ordered mode.</param>
+        /// <param name="timeout">An ignored timeout.</param>
+        /// <param name="cancellationToken">An ignored cancellation token.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="txn"/> is <see langword="null"/>.</exception>
         /// <exception cref="FabricNotReadableException">
-        /// Exception indicates that the Reliable Dictionary cannot serve reads at the moment.
-        /// <see cref="FabricNotReadableException"/> can be thrown in all <see cref="ReplicaRole"/>s.
-        /// One example for it being thrown in the <see cref="ReplicaRole.Primary"/> is loss of <see cref="IStatefulServicePartition.ReadStatus"/>.
-        /// One example for it being thrown in the <see cref="ReplicaRole.ActiveSecondary"/> is that Reliable Collection's state is not yet consistent.
+        /// The <see cref="IReliableDictionary2{TKey,TValue}"/> cannot serve reads at the moment.
+        /// This exception can be thrown in all <see cref="ReplicaRole"/>s.
+        /// One reason it may be thrown in the <see cref="ReplicaRole.Primary"/> role is loss of <see cref="IStatefulServicePartition.ReadStatus"/>.
+        /// One reason it may be thrown in the <see cref="ReplicaRole.ActiveSecondary"/> role is that the state of the <see cref="IReliableDictionary2{TKey,TValue}"/> is not yet consistent.
         /// </exception>
-        /// <exception cref="TransactionFaultedException">The transaction has been internally faulted by the system. Retry the operation on a new transaction</exception>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown when a method call is invalid for the object's current state.
-        /// Example, transaction used is already terminated: committed or aborted by the user.
-        /// If this exception is thrown, it is highly likely that there is a bug in the service code of the use of transactions.
-        /// </exception>
-        /// <exception cref="System.Fabric.FabricObjectClosedException">Indicates that the Reliable Dictionary is closed or deleted.</exception>
+        /// <exception cref="FabricObjectClosedException">The <see cref="IReliableDictionary2{TKey,TValue}"/> is closed or deleted.</exception>
+        /// <exception cref="InvalidOperationException">A method call is invalid for the object's current state, for example, the transaction is already committed or aborted.</exception>
+        /// <exception cref="TransactionFaultedException">The transaction has been internally faulted by the system. Retry the operation on a new transaction.</exception>
         /// <remarks>
-        /// The enumerarable returned from the <see cref="IReliableDictionary2{TKey,TValue}"/> is safe to use concurrently with reads and writes
+        /// The enumerable returned from the Reliable Dictionary is safe to use concurrently with reads and writes
         /// to the dictionary. It represents a snapshot consistent view of the dictionary. Keys are always enumerated in ordered mode.
         /// </remarks>
-        /// <returns>An enumerable for the <see cref="IReliableDictionary2{TKey,TValue}"/> keys.</returns>
         Task<IAsyncEnumerable<TKey>> CreateKeyEnumerableAsync(
             ITransaction txn, 
             EnumerationMode enumerationMode,
@@ -112,10 +52,11 @@ namespace Microsoft.ServiceFabric.Data.Collections
             CancellationToken cancellationToken);
 
         /// <summary>
-        /// Gets the number of key-value pairs contained in the <see cref="IReliableDictionary2{TKey,TValue}"/>.
+        /// Gets the number of key/value pairs contained in the <see cref="IReliableDictionary2{TKey,TValue}"/>.
         /// </summary>
+        /// <exception cref="InvalidOperationException">The <see cref="IReliableDictionary2{TKey,TValue}"/> has not been registered.</exception>
         /// <remarks>
-        /// This property does not have transactional semantics. It represents the best effort number of items 
+        /// This property does not have transactional semantics. It represents the best-effort number of items 
         /// in the dictionary at the moment when the property was accessed.
         /// </remarks>
         long Count { get; }

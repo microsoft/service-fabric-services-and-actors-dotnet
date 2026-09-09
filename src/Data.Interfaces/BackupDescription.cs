@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Data
     using System.Threading.Tasks;
 
     /// <summary>
-    /// A BackupDescription contains all of the information necessary to backup a stateful service replica. 
+    /// Contains the information necessary to back up a stateful service replica.
     /// </summary>
     public struct BackupDescription
     {
@@ -18,12 +18,13 @@ namespace Microsoft.ServiceFabric.Data
         private readonly Func<BackupInfo, CancellationToken, Task<bool>> backupCallback;
 
         /// <summary>
-        /// Initializes a new instance of the <cref name="BackupDescription"/> structure.
+        /// Initializes a new instance of the <see cref="BackupDescription"/> struct.
         /// </summary>
-        /// <param name="backupCallback">
-        /// Callback to be called when the backup folder has been created and populated locally by the system. 
-        /// This folder is now ready to be moved out of the node.
-        /// </param>
+        /// <inheritdoc path="/param[@name='backupCallback']" cref="BackupDescription(BackupOption, Func{BackupInfo, CancellationToken, Task{bool}})"/>
+        /// <inheritdoc path="/exception[@cref='T:System.ArgumentNullException']" cref="BackupDescription(BackupOption, Func{BackupInfo, CancellationToken, Task{bool}})"/>
+        /// <remarks>
+        /// Uses <see cref="BackupOption.Full"/> for the backup option.
+        /// </remarks>
         public BackupDescription(Func<BackupInfo, CancellationToken, Task<bool>> backupCallback)
         {
             this.option = BackupOption.Full;
@@ -31,14 +32,13 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// Initializes a new instance of the <cref name="BackupDescription"/> structure.
+        /// Initializes a new instance of the <see cref="BackupDescription"/> struct.
         /// </summary>
-        /// <param name="option">
-        /// The <cref name="BackupOption"/> for the backup.
-        /// </param>
+        /// <param name="option">One of the enumeration values that specifies the kind of backup to perform.</param>
         /// <param name="backupCallback">
-        /// Callback to be called when the backup folder has been created locally and is ready to be moved out of the node.
+        /// A callback invoked when the backup folder has been created locally and is ready to be moved out of the node.
         /// </param>
+        /// <exception cref="ArgumentNullException"><paramref name="backupCallback"/> is <see langword="null"/>.</exception>
         public BackupDescription(BackupOption option, Func<BackupInfo, CancellationToken, Task<bool>> backupCallback)
         {
             this.option = option;
@@ -46,11 +46,8 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// The type of backup to perform.
+        /// Gets the kind of backup to perform.
         /// </summary>
-        /// <value>
-        /// The type of the backup.
-        /// </value>
         public BackupOption Option
         {
             get
@@ -60,16 +57,13 @@ namespace Microsoft.ServiceFabric.Data
         }
 
         /// <summary>
-        /// Gets the callback to be called when the backup folder has been created locally and is ready to be moved out of the node.
+        /// Gets the callback invoked when the backup folder has been created locally and is ready to be moved out of the node.
         /// </summary>
-        /// <value>
-        /// The backup callback function commonly used to copy the backup folder to an external location.
-        /// </value>
         /// <remarks>
-        /// Backup callback function takes in BackupInfo and Cancellation token and returns a Task that represents the processing of the backup folder.
-        /// Boolean returned by the backupCallback indicate whether the service was able to successfully move the backup folder to an external location.
-        /// If false is returned, BackupAsync throws InvalidOperationException with the relevant message indicating backupCallback returned false.
-        /// Also, backup will be marked as unsuccessful.
+        /// When invoked, the callback returns a <see cref="Task{TResult}"/> whose result indicates whether the service was able to successfully move the backup folder to an external location.
+        /// If <see langword="false"/> is returned,
+        /// <see cref="IStateProviderReplica.BackupAsync(BackupOption, TimeSpan, CancellationToken, Func{BackupInfo, CancellationToken, Task{bool}})"/>
+        /// throws <see cref="InvalidOperationException"/>, and the backup is marked as unsuccessful.
         /// </remarks>
         public Func<BackupInfo, CancellationToken, Task<bool>> BackupCallback
         {

@@ -247,6 +247,9 @@ applyTo: "test/**/*.cs"
 
 ## Test Methods
 
+- **Test names should accurately describe the expected behavior of the target**.
+  - Say _rethrows_ only when the target is expected to have a `throw` statement; if not, say _propagates_.
+
 - **Test names should form valid English sentences when read together with the class names**.
   For example `TraceTest.Constructor.ThrowsArgumentNullExceptionWhenTypeIsNull`.
   - _Describe the SUT's behavior, not the test mechanics_.
@@ -262,7 +265,7 @@ applyTo: "test/**/*.cs"
   - Inheritance alone is not a separate logical aspect and shouldn't be tested separately.
 
 - **Order test methods so that collapsed definitions form description of the SUT**, mirroring its doc
-  comments and implementation.
+  comments and implementation. These rules are for _ordering_ tests, not for _creating_ or _keeping_ them.
   - Place tests describing default/most common behavior first.
     They serve as an executable equivalent of the `<summary>`.
   - Place tests of inputs, edge cases and outputs next. 
@@ -409,9 +412,12 @@ applyTo: "test/**/*.cs"
     was invoked and rules out easy common mistakes, such as missing the empty-string check when testing only with `null`,
     or missing the `null` check when testing only with `string.Empty`.
 
-- **Use strongest xUnit assertions available**.
+- **Use strongest assertions available**.
   - _Prefer `Assert.Same` over `Assert.Equal`_ when asserting on unique test instances that neither SUT nor test logic replace.
   - _Prefer Collection/String/Span/Etc. `Assert` methods over `Assert.True`_.
+  - _Define test types instead of reusing types SUT may handle specifically_. E.g.
+    - Instead of reusing `InvalidOperationException` to test exception propagation, create a nested `TestException` class.
+    - Instead of reusing `int` and `string` to test collections, create nested `TestKey` and `TestValue` classes or structs.
 
 - **Minimize cross-member dependencies in assertions**. Each other-member call inside an assertion couples the target's
   tests to that member's correctness; a bug in one target should fail as few unrelated tests as possible.
@@ -530,7 +536,10 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
     fail unless the corresponding `Equals_T` test also fails — delete the caller variant and trust the callee's tests.
     Exception: distinct argument-validation categories (`null`, empty, whitespace) are covered per _Test argument validation logic_.
 - **Reduce tests to fewest elements**: 
-  - Remove tests that cannot fail independently.
+  - _Remove or combine tests that cannot fail independently_. This is a symptom of attempting to separately test aspects
+    a single logical responsibility of the target. E.g. a test verifying that target returns an expected result from an
+    internal collection and a separate test verifying that targets uses case-sensitive search cannot fail independently.
+    Such tests should be combined into one.
   - Before writing a test for a branch or guard, verify that the branch is reachable independently of the paths already covered.
   - Don't create tests for consistency, parity or structural symmetry. API design principles don't apply to tests.
 

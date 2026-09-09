@@ -18,10 +18,10 @@ namespace Microsoft.ServiceFabric.Data
     using Microsoft.ServiceFabric.Data.Notifications;
 
     /// <summary>
-    /// Manages <see cref="IReliableState"/> for a service replica.
+    /// Manages all <see cref="IReliableState"/> for a service replica.
     /// </summary>
     /// <remarks>
-    /// Each replica in a service has its own <see cref="IReliableState"/> and <see cref="ReliableStateManager"/>.
+    /// Each replica in a service has its own <see cref="ReliableStateManager"/> and thus its own set of <see cref="IReliableState"/>.
     /// <see cref="IReliableState"/> can include <see cref="IReliableDictionary{TKey, TValue}"/>,
     /// <see cref="IReliableQueue{T}"/>, or any <see cref="IReliableCollection{T}"/> types.
     /// </remarks>
@@ -57,6 +57,12 @@ namespace Microsoft.ServiceFabric.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="ReliableStateManager"/> class.
         /// </summary>
+        /// <param name="serviceContext">The context that the replica operates under.</param>
+        /// <param name="configuration">
+        /// The configuration used to create the state manager, or <see langword="null"/> to use a default
+        /// <see cref="ReliableStateManagerConfiguration"/>.
+        /// </param>
+        /// <exception cref="FileNotFoundException">The <c>Microsoft.ServiceFabric.Data.Impl</c> assembly could not be loaded.</exception>
         public ReliableStateManager(StatefulServiceContext serviceContext, ReliableStateManagerConfiguration configuration = null)
         {
             configuration = configuration ?? new ReliableStateManagerConfiguration();
@@ -67,10 +73,7 @@ namespace Microsoft.ServiceFabric.Data
             this._impl = (IReliableStateManagerReplica2)createReliableStateManager2.Invoke(null, new object[] { serviceContext, configuration });
         }
 
-        /// <summary>
-        /// Occurs when a transaction changes.
-        /// </summary>
-        /// <exception cref="FabricObjectClosedException">The Reliable State Manager is closed.</exception>
+        /// <inheritdoc/>
         public event EventHandler<NotifyTransactionChangedEventArgs> TransactionChanged
         {
             add
@@ -89,10 +92,7 @@ namespace Microsoft.ServiceFabric.Data
             }
         }
 
-        /// <summary>
-        /// Occurs when the state manager changes.
-        /// </summary>
-        /// <exception cref="FabricObjectClosedException">The Reliable State Manager is closed.</exception>
+        /// <inheritdoc/>
         public event EventHandler<NotifyStateManagerChangedEventArgs> StateManagerChanged
         {
             add

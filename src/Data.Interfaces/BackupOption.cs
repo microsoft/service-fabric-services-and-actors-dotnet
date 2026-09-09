@@ -6,18 +6,17 @@
 namespace Microsoft.ServiceFabric.Data
 {
     /// <summary>
-    /// Indicates the kind of the backup.
+    /// Indicates the kind of backup.
     /// </summary>
     public enum BackupOption : int
     {
         /// <summary>
-        /// A full backup of all state managed by the <see cref="IReliableStateManager"/>.
+        /// Represents a full backup of the reliable state of the replica.
         /// </summary>
         Full = 0,
 
         /// <summary>
-        /// Incremental backup of the replica. i.e. only the changes 
-        /// since the last full or incremental backup will be backed up.
+        /// Represents an incremental backup containing only the changes to the reliable state of the replica since the last <see cref="Full"/> or incremental backup.
         /// </summary>
         Incremental = 1,
     }

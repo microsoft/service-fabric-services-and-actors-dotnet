@@ -6,20 +6,19 @@
 namespace Microsoft.ServiceFabric.Data.Collections
 {
     /// <summary>
-    /// Specifies how reliable collections will lock resources, which determines
-    /// how the resources can be accessed by concurrent transactions.
+    /// Specifies the lock mode a read operation on an <see cref="IReliableCollection{T}"/> acquires, controlling how the read
+    /// interacts with concurrent <see cref="ITransaction"/>s.
     /// </summary>
     public enum LockMode : int
     {
         /// <summary>
-        /// Use the default lock mode based on the operation and isolation level of the transaction.
+        /// Uses the default read locking behavior for the operation.
         /// </summary>
         Default = 0,
 
         /// <summary>
-        /// Used on resources that are intended to be updated. Prevents a common form of deadlock
-        /// that occurs when multiple transactions are reading, locking, and potentially
-        /// updating resources later.
+        /// Acquires an update-intent lock on resources the transaction intends to update later, preventing a common
+        /// form of deadlock that occurs when multiple transactions read, lock, and then attempt to update the same resources.
         /// </summary>
         Update = 1,
     }

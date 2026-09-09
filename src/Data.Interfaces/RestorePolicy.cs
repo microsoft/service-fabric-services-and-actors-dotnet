@@ -6,17 +6,17 @@
 namespace Microsoft.ServiceFabric.Data
 {
     /// <summary>
-    /// Policy for restore operation.
+    /// Specifies the policy applied when restoring a replica from backup.
     /// </summary>
     public enum RestorePolicy : int
     {
         /// <summary>
-        /// Ensures that the backed up state being restored is ahead of the current state.
+        /// Verifies that the backup being restored is ahead of the current state and fails the restore otherwise.
         /// </summary>
         Safe = 0,
 
         /// <summary>
-        /// Does not check whether backed up state being restored is ahead of the current state.
+        /// Restores the backup without verifying that it is ahead of the current state.
         /// </summary>
         Force = 1,
     }

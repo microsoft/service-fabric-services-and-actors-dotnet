@@ -10,40 +10,33 @@ namespace Microsoft.ServiceFabric.Data
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Asynchronous enumerator.
+    /// Supports asynchronous iteration over a sequence of values of type <typeparamref name="T"/>.
     /// </summary>
-    /// <typeparam name="T">The type of objects to enumerate.</typeparam>
     public interface IAsyncEnumerator<out T> : IDisposable
     {
         /// <summary>
-        /// Gets the current element in the enumerator.
+        /// Gets the element at the current position of the enumerator.
         /// </summary>
-        /// <value>
-        /// Current element in the enumerator.
-        /// </value>
-        /// <remark>
-        /// Calling after <see cref="Microsoft.ServiceFabric.Data.IAsyncEnumerator{T}.MoveNextAsync(CancellationToken)"/> 
-        /// has passed the end of the collection is considered
-        /// undefined behavior.
-        /// </remark>
+        /// <remarks>
+        /// The value is undefined when the enumerator is positioned before the first element — after creation
+        /// or <see cref="Reset"/> — and after <see cref="MoveNextAsync(CancellationToken)"/> completes with
+        /// <see langword="false"/>.
+        /// </remarks>
         T Current { get; }
 
         /// <summary>
-        /// Advances the enumerator to the next element of the enumerator.
+        /// Asynchronously returns a value that indicates whether the enumerator was successfully advanced to the next element
+        /// of the sequence.
         /// </summary>
-        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <returns>
-        /// true if the enumerator was successfully advanced to the next element; false
-        ///  if the enumerator has passed the end of the collection.
-        /// </returns>
-        /// <exception cref="InvalidOperationException">The collection was modified after the enumerator was created.</exception>
+        /// <returns><see langword="true"/> if the enumerator was advanced to the next element; otherwise,
+        /// <see langword="false"/>.</returns>
+        /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> was canceled.</exception>
         Task<bool> MoveNextAsync(CancellationToken cancellationToken);
 
         /// <summary>
-        /// Sets the enumerator to its initial position, which is before the first element
-        /// in the collection.
+        /// Sets the enumerator to its initial position, before the first element of the sequence.
         /// </summary>
-        /// <exception cref="InvalidOperationException">The collection was modified after the enumerator was created.</exception>
+        /// <exception cref="NotSupportedException">Resetting the enumerator is not supported.</exception>
         void Reset();
     }
 }

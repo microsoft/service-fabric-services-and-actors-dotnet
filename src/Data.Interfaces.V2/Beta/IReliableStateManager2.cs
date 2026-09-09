@@ -12,21 +12,19 @@ using System.Threading.Tasks;
 namespace Microsoft.ServiceFabric.Data.Beta
 {
     /// <summary>
-    /// (Beta) Not for production use - API is subject to change in the future.
-    /// Manages all <see cref="IReliableState"/> for a service replica.
-    /// Each replica in a service has its own state manager and thus its own set of <see cref="IReliableState"/>.
+    /// Defines a reliable state manager replica that additionally supports creating transactions with a configurable
+    /// <see cref="IsolationLevel"/> for single-entity reads on the primary.
     /// </summary>
+    /// <remarks>
+    /// (Beta) Not for production use - API is subject to change in the future.
+    /// </remarks>
     public interface IReliableStateManager2 : IReliableStateManagerReplica2
     {
         /// <summary>
-        /// Create and start a new transaction that can be used to group operations to be performed atomically with specified single read isolation level.
+        /// Returns a new, started <see cref="ITransaction"/> that can be used to group operations to be performed atomically,
+        /// using the specified <see cref="IsolationLevel"/> for single-entity reads on the primary.
         /// </summary>
-        /// <remarks>
-        /// Operations are added to the transaction by passing the <see cref="ITransaction"/> object in to reliable state methods.
-        /// This does not apply to reads on secondaries
-        /// </remarks>
-        /// <param name="singleEntityIsolationLevelForPrimaryReads"> The transaction-wide single item read isolation level </param>
-        /// <returns>A new transaction.</returns>
+        /// <inheritdoc path="/remarks" cref="IReliableStateManager.CreateTransaction"/>
         ITransaction CreateTransaction(IsolationLevel singleEntityIsolationLevelForPrimaryReads);
     }
 }

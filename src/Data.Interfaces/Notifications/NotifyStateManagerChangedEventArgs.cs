@@ -8,19 +8,16 @@ namespace Microsoft.ServiceFabric.Data.Notifications
     using System;
 
     /// <summary>
-    /// Provides data for the StateManagerChanged event.
+    /// Provides data for the <see cref="IReliableStateManager.StateManagerChanged"/> event.
     /// </summary>
     public abstract class NotifyStateManagerChangedEventArgs : EventArgs
     {
-        /// <summary>
-        /// The action.
-        /// </summary>
         private readonly NotifyStateManagerChangedAction action;
 
         /// <summary>
-        /// Initializes a new instance of the <cref name="NotifyStateManagerChangedEventArgs"/>
+        /// Initializes a new instance of the <see cref="NotifyStateManagerChangedEventArgs"/> class.
         /// </summary>
-        /// <param name="action">Type of the event.</param>
+        /// <param name="action">One of the enumeration values that specifies the action that caused the event.</param>
         public NotifyStateManagerChangedEventArgs(NotifyStateManagerChangedAction action)
         {
             this.action = action;
@@ -29,9 +26,6 @@ namespace Microsoft.ServiceFabric.Data.Notifications
         /// <summary>
         /// Gets the action that caused the event.
         /// </summary>
-        /// <value>
-        /// The type of notification.
-        /// </value>
         public NotifyStateManagerChangedAction Action
         {
             get
